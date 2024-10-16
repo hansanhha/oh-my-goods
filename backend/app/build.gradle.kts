@@ -8,6 +8,12 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    compileOnly {
+        extendsFrom(configurations.annotationProcessor.get())
+    }
+}
+
 dependencies {
     implementation(libs.spring.boot)
     implementation(libs.spring.web)
@@ -17,7 +23,8 @@ dependencies {
     implementation(libs.spring.oauth2.client)
 
     implementation(libs.guava)
-    implementation(libs.lombok)
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
 
     runtimeOnly(libs.spring.actuator)
     runtimeOnly(libs.h2)
