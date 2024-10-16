@@ -9,6 +9,6 @@ build
 .vscode
 
 # backend
-**/.yml
-**/.properties
-**/.yaml
+**.yml
+**.properties
+**.yaml
