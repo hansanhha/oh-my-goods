@@ -8,6 +8,7 @@ import java.util.Set;
 
 
 @Getter
+@RequiredArgsConstructor
 public enum Role {
 
     USER("ROLE_USER", Set.of(
@@ -29,10 +30,10 @@ public enum Role {
     private final String roleName;
     private final Set<Authority> authorities;
 
-    Role(String roleName, Set<Authority> authorities) {
-        this.roleName = roleName;
-        this.authorities = authorities;
-    }
+//    Role(String roleName, Set<Authority> authorities) {
+//        this.roleName = roleName;
+//        this.authorities = authorities;
+//    }
 
     @Getter
     public enum Authority {
