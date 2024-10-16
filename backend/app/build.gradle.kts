@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.spring.oauth2.client)
 
     implementation(libs.guava)
+    implementation(libs.lombok)
 
     runtimeOnly(libs.spring.actuator)
     runtimeOnly(libs.h2)
