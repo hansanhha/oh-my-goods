@@ -18,7 +18,7 @@ public record OAuth2UserDetail(String registrationId,
     public static OAuth2UserDetail get(String registrationId, OAuth2User oAuth2User, String tokenValue) {
         return switch (registrationId) {
             case KAKAO -> new OAuth2UserDetail(registrationId,
-                    getKakaoAccountEmail(oAuth2User),
+                    extractKakaoAccountEmail(oAuth2User),
                     tokenValue,
                     oAuth2User.getAttributes(),
                     oAuth2User.getAuthorities());
@@ -28,17 +28,17 @@ public record OAuth2UserDetail(String registrationId,
 
     public String getOAuth2MemberId() {
         return switch (registrationId) {
-            case KAKAO -> getKakaoMemberId();
+            case KAKAO -> extractKakaoMemberId();
             default -> throw new IllegalArgumentException("Unsupported oauth2 vendor");
         };
     }
 
-    private String getKakaoMemberId() {
+    private String extractKakaoMemberId() {
         return attributes.get("id").toString();
     }
 
     @SuppressWarnings("unchecked")
-    private static String getKakaoAccountEmail(OAuth2User oAuth2User) {
+    private static String extractKakaoAccountEmail(OAuth2User oAuth2User) {
         return ((Map<String, Object>)oAuth2User.getAttributes().get("kakao_account")).get("email").toString();
     }
 
