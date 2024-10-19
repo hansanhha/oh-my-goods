@@ -2,8 +2,13 @@ package co.ohmygoods.account.domain;
 
 import co.ohmygoods.global.jpa.BaseEntity;
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
 public class Account extends BaseEntity {
 
     @Id
@@ -23,7 +28,6 @@ public class Account extends BaseEntity {
 
     private String profileImagePath;
 
-    @Column(nullable = false)
     private String phone;
 
     @Column(nullable = false)
@@ -34,3 +38,4 @@ public class Account extends BaseEntity {
 
     private String oauth2MemberId;
 }
+
