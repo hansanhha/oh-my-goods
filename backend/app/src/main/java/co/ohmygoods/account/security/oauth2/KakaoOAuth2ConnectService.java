@@ -32,7 +32,7 @@ public class KakaoOAuth2ConnectService implements OAuth2ConnectService<OAuth2Use
 
         var restClient = buildHttpRequest(accessToken, requestUri);
 
-        var response = (KakaoAuthResponse) restClient
+        var response = restClient
                 .post()
                 .exchange(this::handleResponse);
 
@@ -52,7 +52,7 @@ public class KakaoOAuth2ConnectService implements OAuth2ConnectService<OAuth2Use
                 .build();
     }
 
-    private Object handleResponse(HttpRequest request, RestClient.RequestHeadersSpec.ConvertibleClientHttpResponse response) throws IOException {
+    private KakaoAuthResponse handleResponse(HttpRequest request, RestClient.RequestHeadersSpec.ConvertibleClientHttpResponse response) throws IOException {
         if (response.getStatusCode().is2xxSuccessful()) {
             return KakaoAuthResponse.from(response.bodyTo(SuccessResponse.class));
         } else {
