@@ -1,8 +1,8 @@
-package co.ohmygoods.account.security.oauth2;
+package co.ohmygoods.account.auth.oauth2;
 
-import co.ohmygoods.account.domain.OAuth2Vendor;
-import co.ohmygoods.account.service.AccountInfoService;
-import co.ohmygoods.account.service.SignUpInfo;
+import co.ohmygoods.account.model.OAuth2Vendor;
+import co.ohmygoods.account.info.service.AccountInfoService;
+import co.ohmygoods.account.info.service.SignUpInfo;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -43,7 +42,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
             id = accountInfoService.signUp(signUpInfo);
         }
 
-        
+
 
 
 

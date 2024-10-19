@@ -1,4 +1,4 @@
-package co.ohmygoods.account.domain;
+package co.ohmygoods.account.model;
 
 import co.ohmygoods.global.jpa.BaseEntity;
 import jakarta.persistence.*;

@@ -1,7 +1,6 @@
-package co.ohmygoods.account.persistence;
+package co.ohmygoods.account.info.persistence;
 
-import co.ohmygoods.account.domain.Account;
-import org.springframework.data.jpa.repository.Query;
+import co.ohmygoods.account.model.Account;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

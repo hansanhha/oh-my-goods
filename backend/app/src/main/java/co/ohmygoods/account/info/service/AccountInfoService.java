@@ -1,8 +1,8 @@
-package co.ohmygoods.account.service;
+package co.ohmygoods.account.info.service;
 
-import co.ohmygoods.account.domain.Account;
-import co.ohmygoods.account.domain.Role;
-import co.ohmygoods.account.persistence.AccountRepository;
+import co.ohmygoods.account.model.Account;
+import co.ohmygoods.account.model.Role;
+import co.ohmygoods.account.info.persistence.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

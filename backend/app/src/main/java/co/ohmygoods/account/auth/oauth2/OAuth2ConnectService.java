@@ -1,4 +1,4 @@
-package co.ohmygoods.account.security.oauth2;
+package co.ohmygoods.account.auth.oauth2;
 
 public interface OAuth2ConnectService<T extends OAuth2UserPrincipal> {
 

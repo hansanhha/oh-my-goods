@@ -1,4 +1,4 @@
-package co.ohmygoods.account.security.oauth2;
+package co.ohmygoods.account.auth.oauth2;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

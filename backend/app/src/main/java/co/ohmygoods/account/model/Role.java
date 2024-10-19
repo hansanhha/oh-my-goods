@@ -1,6 +1,5 @@
-package co.ohmygoods.account.domain;
+package co.ohmygoods.account.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -29,11 +28,6 @@ public enum Role {
 
     private final String roleName;
     private final Set<Authority> authorities;
-
-//    Role(String roleName, Set<Authority> authorities) {
-//        this.roleName = roleName;
-//        this.authorities = authorities;
-//    }
 
     @Getter
     public enum Authority {
