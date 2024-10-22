@@ -1,7 +1,8 @@
 package co.ohmygoods.auth.oauth2;
 
-public interface OAuth2AuthorizationService {
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 
-    void signOut(OAuth2UserPrincipal oAuth2UserPrincipal);
+public interface OAuth2AuthorizationService extends LogoutHandler {
+
     void unlink(OAuth2UserPrincipal oAuth2UserPrincipal);
 }

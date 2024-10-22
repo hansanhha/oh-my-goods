@@ -5,6 +5,7 @@ import com.nimbusds.jose.jwk.OctetSequenceKey;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.time.DurationMin;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
@@ -13,6 +14,7 @@ import javax.crypto.SecretKey;
 import java.time.Duration;
 
 @Getter
+@Setter
 @Validated
 @ConfigurationProperties(prefix = "application.security.jwt")
 public class JwtProperties {
@@ -28,11 +30,11 @@ public class JwtProperties {
 
     @NotNull
     @DurationMin(seconds = 1)
-    private Duration accessTokenExpiration;
+    private Duration accessTokenExpiresIn;
 
     @NotNull
     @DurationMin(seconds = 1)
-    private Duration refreshTokenExpiration;
+    private Duration refreshTokenExpiresIn;
 
     private String audience;
 

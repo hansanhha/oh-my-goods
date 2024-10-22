@@ -10,10 +10,12 @@ import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
 
+@Component
 @RequiredArgsConstructor
 public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationService {
 
@@ -26,9 +28,9 @@ public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationServi
     private String unlinkUri;
 
     @Override
-    public void signOut(OAuth2UserPrincipal oAuth2UserPrincipal) {
-        signService.signOut(oAuth2UserPrincipal.getName());
-        handleOAuth2RequestInternal(oAuth2UserPrincipal, signOutUri);
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        signService.signOut(authentication.getName());
+        handleOAuth2RequestInternal((OAuth2UserPrincipal) authentication, signOutUri);
     }
 
     @Override

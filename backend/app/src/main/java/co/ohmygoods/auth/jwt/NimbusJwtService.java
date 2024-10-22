@@ -86,11 +86,11 @@ public class NimbusJwtService implements JwtService {
     }
 
     private JWTClaimsSet buildAccessTokenClaimsSet(Map<JwtClaimsKey, Object> claims) {
-        return buildClaimsSet(claims, jwtProperties.getAccessTokenExpiration());
+        return buildClaimsSet(claims, jwtProperties.getAccessTokenExpiresIn());
     }
 
     private JWTClaimsSet buildRefreshTokenClaimsSet(Map<JwtClaimsKey, Object> claims) {
-        return buildClaimsSet(claims, jwtProperties.getRefreshTokenExpiration());
+        return buildClaimsSet(claims, jwtProperties.getRefreshTokenExpiresIn());
     }
 
     private JWTClaimsSet buildClaimsSet(Map<JwtClaimsKey, Object> claims, Duration expiresIn) {
