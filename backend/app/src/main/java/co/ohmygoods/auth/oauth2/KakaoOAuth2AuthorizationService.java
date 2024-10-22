@@ -1,5 +1,6 @@
 package co.ohmygoods.auth.oauth2;
 
+import co.ohmygoods.auth.account.SignService;
 import co.ohmygoods.auth.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +17,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationService {
 
-    private final JwtService jwtService;
+    private final SignService signService;
 
     @Value("${application.security.oauth2.client.provider.kakao.signout-uri}")
     private String signOutUri;
@@ -26,18 +27,14 @@ public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     @Override
     public void signOut(OAuth2UserPrincipal oAuth2UserPrincipal) {
-        deleteIssuedJwt(oAuth2UserPrincipal.getName());
+        signService.signOut(oAuth2UserPrincipal.getName());
         handleOAuth2RequestInternal(oAuth2UserPrincipal, signOutUri);
     }
 
     @Override
     public void unlink(OAuth2UserPrincipal oAuth2UserPrincipal) {
-        deleteIssuedJwt(oAuth2UserPrincipal.getName());
+        signService.deleteAccount(oAuth2UserPrincipal.getName());
         handleOAuth2RequestInternal(oAuth2UserPrincipal, unlinkUri);
-    }
-
-    private void deleteIssuedJwt(String email) {
-        jwtService.deleteAllByEmail(email);
     }
 
     private void handleOAuth2RequestInternal(OAuth2UserPrincipal oAuth2UserPrincipal, String requestUri) {

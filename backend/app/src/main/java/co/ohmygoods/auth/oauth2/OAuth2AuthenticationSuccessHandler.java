@@ -3,8 +3,8 @@ package co.ohmygoods.auth.oauth2;
 import co.ohmygoods.auth.jwt.JwtService;
 import co.ohmygoods.auth.jwt.vo.JWTs;
 import co.ohmygoods.auth.jwt.vo.JwtClaimsKey;
-import co.ohmygoods.auth.account.AccountInfoService;
-import co.ohmygoods.auth.account.SignUpInfo;
+import co.ohmygoods.auth.account.SignService;
+import co.ohmygoods.auth.account.SignUpRequest;
 import co.ohmygoods.auth.account.model.OAuth2Vendor;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,12 +25,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final AccountInfoService accountInfoService;
-    private final JwtService jwtService;
+    private final SignService signService;
     private final RedirectStrategy redirect = new DefaultRedirectStrategy();
 
     /**
-     * 첫 로그인인 경우 애플리케이션 계정 생성 {@link AccountInfoService} <br>
+     * 첫 로그인인 경우 애플리케이션 계정 생성 {@link SignService} <br>
      * 애플리케이션 jwt 토큰 발급 및 리다이렉트 처리 {@link JwtService}
      * @param authentication {@link OAuth2UserPrincipal}
      */
@@ -38,27 +37,27 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         var oAuth2UserPrincipal = (OAuth2UserPrincipal) authentication.getPrincipal();
         var email = oAuth2UserPrincipal.getName();
-        var foundId = accountInfoService.findIdByEmail(email);
+        var foundId = signService.findIdByEmail(email);
 
         if (foundId.isEmpty()) {
             var signUpInfo = getSignUpInfo(oAuth2UserPrincipal);
-            accountInfoService.signUp(signUpInfo);
+            signService.signUp(signUpInfo);
         }
 
-        var jwts = jwtService.generate(Map.of(JwtClaimsKey.SUBJECT, email));
+        var jwts = signService.signIn(email);
         var redirectUri = calculateRedirectURI(request, jwts);
 
         redirect.sendRedirect(request, response, redirectUri.toString());
     }
 
-    private SignUpInfo getSignUpInfo(OAuth2UserPrincipal oAuth2UserPrincipal) {
+    private SignUpRequest getSignUpInfo(OAuth2UserPrincipal oAuth2UserPrincipal) {
         OAuth2UserDetail oAuth2UserDetail = oAuth2UserPrincipal.getOAuth2UserDetail();
         String email = oAuth2UserPrincipal.getName();
         String oAuth2MemberId = oAuth2UserDetail.getOAuth2MemberId();
         String registrationId = oAuth2UserDetail.registrationId();
         OAuth2Vendor oAuth2Vendor = OAuth2Vendor.valueOf(registrationId.toUpperCase());
 
-        return new SignUpInfo(email, oAuth2MemberId, oAuth2Vendor);
+        return new SignUpRequest(email, oAuth2MemberId, oAuth2Vendor);
     }
 
     private URI calculateRedirectURI(HttpServletRequest request, JWTs jwts) {
