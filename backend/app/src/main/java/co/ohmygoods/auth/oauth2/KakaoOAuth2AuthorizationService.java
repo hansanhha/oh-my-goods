@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClient;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class KakaoOAuth2ConnectService implements OAuth2ConnectService<OAuth2UserPrincipal> {
+public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationService {
 
     @Value("${application.security.oauth2.client.provider.kakao.signout-uri}")
     private String signOutUri;
@@ -19,15 +19,15 @@ public class KakaoOAuth2ConnectService implements OAuth2ConnectService<OAuth2Use
 
     @Override
     public void signOut(OAuth2UserPrincipal oAuth2UserPrincipal) {
-        handleOAuth2ConnectInternal(oAuth2UserPrincipal, signOutUri);
+        handleOAuth2Internal(oAuth2UserPrincipal, signOutUri);
     }
 
     @Override
     public void unlink(OAuth2UserPrincipal oAuth2UserPrincipal) {
-        handleOAuth2ConnectInternal(oAuth2UserPrincipal, unlinkUri);
+        handleOAuth2Internal(oAuth2UserPrincipal, unlinkUri);
     }
 
-    private void handleOAuth2ConnectInternal(OAuth2UserPrincipal oAuth2UserPrincipal, String requestUri) {
+    private void handleOAuth2Internal(OAuth2UserPrincipal oAuth2UserPrincipal, String requestUri) {
         var accessToken = oAuth2UserPrincipal.getOAuth2UserDetail().oauth2AccessTokenValue();
 
         var restClient = buildHttpRequest(accessToken, requestUri);
