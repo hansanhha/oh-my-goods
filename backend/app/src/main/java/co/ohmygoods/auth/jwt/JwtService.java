@@ -1,7 +1,7 @@
-package co.ohmygoods.account.auth.jwt;
+package co.ohmygoods.auth.jwt;
 
-import co.ohmygoods.account.auth.jwt.vo.JwtClaimsKey;
-import co.ohmygoods.account.auth.jwt.vo.JWTs;
+import co.ohmygoods.auth.jwt.vo.JwtClaimsKey;
+import co.ohmygoods.auth.jwt.vo.JWTs;
 
 import java.util.Map;
 

@@ -1,6 +1,6 @@
-package co.ohmygoods.account.info.persistence;
+package co.ohmygoods.auth.account;
 
-import co.ohmygoods.account.model.Account;
+import co.ohmygoods.auth.account.model.Account;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

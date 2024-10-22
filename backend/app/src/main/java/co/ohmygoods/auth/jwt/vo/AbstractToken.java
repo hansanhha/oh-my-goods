@@ -1,4 +1,4 @@
-package co.ohmygoods.account.auth.jwt.vo;
+package co.ohmygoods.auth.jwt.vo;
 
 import lombok.Builder;
 import lombok.Getter;

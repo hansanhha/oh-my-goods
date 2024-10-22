@@ -1,4 +1,4 @@
-package co.ohmygoods.account.model;
+package co.ohmygoods.auth.account.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

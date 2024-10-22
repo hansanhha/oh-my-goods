@@ -1,4 +1,4 @@
-package co.ohmygoods.account.auth.jwt.model;
+package co.ohmygoods.auth.jwt.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -1,11 +1,11 @@
-package co.ohmygoods.account.auth.oauth2;
+package co.ohmygoods.auth.oauth2;
 
-import co.ohmygoods.account.auth.jwt.JwtService;
-import co.ohmygoods.account.auth.jwt.vo.JWTs;
-import co.ohmygoods.account.auth.jwt.vo.JwtClaimsKey;
-import co.ohmygoods.account.info.service.AccountInfoService;
-import co.ohmygoods.account.info.service.SignUpInfo;
-import co.ohmygoods.account.model.OAuth2Vendor;
+import co.ohmygoods.auth.jwt.JwtService;
+import co.ohmygoods.auth.jwt.vo.JWTs;
+import co.ohmygoods.auth.jwt.vo.JwtClaimsKey;
+import co.ohmygoods.auth.account.AccountInfoService;
+import co.ohmygoods.auth.account.SignUpInfo;
+import co.ohmygoods.auth.account.model.OAuth2Vendor;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,7 +1,7 @@
-package co.ohmygoods.account.auth.jwt;
+package co.ohmygoods.auth.jwt;
 
-import co.ohmygoods.account.auth.jwt.model.RefreshToken;
-import co.ohmygoods.account.auth.jwt.vo.*;
+import co.ohmygoods.auth.jwt.model.RefreshToken;
+import co.ohmygoods.auth.jwt.vo.*;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
