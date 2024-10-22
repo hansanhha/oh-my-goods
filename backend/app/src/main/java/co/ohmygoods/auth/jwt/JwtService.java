@@ -11,5 +11,7 @@ public interface JwtService {
 
     JWTs regenerate(String refreshToken);
 
+    void deleteAllByEmail(String email);
+
     ValidationResult validate(String accessToken);
 }

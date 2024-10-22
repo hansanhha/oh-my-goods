@@ -72,6 +72,15 @@ public class NimbusJwtService implements JwtService {
     }
 
     @Override
+    public void deleteAllByEmail(String email) {
+        var savedRefreshTokens = refreshTokenRepository.findAllBySubject(email);
+
+        if (!savedRefreshTokens.isEmpty()) {
+            refreshTokenRepository.deleteAll(savedRefreshTokens);
+        }
+    }
+
+    @Override
     public ValidationResult validate(String accessToken) {
         return null;
     }

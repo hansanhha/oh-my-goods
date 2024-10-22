@@ -1,15 +1,22 @@
 package co.ohmygoods.auth.oauth2;
 
+import co.ohmygoods.auth.jwt.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor
 public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationService {
+
+    private final JwtService jwtService;
 
     @Value("${application.security.oauth2.client.provider.kakao.signout-uri}")
     private String signOutUri;
@@ -19,15 +26,21 @@ public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     @Override
     public void signOut(OAuth2UserPrincipal oAuth2UserPrincipal) {
-        handleOAuth2Internal(oAuth2UserPrincipal, signOutUri);
+        deleteIssuedJwt(oAuth2UserPrincipal.getName());
+        handleOAuth2RequestInternal(oAuth2UserPrincipal, signOutUri);
     }
 
     @Override
     public void unlink(OAuth2UserPrincipal oAuth2UserPrincipal) {
-        handleOAuth2Internal(oAuth2UserPrincipal, unlinkUri);
+        deleteIssuedJwt(oAuth2UserPrincipal.getName());
+        handleOAuth2RequestInternal(oAuth2UserPrincipal, unlinkUri);
     }
 
-    private void handleOAuth2Internal(OAuth2UserPrincipal oAuth2UserPrincipal, String requestUri) {
+    private void deleteIssuedJwt(String email) {
+        jwtService.deleteAllByEmail(email);
+    }
+
+    private void handleOAuth2RequestInternal(OAuth2UserPrincipal oAuth2UserPrincipal, String requestUri) {
         var accessToken = oAuth2UserPrincipal.getOAuth2UserDetail().oauth2AccessTokenValue();
 
         var restClient = buildHttpRequest(accessToken, requestUri);
@@ -60,8 +73,11 @@ public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationServi
         }
     }
 
-    private record SuccessResponse(String id) {}
-    private record FailureResponse(String error, String error_description) {}
+    private record SuccessResponse(String id) {
+    }
+
+    private record FailureResponse(String error, String error_description) {
+    }
 
     private record KakaoAuthResponse(boolean isSuccessful, String errorCode, String errorMessage) {
         private static KakaoAuthResponse from(SuccessResponse response) {
