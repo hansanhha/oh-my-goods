@@ -81,7 +81,7 @@ public class NimbusJwtService implements JwtService {
     }
 
     @Override
-    public ValidationResult validate(String accessToken) {
+    public JwtValidationResult validateToken(String token) {
         return null;
     }
 
@@ -100,13 +100,16 @@ public class NimbusJwtService implements JwtService {
         var expirationTime = issuedAt.plus(expiresIn);
         var audience = jwtProperties.getAudience();
 
-        return new JWTClaimsSet.Builder()
+        var builder = new JWTClaimsSet.Builder()
                 .issuer(issuer)
                 .issueTime(Date.from(issuedAt))
                 .audience(audience)
                 .expirationTime(Date.from(expirationTime))
                 .subject((String) claims.get(JwtClaimsKey.SUBJECT))
-                .jwtID(jwtId)
-                .build();
+                .jwtID(jwtId);
+
+        claims.forEach((key, value) -> builder.claim(key.name(), value));
+
+        return builder.build();
     }
 }
