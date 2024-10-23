@@ -1,7 +1,7 @@
 package co.ohmygoods.auth.jwt.vo;
 
 public record JwtValidationResult(boolean hasError,
-                                  JwtInfo jwtInfo,
+                                  JWTInfo jwtInfo,
                                   JWTError error) {
 
     public static JwtValidationResult success() {
@@ -12,7 +12,7 @@ public record JwtValidationResult(boolean hasError,
         return new JwtValidationResult(true, null, jwtError);
     }
 
-    public static JwtValidationResult valid(JwtInfo jwtInfo) {
+    public static JwtValidationResult valid(JWTInfo jwtInfo) {
         return new JwtValidationResult(false, jwtInfo, null);
     }
 }

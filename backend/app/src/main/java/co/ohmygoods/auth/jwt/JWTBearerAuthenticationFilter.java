@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JWTBearerAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
+    private final JWTService jwtService;
     private final List<String> whiteServeltPathList;
 
     @Override
@@ -37,7 +37,7 @@ public class JWTBearerAuthenticationFilter extends OncePerRequestFilter {
             throw new UnauthorizedException(validationResult.error().getDescription());
         }
 
-        var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(validationResult.jwtInfo(), null);
+        var jwtAuthenticationToken = JWTAuthenticationToken.authenticated(validationResult.jwtInfo(), null);
 
         SecurityContextHolder.clearContext();
         var securityContext = SecurityContextHolder.createEmptyContext();

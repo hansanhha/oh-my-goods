@@ -2,9 +2,9 @@ package co.ohmygoods.auth.account;
 
 import co.ohmygoods.auth.account.model.Account;
 import co.ohmygoods.auth.account.model.Role;
-import co.ohmygoods.auth.jwt.JwtService;
+import co.ohmygoods.auth.jwt.JWTService;
 import co.ohmygoods.auth.jwt.vo.JWTs;
-import co.ohmygoods.auth.jwt.vo.JwtClaimsKey;
+import co.ohmygoods.auth.jwt.vo.JWTClaimsKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OAuth2SignService implements SignService {
 
-    private final JwtService jwtService;
+    private final JWTService jwtService;
     private final AccountRepository accountRepository;
 
     @Override
@@ -41,7 +41,7 @@ public class OAuth2SignService implements SignService {
 
     @Override
     public JWTs signIn(String email) {
-        return jwtService.generate(Map.of(JwtClaimsKey.SUBJECT, email));
+        return jwtService.generate(Map.of(JWTClaimsKey.SUBJECT, email));
     }
 
     @Override

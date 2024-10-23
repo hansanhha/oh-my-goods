@@ -1,8 +1,7 @@
 package co.ohmygoods.auth.oauth2;
 
-import co.ohmygoods.auth.jwt.JwtService;
+import co.ohmygoods.auth.jwt.JWTService;
 import co.ohmygoods.auth.jwt.vo.JWTs;
-import co.ohmygoods.auth.jwt.vo.JwtClaimsKey;
 import co.ohmygoods.auth.account.SignService;
 import co.ohmygoods.auth.account.SignUpRequest;
 import co.ohmygoods.auth.account.model.OAuth2Vendor;
@@ -19,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -30,7 +28,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
     /**
      * 첫 로그인인 경우 애플리케이션 계정 생성 {@link SignService} <br>
-     * 애플리케이션 jwt 토큰 발급 및 리다이렉트 처리 {@link JwtService}
+     * 애플리케이션 jwt 토큰 발급 및 리다이렉트 처리 {@link JWTService}
      * @param authentication {@link OAuth2UserPrincipal}
      */
     @Override

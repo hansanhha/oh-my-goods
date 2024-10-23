@@ -2,7 +2,7 @@ package co.ohmygoods.auth.jwt.nimbus;
 
 import co.ohmygoods.auth.jwt.JWTValidator;
 import co.ohmygoods.auth.jwt.JWTValidators;
-import co.ohmygoods.auth.jwt.JwtService;
+import co.ohmygoods.auth.jwt.JWTService;
 import co.ohmygoods.auth.jwt.RefreshTokenRepository;
 import co.ohmygoods.auth.jwt.model.RefreshToken;
 import co.ohmygoods.auth.jwt.vo.*;
@@ -27,9 +27,9 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class NimbusJwtService implements JwtService {
+public class NimbusJWTService implements JWTService {
 
-    private final JwtProperties jwtProperties;
+    private final JWTProperties jwtProperties;
     private final RefreshTokenRepository refreshTokenRepository;
     private JWTValidator<JWT> jwtValidator;
 
@@ -39,8 +39,8 @@ public class NimbusJwtService implements JwtService {
     }
 
     @Override
-    public JWTs generate(Map<JwtClaimsKey, Object> claims) {
-        var savedRefreshTokens = refreshTokenRepository.findAllBySubject((String) claims.get(JwtClaimsKey.SUBJECT));
+    public JWTs generate(Map<JWTClaimsKey, Object> claims) {
+        var savedRefreshTokens = refreshTokenRepository.findAllBySubject((String) claims.get(JWTClaimsKey.SUBJECT));
 
         if (!savedRefreshTokens.isEmpty()) {
             refreshTokenRepository.deleteAll(savedRefreshTokens);
@@ -110,10 +110,10 @@ public class NimbusJwtService implements JwtService {
             }
 
             var claimsSet = jwt.getJWTClaimsSet();
-            var jwtInfo = JwtInfo
+            var jwtInfo = JWTInfo
                     .builder()
                     .subject(claimsSet.getSubject())
-                    .role((String) claimsSet.getClaim(JwtClaimsKey.ROLE.name()))
+                    .role((String) claimsSet.getClaim(JWTClaimsKey.ROLE.name()))
                     .issuer(claimsSet.getIssuer())
                     .audience(claimsSet.getAudience().getFirst())
                     .issuedAt(claimsSet.getIssueTime().toInstant())
@@ -130,15 +130,15 @@ public class NimbusJwtService implements JwtService {
         }
     }
 
-    private JWTClaimsSet buildAccessTokenClaimsSet(Map<JwtClaimsKey, Object> claims) {
+    private JWTClaimsSet buildAccessTokenClaimsSet(Map<JWTClaimsKey, Object> claims) {
         return buildClaimsSet(claims, jwtProperties.getAccessTokenExpiresIn());
     }
 
-    private JWTClaimsSet buildRefreshTokenClaimsSet(Map<JwtClaimsKey, Object> claims) {
+    private JWTClaimsSet buildRefreshTokenClaimsSet(Map<JWTClaimsKey, Object> claims) {
         return buildClaimsSet(claims, jwtProperties.getRefreshTokenExpiresIn());
     }
 
-    private JWTClaimsSet buildClaimsSet(Map<JwtClaimsKey, Object> claims, Duration expiresIn) {
+    private JWTClaimsSet buildClaimsSet(Map<JWTClaimsKey, Object> claims, Duration expiresIn) {
         var jwtId = UUID.randomUUID().toString();
         var issuer = jwtProperties.getIssuer();
         var issuedAt = Instant.now();
@@ -150,7 +150,7 @@ public class NimbusJwtService implements JwtService {
                 .issueTime(Date.from(issuedAt))
                 .audience(audience)
                 .expirationTime(Date.from(expirationTime))
-                .subject((String) claims.get(JwtClaimsKey.SUBJECT))
+                .subject((String) claims.get(JWTClaimsKey.SUBJECT))
                 .jwtID(jwtId);
 
         claims.forEach((key, value) -> builder.claim(key.name(), value));

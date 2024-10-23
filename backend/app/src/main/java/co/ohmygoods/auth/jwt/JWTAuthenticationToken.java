@@ -1,7 +1,7 @@
 package co.ohmygoods.auth.jwt;
 
 import co.ohmygoods.auth.account.model.Role;
-import co.ohmygoods.auth.jwt.vo.JwtInfo;
+import co.ohmygoods.auth.jwt.vo.JWTInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,14 +11,14 @@ import java.util.Collection;
 import java.util.Map;
 
 @AllArgsConstructor
-public class JwtAuthenticationToken implements Authentication {
+public class JWTAuthenticationToken implements Authentication {
 
-    private final JwtInfo jwtInfo;
+    private final JWTInfo jwtInfo;
     private boolean authenticated;
     private final Map<String, Object> details;
 
-    public static JwtAuthenticationToken authenticated(JwtInfo jwtInfo, Map<String, Object> details) {
-        return new JwtAuthenticationToken(jwtInfo, true, details);
+    public static JWTAuthenticationToken authenticated(JWTInfo jwtInfo, Map<String, Object> details) {
+        return new JWTAuthenticationToken(jwtInfo, true, details);
     }
 
     @Override

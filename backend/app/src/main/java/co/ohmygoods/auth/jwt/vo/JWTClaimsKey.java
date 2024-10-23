@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt.vo;
 
-public enum JwtClaimsKey {
+public enum JWTClaimsKey {
 
     SUBJECT,
     ROLE;
