@@ -1,15 +1,23 @@
-package co.ohmygoods.auth.jwt;
+package co.ohmygoods.auth.jwt.nimbus;
 
+import co.ohmygoods.auth.jwt.JWTValidator;
+import co.ohmygoods.auth.jwt.JWTValidators;
+import co.ohmygoods.auth.jwt.JwtService;
+import co.ohmygoods.auth.jwt.RefreshTokenRepository;
 import co.ohmygoods.auth.jwt.model.RefreshToken;
 import co.ohmygoods.auth.jwt.vo.*;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -23,6 +31,12 @@ public class NimbusJwtService implements JwtService {
 
     private final JwtProperties jwtProperties;
     private final RefreshTokenRepository refreshTokenRepository;
+    private JWTValidator<JWT> jwtValidator;
+
+    @PostConstruct
+    protected void init() {
+        jwtValidator = JWTValidators.createNimbusJWTDefaultWithIssuer(jwtProperties.getIssuer());
+    }
 
     @Override
     public JWTs generate(Map<JwtClaimsKey, Object> claims) {
@@ -82,7 +96,38 @@ public class NimbusJwtService implements JwtService {
 
     @Override
     public JwtValidationResult validateToken(String token) {
-        return null;
+        try {
+            var jwt = JWTParser.parse(token);
+
+            if (!(jwt instanceof SignedJWT)) {
+                return JwtValidationResult.error(JWTError.NOT_SIGNED);
+            }
+
+            var result = jwtValidator.validate(jwt);
+
+            if (result.hasError()) {
+                return result;
+            }
+
+            var claimsSet = jwt.getJWTClaimsSet();
+            var jwtInfo = JwtInfo
+                    .builder()
+                    .subject(claimsSet.getSubject())
+                    .role((String) claimsSet.getClaim(JwtClaimsKey.ROLE.name()))
+                    .issuer(claimsSet.getIssuer())
+                    .audience(claimsSet.getAudience().getFirst())
+                    .issuedAt(claimsSet.getIssueTime().toInstant())
+                    .expiresIn(claimsSet.getExpirationTime().toInstant())
+                    .build();
+
+            return JwtValidationResult.valid(jwtInfo);
+
+        } catch (Exception ex) {
+            if (ex instanceof ParseException) {
+                return JwtValidationResult.error(JWTError.MALFORMED);
+            }
+            return JwtValidationResult.error(JWTError.INVALID);
+        }
     }
 
     private JWTClaimsSet buildAccessTokenClaimsSet(Map<JwtClaimsKey, Object> claims) {

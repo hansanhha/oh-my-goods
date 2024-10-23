@@ -1,5 +1,6 @@
 package co.ohmygoods.auth.config;
 
+import co.ohmygoods.auth.jwt.JWTBearerAuthenticationFilter;
 import co.ohmygoods.auth.oauth2.OAuth2AuthenticationSuccessHandler;
 import co.ohmygoods.auth.oauth2.OAuth2AuthorizationService;
 import co.ohmygoods.auth.oauth2.OAuth2UserPrincipalService;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.*;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -23,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final JWTBearerAuthenticationFilter jwtBearerAuthenticationFilter;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2UserPrincipalService oAuth2UserPrincipalService;
     private final OAuth2AuthorizationService oAuth2AuthorizationService;
@@ -57,6 +60,7 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID");
                 })
+                .addFilterBefore(jwtBearerAuthenticationFilter, OAuth2AuthorizationRequestRedirectFilter.class)
                 .build();
     }
 
