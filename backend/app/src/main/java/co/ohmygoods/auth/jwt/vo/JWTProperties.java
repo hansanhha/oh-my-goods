@@ -20,7 +20,10 @@ import java.time.Duration;
 public class JWTProperties {
 
     @NotNull
-    private SecretKey key;
+    private SecretKey accessTokenKey;
+
+    @NotNull
+    private SecretKey refreshTokenKey;
 
     @NotEmpty
     private String issuer;
@@ -42,11 +45,19 @@ public class JWTProperties {
         this.algorithm = JWSAlgorithm.parse(algorithm);
     }
 
-    public void setKey(@NotNull String key) {
+    public void setAccessTokenKey(@NotNull String key) {
         var jwk = new OctetSequenceKey.Builder(key.getBytes())
                 .algorithm(algorithm)
                 .build();
 
-        this.key = jwk.toSecretKey();
+        this.accessTokenKey = jwk.toSecretKey();
+    }
+
+    public void setRefreshTokenKey(@NotNull String key) {
+        var jwk = new OctetSequenceKey.Builder(key.getBytes())
+                .algorithm(algorithm)
+                .build();
+
+        this.refreshTokenKey= jwk.toSecretKey();
     }
 }

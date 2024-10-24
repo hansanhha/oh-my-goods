@@ -17,6 +17,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
@@ -46,7 +47,8 @@ public class NimbusJWTService implements JWTService {
             refreshTokenRepository.deleteAll(savedRefreshTokens);
         }
 
-        var key = jwtProperties.getKey();
+        var accessTokenKey = jwtProperties.getAccessTokenKey();
+        var refreshTokenKey = jwtProperties.getRefreshTokenKey();
         var algorithm = jwtProperties.getAlgorithm();
 
         var jwsHeader = new JWSHeader(algorithm);
@@ -57,9 +59,10 @@ public class NimbusJWTService implements JWTService {
         var nimbusRefreshToken = new SignedJWT(jwsHeader, refreshTokenClaimsSet);
 
         try {
-            var signer = new MACSigner(key);
-            nimbusAccessToken.sign(signer);
-            nimbusRefreshToken.sign(signer);
+            var accessTokenSigner = new MACSigner(accessTokenKey);
+            var refreshTokenSigner = new MACSigner(refreshTokenKey);
+            nimbusAccessToken.sign(accessTokenSigner);
+            nimbusRefreshToken.sign(refreshTokenSigner);
         } catch (JOSEException e) {
             throw new RuntimeException("Unable to generate JWT", e);
         }
@@ -82,7 +85,7 @@ public class NimbusJWTService implements JWTService {
 
     @Override
     public JWTs regenerate(String refreshToken) {
-        return null;
+
     }
 
     @Override
