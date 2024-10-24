@@ -1,6 +1,8 @@
 package co.ohmygoods.auth.config;
 
 import co.ohmygoods.auth.jwt.JWTBearerAuthenticationFilter;
+import co.ohmygoods.auth.jwt.JsonAccessDeniedHandler;
+import co.ohmygoods.auth.jwt.JsonAuthenticationEntryPoint;
 import co.ohmygoods.auth.oauth2.OAuth2AuthenticationSuccessHandler;
 import co.ohmygoods.auth.oauth2.OAuth2AuthorizationService;
 import co.ohmygoods.auth.oauth2.OAuth2UserPrincipalService;
@@ -26,10 +28,12 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JWTBearerAuthenticationFilter jwtBearerAuthenticationFilter;
+    private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
+    private final JsonAccessDeniedHandler jsonAccessDeniedHandler;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2UserPrincipalService oAuth2UserPrincipalService;
     private final OAuth2AuthorizationService oAuth2AuthorizationService;
-    private final SecurityPropertiesConfig.SignUrlProperties signUrlProperties;
+    private final SecurityConfigProperties.SignUrlProperties signUrlProperties;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,25 +46,25 @@ public class SecurityConfig {
                 .anonymous(AnonymousConfigurer::disable)
                 .formLogin(FormLoginConfigurer::disable)
                 .cors(cors -> cors.configurationSource(testCorsConfigurationSource()))
-                .authorizeHttpRequests(request -> { request
+                .authorizeHttpRequests(request -> request
                         .requestMatchers("*").permitAll()
-                        .anyRequest().authenticated();
-                })
+                        .anyRequest().authenticated())
                 .oauth2Login(oauth2Login -> oauth2Login
                         .loginProcessingUrl(signUrlProperties.getOauth2LoginProcessingUrl())
                         .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserPrincipalService))
                         .authorizationEndpoint(endpoint -> endpoint.baseUri(signUrlProperties.getOauth2AuthorizationBaseUrl()))
-                        .successHandler(oAuth2AuthenticationSuccessHandler)
-                )
-                .logout(logout -> { logout
+                        .successHandler(oAuth2AuthenticationSuccessHandler))
+                .logout(logout -> logout
                         .logoutUrl(signUrlProperties.getLogoutUrl())
                         .addLogoutHandler(oAuth2AuthorizationService)
                         .clearAuthentication(true)
                         .logoutSuccessUrl(signUrlProperties.getLogoutUrl())
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID");
-                })
+                        .deleteCookies("JSESSIONID"))
                 .addFilterBefore(jwtBearerAuthenticationFilter, OAuth2AuthorizationRequestRedirectFilter.class)
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(jsonAuthenticationEntryPoint)
+                        .accessDeniedHandler(jsonAccessDeniedHandler))
                 .build();
     }
 

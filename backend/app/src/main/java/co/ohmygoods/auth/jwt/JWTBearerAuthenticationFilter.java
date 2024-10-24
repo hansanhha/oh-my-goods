@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt;
 
-import co.ohmygoods.auth.exception.UnauthorizedException;
+import co.ohmygoods.global.exception.UnauthorizedException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

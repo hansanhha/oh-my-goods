@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 @Configuration
-public class SecurityPropertiesConfig {
+public class SecurityConfigProperties {
 
     @Bean
     @ConfigurationProperties(prefix = "application.security.sign-url")
