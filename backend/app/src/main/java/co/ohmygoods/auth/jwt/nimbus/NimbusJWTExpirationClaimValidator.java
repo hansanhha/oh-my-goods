@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt.nimbus;
 
-import co.ohmygoods.auth.jwt.JWTValidator;
+import co.ohmygoods.auth.jwt.JWTClaimValidator;
 import co.ohmygoods.auth.jwt.vo.JWTError;
 import co.ohmygoods.auth.jwt.vo.JwtValidationResult;
 import com.nimbusds.jwt.JWT;
@@ -11,18 +11,18 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-public class NimbusJWTExpirationValidator implements JWTValidator<JWT> {
+public class NimbusJWTExpirationClaimValidator implements JWTClaimValidator<JWT> {
 
     private static final Duration DEFAULT_MAX_CLOCK_SKEW = Duration.of(60, ChronoUnit.MINUTES);
 
     private final Duration clockSkew;
     private final Clock clock = Clock.systemUTC();
 
-    public NimbusJWTExpirationValidator() {
+    public NimbusJWTExpirationClaimValidator() {
         clockSkew = DEFAULT_MAX_CLOCK_SKEW;
     }
 
-    public NimbusJWTExpirationValidator(Duration clockSkew) {
+    public NimbusJWTExpirationClaimValidator(Duration clockSkew) {
         this.clockSkew = clockSkew;
     }
 

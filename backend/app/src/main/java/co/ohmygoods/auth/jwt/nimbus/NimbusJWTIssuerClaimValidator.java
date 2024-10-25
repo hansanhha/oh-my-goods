@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt.nimbus;
 
-import co.ohmygoods.auth.jwt.JWTValidator;
+import co.ohmygoods.auth.jwt.JWTClaimValidator;
 import co.ohmygoods.auth.jwt.vo.JWTError;
 import co.ohmygoods.auth.jwt.vo.JwtValidationResult;
 import com.nimbusds.jwt.JWT;
@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import java.text.ParseException;
 
 @RequiredArgsConstructor
-public class NimbusJWTIssuerValidator implements JWTValidator<JWT> {
+public class NimbusJWTIssuerClaimValidator implements JWTClaimValidator<JWT> {
 
     private final String issuer;
 

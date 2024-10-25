@@ -1,19 +1,19 @@
 package co.ohmygoods.auth.jwt;
 
-import co.ohmygoods.auth.jwt.nimbus.DelegatingNimbusJWTValidator;
-import co.ohmygoods.auth.jwt.nimbus.NimbusJWTExpirationValidator;
-import co.ohmygoods.auth.jwt.nimbus.NimbusJWTIssuerValidator;
+import co.ohmygoods.auth.jwt.nimbus.DelegatingNimbusJWTClaimValidator;
+import co.ohmygoods.auth.jwt.nimbus.NimbusJWTExpirationClaimValidator;
+import co.ohmygoods.auth.jwt.nimbus.NimbusJWTIssuerClaimValidator;
 import com.nimbusds.jwt.JWT;
 
 import java.util.List;
 
 public final class JWTValidators {
 
-    public static JWTValidator<JWT> createNimbusJWTDefault() {
-        return new DelegatingNimbusJWTValidator(List.of(new NimbusJWTExpirationValidator()));
+    public static JWTClaimValidator<JWT> createNimbusJWTDefault() {
+        return new DelegatingNimbusJWTClaimValidator(List.of(new NimbusJWTExpirationClaimValidator()));
     }
 
-    public static JWTValidator<JWT> createNimbusJWTDefaultWithIssuer(String issuer) {
-        return new DelegatingNimbusJWTValidator(List.of(new NimbusJWTExpirationValidator(), new NimbusJWTIssuerValidator(issuer)));
+    public static JWTClaimValidator<JWT> createNimbusJWTDefaultWithIssuer(String issuer) {
+        return new DelegatingNimbusJWTClaimValidator(List.of(new NimbusJWTExpirationClaimValidator(), new NimbusJWTIssuerClaimValidator(issuer)));
     }
 }
