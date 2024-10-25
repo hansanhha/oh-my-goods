@@ -1,9 +1,10 @@
 package co.ohmygoods.auth.jwt.nimbus;
 
+import co.ohmygoods.auth.jwt.JWTClaimValidator;
 import co.ohmygoods.auth.jwt.JWTService;
-import co.ohmygoods.auth.jwt.JWTValidator;
 import co.ohmygoods.auth.jwt.JWTValidators;
 import co.ohmygoods.auth.jwt.RefreshTokenRepository;
+import co.ohmygoods.auth.jwt.exception.JWTValidationException;
 import co.ohmygoods.auth.jwt.model.RefreshToken;
 import co.ohmygoods.auth.jwt.vo.*;
 import com.nimbusds.jose.JOSEException;
@@ -23,7 +24,13 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+
+import static co.ohmygoods.auth.jwt.exception.JWTValidationException.TEMPLATE;
+import static co.ohmygoods.auth.jwt.vo.JWTClaimsKey.ROLE;
+import static co.ohmygoods.auth.jwt.vo.JWTClaimsKey.SUBJECT;
+import static co.ohmygoods.auth.jwt.vo.TokenType.REFRESH_TOKEN;
 
 @Component
 @RequiredArgsConstructor
@@ -31,60 +38,61 @@ public class NimbusJWTService implements JWTService {
 
     private final JWTProperties jwtProperties;
     private final RefreshTokenRepository refreshTokenRepository;
-    private JWTValidator<JWT> jwtValidator;
+    private JWTClaimValidator<JWT> jwtClaimValidator;
 
     @PostConstruct
     protected void init() {
-        jwtValidator = JWTValidators.createNimbusJWTDefaultWithIssuer(jwtProperties.getIssuer());
+        jwtClaimValidator = JWTValidators.createNimbusJWTDefaultWithIssuer(jwtProperties.getIssuer());
     }
 
     @Override
     public JWTs generate(Map<JWTClaimsKey, Object> claims) {
-        var savedRefreshTokens = refreshTokenRepository.findAllBySubject((String) claims.get(JWTClaimsKey.SUBJECT));
+        var savedRefreshTokens = refreshTokenRepository.findAllBySubject((String) claims.get(SUBJECT));
 
         if (!savedRefreshTokens.isEmpty()) {
             refreshTokenRepository.deleteAll(savedRefreshTokens);
         }
 
-        var accessTokenKey = jwtProperties.getAccessTokenKey();
-        var refreshTokenKey = jwtProperties.getRefreshTokenKey();
-        var algorithm = jwtProperties.getAlgorithm();
+        var accessToken = buildAccessToken(claims, getAccessTokenId());
+        var refreshToken = buildRefreshToken(claims, getRefreshTokenId());
 
-        var jwsHeader = new JWSHeader(algorithm);
-        var accessTokenClaimsSet = buildAccessTokenClaimsSet(claims);
-        var refreshTokenClaimsSet = buildRefreshTokenClaimsSet(claims);
+        var refreshTokenEntity = getRefreshTokenEntity(refreshToken);
+        refreshTokenRepository.save(refreshTokenEntity);
 
-        var nimbusAccessToken = new SignedJWT(jwsHeader, accessTokenClaimsSet);
-        var nimbusRefreshToken = new SignedJWT(jwsHeader, refreshTokenClaimsSet);
-
-        try {
-            var accessTokenSigner = new MACSigner(accessTokenKey);
-            var refreshTokenSigner = new MACSigner(refreshTokenKey);
-            nimbusAccessToken.sign(accessTokenSigner);
-            nimbusRefreshToken.sign(refreshTokenSigner);
-        } catch (JOSEException e) {
-            throw new RuntimeException("Unable to generate JWT", e);
-        }
-
-        var serializedRefreshTokenValue = nimbusRefreshToken.serialize();
-        var refreshToken = RefreshToken.builder()
-                .tokenValue(serializedRefreshTokenValue)
-                .jwtId(refreshTokenClaimsSet.getJWTID())
-                .subject(refreshTokenClaimsSet.getSubject())
-                .issuer(refreshTokenClaimsSet.getIssuer())
-                .audience(refreshTokenClaimsSet.getAudience().getFirst())
-                .issuedAt(LocalDateTime.from(refreshTokenClaimsSet.getIssueTime().toInstant()))
-                .expiresIn(LocalDateTime.from(refreshTokenClaimsSet.getExpirationTime().toInstant()))
-                .build();
-
-        refreshTokenRepository.save(refreshToken);
-
-        return new JWTs(nimbusAccessToken.serialize(), serializedRefreshTokenValue);
+        return new JWTs(accessToken.serialize(), refreshToken.serialize());
     }
 
     @Override
     public JWTs regenerate(String refreshToken) {
-        return null;
+        var validationResult = validateToken(refreshToken);
+
+        if (validationResult.hasError()) {
+            throw new JWTValidationException(TEMPLATE.formatted(REFRESH_TOKEN, "regenerating token", validationResult.error().getDescription()));
+        }
+
+        var jwtInfo = validationResult.jwtInfo();
+        var optionalRefreshToken = refreshTokenRepository.findByJwtId(jwtInfo.jwtId());
+
+        if (optionalRefreshToken.isEmpty()) {
+            // 해당 토큰 subject에게 발급된 모든 refresh token을 삭제할 수도 있음
+            throw new JWTValidationException(TEMPLATE.formatted(REFRESH_TOKEN, "regenerating token", "not found token that matches with jti"));
+        }
+
+        var issuedRefreshToken = optionalRefreshToken.get();
+
+        if (!refreshToken.equals(issuedRefreshToken.getTokenValue())) {
+            throw new JWTValidationException(TEMPLATE.formatted(REFRESH_TOKEN, "regenerating token", "not equals signed token value of received and datasource"));
+        }
+
+        var claims = Map.of(SUBJECT, jwtInfo.subject(), ROLE, jwtInfo.role());
+        var newAccessToken = buildAccessToken(claims, getAccessTokenId());
+        var newRefreshToken = buildRefreshToken(claims, getRefreshTokenId());
+        var refreshTokenEntity = getRefreshTokenEntity(newRefreshToken);
+
+        refreshTokenRepository.delete(issuedRefreshToken);
+        refreshTokenRepository.save(refreshTokenEntity);
+
+        return new JWTs(newAccessToken.serialize(), newRefreshToken.serialize());
     }
 
     @Override
@@ -105,7 +113,7 @@ public class NimbusJWTService implements JWTService {
                 return JwtValidationResult.error(JWTError.NOT_SIGNED);
             }
 
-            var result = jwtValidator.validate(jwt);
+            var result = jwtClaimValidator.validate(jwt);
 
             if (result.hasError()) {
                 return result;
@@ -115,7 +123,7 @@ public class NimbusJWTService implements JWTService {
             var jwtInfo = JWTInfo
                     .builder()
                     .subject(claimsSet.getSubject())
-                    .role((String) claimsSet.getClaim(JWTClaimsKey.ROLE.name()))
+                    .role((String) claimsSet.getClaim(ROLE.name()))
                     .issuer(claimsSet.getIssuer())
                     .audience(claimsSet.getAudience().getFirst())
                     .issuedAt(claimsSet.getIssueTime().toInstant())
@@ -132,16 +140,61 @@ public class NimbusJWTService implements JWTService {
         }
     }
 
-    private JWTClaimsSet buildAccessTokenClaimsSet(Map<JWTClaimsKey, Object> claims) {
-        return buildClaimsSet(claims, jwtProperties.getAccessTokenExpiresIn());
+    private SignedJWT buildAccessToken(Map<JWTClaimsKey, ?> claims, String jwtId) {
+        var jwsHeader = new JWSHeader(jwtProperties.getAlgorithm());
+        var accessTokenClaimsSet = buildAccessTokenClaimsSet(claims, jwtId);
+        var accessToken = new SignedJWT(jwsHeader, accessTokenClaimsSet);
+
+        try {
+            var accessTokenSigner = new MACSigner(jwtProperties.getAccessTokenKey());
+            accessToken.sign(accessTokenSigner);
+        } catch (JOSEException e) {
+            throw new RuntimeException("Unable to generate access token", e);
+        }
+
+        return accessToken;
     }
 
-    private JWTClaimsSet buildRefreshTokenClaimsSet(Map<JWTClaimsKey, Object> claims) {
-        return buildClaimsSet(claims, jwtProperties.getRefreshTokenExpiresIn());
+    private String getAccessTokenId() {
+        return UUID.randomUUID().toString();
     }
 
-    private JWTClaimsSet buildClaimsSet(Map<JWTClaimsKey, Object> claims, Duration expiresIn) {
-        var jwtId = UUID.randomUUID().toString();
+    private String getRefreshTokenId() {
+        Optional<RefreshToken> alreadyExistRefreshToken;
+        String refreshTokenId;
+
+        do {
+            refreshTokenId = UUID.randomUUID().toString();
+            alreadyExistRefreshToken = refreshTokenRepository.findByJwtId(refreshTokenId);
+        } while (alreadyExistRefreshToken.isPresent());
+
+        return refreshTokenId;
+    }
+
+    private SignedJWT buildRefreshToken(Map<JWTClaimsKey, ?> claims, String jwtId) {
+        var jwsHeader = new JWSHeader(jwtProperties.getAlgorithm());
+        var refreshTokenClaimsSet = buildRefreshTokenClaimsSet(claims, jwtId);
+        var refreshToken = new SignedJWT(jwsHeader, refreshTokenClaimsSet);
+
+        try {
+            var accessTokenSigner = new MACSigner(jwtProperties.getRefreshTokenKey());
+            refreshToken.sign(accessTokenSigner);
+        } catch (JOSEException e) {
+            throw new RuntimeException("Unable to generate refresh token", e);
+        }
+
+        return refreshToken;
+    }
+
+    private JWTClaimsSet buildAccessTokenClaimsSet(Map<JWTClaimsKey, ?> claims, String jwtId) {
+        return buildClaimsSet(claims, jwtProperties.getAccessTokenExpiresIn(), jwtId);
+    }
+
+    private JWTClaimsSet buildRefreshTokenClaimsSet(Map<JWTClaimsKey, ?> claims, String jwtId) {
+        return buildClaimsSet(claims, jwtProperties.getRefreshTokenExpiresIn(), jwtId);
+    }
+
+    private JWTClaimsSet buildClaimsSet(Map<JWTClaimsKey, ?> claims, Duration expiresIn, String jwtId) {
         var issuer = jwtProperties.getIssuer();
         var issuedAt = Instant.now();
         var expirationTime = issuedAt.plus(expiresIn);
@@ -152,11 +205,30 @@ public class NimbusJWTService implements JWTService {
                 .issueTime(Date.from(issuedAt))
                 .audience(audience)
                 .expirationTime(Date.from(expirationTime))
-                .subject((String) claims.get(JWTClaimsKey.SUBJECT))
+                .subject((String) claims.get(SUBJECT))
                 .jwtID(jwtId);
 
         claims.forEach((key, value) -> builder.claim(key.name(), value));
 
         return builder.build();
+    }
+
+    private RefreshToken getRefreshTokenEntity(SignedJWT refreshToken) {
+        try {
+            var refreshTokenClaimsSet = refreshToken.getJWTClaimsSet();
+            var serializedRefreshTokenValue = refreshToken.serialize();
+
+            return RefreshToken.builder()
+                    .tokenValue(serializedRefreshTokenValue)
+                    .jwtId(refreshTokenClaimsSet.getJWTID())
+                    .subject(refreshTokenClaimsSet.getSubject())
+                    .issuer(refreshTokenClaimsSet.getIssuer())
+                    .audience(refreshTokenClaimsSet.getAudience().getFirst())
+                    .issuedAt(LocalDateTime.from(refreshTokenClaimsSet.getIssueTime().toInstant()))
+                    .expiresIn(LocalDateTime.from(refreshTokenClaimsSet.getExpirationTime().toInstant()))
+                    .build();
+        } catch (ParseException e) {
+            throw new RuntimeException("Unable build refresh token entity");
+        }
     }
 }
