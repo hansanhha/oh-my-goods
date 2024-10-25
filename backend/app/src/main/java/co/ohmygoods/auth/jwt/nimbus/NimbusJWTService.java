@@ -47,12 +47,6 @@ public class NimbusJWTService implements JWTService {
 
     @Override
     public JWTs generate(Map<JWTClaimsKey, Object> claims) {
-        var savedRefreshTokens = refreshTokenRepository.findAllBySubject((String) claims.get(SUBJECT));
-
-        if (!savedRefreshTokens.isEmpty()) {
-            refreshTokenRepository.deleteAll(savedRefreshTokens);
-        }
-
         var accessToken = buildAccessToken(claims, getAccessTokenId());
         var refreshToken = buildRefreshToken(claims, getRefreshTokenId());
 
