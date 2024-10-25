@@ -1,8 +1,8 @@
 package co.ohmygoods.auth.jwt.nimbus;
 
+import co.ohmygoods.auth.jwt.JWTService;
 import co.ohmygoods.auth.jwt.JWTValidator;
 import co.ohmygoods.auth.jwt.JWTValidators;
-import co.ohmygoods.auth.jwt.JWTService;
 import co.ohmygoods.auth.jwt.RefreshTokenRepository;
 import co.ohmygoods.auth.jwt.model.RefreshToken;
 import co.ohmygoods.auth.jwt.vo.*;
@@ -17,7 +17,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
@@ -85,7 +84,7 @@ public class NimbusJWTService implements JWTService {
 
     @Override
     public JWTs regenerate(String refreshToken) {
-
+        return null;
     }
 
     @Override
