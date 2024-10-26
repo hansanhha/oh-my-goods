@@ -27,8 +27,9 @@ public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        signService.signOut(authentication.getName());
-        handleOAuth2RequestInternal((OAuth2UserPrincipal) authentication, signOutUri);
+        var oauth2UserPrincipal = (OAuth2UserPrincipal) authentication.getPrincipal();
+        signService.signOut(oauth2UserPrincipal.getOAuth2UserDetail().oauth2AccessTokenValue());
+        handleOAuth2RequestInternal(oauth2UserPrincipal, signOutUri);
     }
 
     @Override

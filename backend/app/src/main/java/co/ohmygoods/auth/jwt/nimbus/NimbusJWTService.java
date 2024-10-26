@@ -18,10 +18,7 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static co.ohmygoods.auth.jwt.exception.JWTValidationException.TEMPLATE;
 import static co.ohmygoods.auth.jwt.vo.JWTClaimsKey.ROLE;
@@ -44,8 +41,9 @@ public class NimbusJWTService implements JWTService {
 
     @Override
     public JWTs generate(Map<JWTClaimsKey, Object> claims) {
-        var accessToken = buildAccessToken(claims, getAccessTokenId());
-        var refreshToken = buildRefreshToken(claims, getRefreshTokenId());
+        var refreshTokenId = getRefreshTokenId();
+        var accessToken = buildAccessToken(claims, getAccessTokenId(), refreshTokenId);
+        var refreshToken = buildRefreshToken(claims, refreshTokenId);
 
         var refreshTokenEntity = getRefreshTokenEntity(refreshToken);
         refreshTokenRepository.save(refreshTokenEntity);
@@ -75,9 +73,12 @@ public class NimbusJWTService implements JWTService {
             throw new JWTValidationException(TEMPLATE.formatted(REFRESH_TOKEN, "regenerating token", "not equals signed token value of received and datasource"));
         }
 
-        var claims = Map.of(SUBJECT, jwtInfo.subject(), ROLE, jwtInfo.role());
-        var newAccessToken = buildAccessToken(claims, getAccessTokenId());
-        var newRefreshToken = buildRefreshToken(claims, getRefreshTokenId());
+        var claims = new HashMap<JWTClaimsKey, Object>();
+        claims.put(SUBJECT,jwtInfo.subject());
+        claims.put(ROLE, jwtInfo.role());
+        var refreshTokenId = getRefreshTokenId();
+        var newAccessToken = buildAccessToken(claims, getAccessTokenId(), refreshTokenId);
+        var newRefreshToken = buildRefreshToken(claims, refreshTokenId);
         var refreshTokenEntity = getRefreshTokenEntity(newRefreshToken);
 
         refreshTokenRepository.delete(issuedRefreshToken);
@@ -100,11 +101,14 @@ public class NimbusJWTService implements JWTService {
         }
 
         var claimsSet = optionalJWTClaimsSet.get();
-        var savedRefreshTokens = refreshTokenRepository.findAllBySubject(claimsSet.getSubject());
-
-        if (!savedRefreshTokens.isEmpty()) {
-            refreshTokenRepository.deleteAll(savedRefreshTokens);
+        var referenceRefreshTokenId = (String) claimsSet.getClaim(JWTClaimsKey.REFERENCE_REFRESH_TOKEN_ID.name());
+        if (referenceRefreshTokenId == null) {
+            return;
         }
+
+        var optionalSavedRefreshToken = refreshTokenRepository.findByJwtId(referenceRefreshTokenId);
+
+        optionalSavedRefreshToken.ifPresent(refreshTokenRepository::delete);
     }
 
     @Override
@@ -151,9 +155,9 @@ public class NimbusJWTService implements JWTService {
         }
     }
 
-    private SignedJWT buildAccessToken(Map<JWTClaimsKey, ?> claims, String jwtId) {
+    private SignedJWT buildAccessToken(Map<JWTClaimsKey, Object> claims, String accessTokenId, String refreshTokenId) {
         var jwsHeader = new JWSHeader(jwtProperties.getAlgorithm());
-        var accessTokenClaimsSet = buildAccessTokenClaimsSet(claims, jwtId);
+        var accessTokenClaimsSet = buildAccessTokenClaimsSet(claims, accessTokenId, refreshTokenId);
         var accessToken = new SignedJWT(jwsHeader, accessTokenClaimsSet);
 
         try {
@@ -182,9 +186,9 @@ public class NimbusJWTService implements JWTService {
         return refreshTokenId;
     }
 
-    private SignedJWT buildRefreshToken(Map<JWTClaimsKey, ?> claims, String jwtId) {
+    private SignedJWT buildRefreshToken(Map<JWTClaimsKey, Object> claims, String refreshTokenId) {
         var jwsHeader = new JWSHeader(jwtProperties.getAlgorithm());
-        var refreshTokenClaimsSet = buildRefreshTokenClaimsSet(claims, jwtId);
+        var refreshTokenClaimsSet = buildRefreshTokenClaimsSet(claims, refreshTokenId);
         var refreshToken = new SignedJWT(jwsHeader, refreshTokenClaimsSet);
 
         try {
@@ -197,12 +201,13 @@ public class NimbusJWTService implements JWTService {
         return refreshToken;
     }
 
-    private JWTClaimsSet buildAccessTokenClaimsSet(Map<JWTClaimsKey, ?> claims, String jwtId) {
-        return buildClaimsSet(claims, jwtProperties.getAccessTokenExpiresIn(), jwtId);
+    private JWTClaimsSet buildAccessTokenClaimsSet(Map<JWTClaimsKey, Object> claims, String accessTokenId, String refreshTokenId) {
+        claims.put(JWTClaimsKey.REFERENCE_REFRESH_TOKEN_ID, refreshTokenId);
+        return buildClaimsSet(claims, jwtProperties.getAccessTokenExpiresIn(), accessTokenId);
     }
 
-    private JWTClaimsSet buildRefreshTokenClaimsSet(Map<JWTClaimsKey, ?> claims, String jwtId) {
-        return buildClaimsSet(claims, jwtProperties.getRefreshTokenExpiresIn(), jwtId);
+    private JWTClaimsSet buildRefreshTokenClaimsSet(Map<JWTClaimsKey, Object> claims, String refreshTokenId) {
+        return buildClaimsSet(claims, jwtProperties.getRefreshTokenExpiresIn(), refreshTokenId);
     }
 
     private JWTClaimsSet buildClaimsSet(Map<JWTClaimsKey, ?> claims, Duration expiresIn, String jwtId) {
