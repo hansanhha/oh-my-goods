@@ -29,7 +29,7 @@ import static co.ohmygoods.auth.jwt.vo.TokenType.REFRESH_TOKEN;
 @RequiredArgsConstructor
 public class NimbusJWTService implements JWTService {
 
-    private final JWTParseService<JWT> jwtParseService;
+    private final JWTParser<JWT> jwtParser;
     private final JWTProperties jwtProperties;
     private final RefreshTokenRepository refreshTokenRepository;
     private JWTClaimValidator<JWT> jwtClaimValidator;
@@ -89,12 +89,12 @@ public class NimbusJWTService implements JWTService {
 
     @Override
     public void revokeRefreshToken(String accessToken) {
-        var parsedJWT = jwtParseService.parse(accessToken);
-        if (parsedJWT.isFailed()) {
+        var parseResult = jwtParser.parse(accessToken);
+        if (parseResult.isFailed()) {
             return;
         }
 
-        var jwt = parsedJWT.token();
+        var jwt = parseResult.token();
         var optionalJWTClaimsSet = getClaimsSet(jwt);
         if (optionalJWTClaimsSet.isEmpty()) {
             return;
@@ -113,12 +113,12 @@ public class NimbusJWTService implements JWTService {
 
     @Override
     public JWTValidationResult validateToken(String token) {
-        var paredJWT = jwtParseService.parse(token);
-        if (paredJWT.isFailed()) {
-            return JWTValidationResult.error(paredJWT.cause());
+        var parseResult = jwtParser.parse(token);
+        if (parseResult.isFailed()) {
+            return JWTValidationResult.error(parseResult.cause());
         }
 
-        var jwt = paredJWT.token();
+        var jwt = parseResult.token();
         if (!(jwt instanceof SignedJWT)) {
             return JWTValidationResult.error(JWTError.NOT_SIGNED);
         }
