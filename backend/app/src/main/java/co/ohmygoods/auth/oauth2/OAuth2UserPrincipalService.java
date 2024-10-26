@@ -12,11 +12,11 @@ public class OAuth2UserPrincipalService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
-        OAuth2User oAuth2User = super.loadUser(userRequest);
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        String tokenValue = userRequest.getAccessToken().getTokenValue();
+        var oAuth2User = super.loadUser(userRequest);
+        var registrationId = userRequest.getClientRegistration().getRegistrationId();
+        var oauth2AccessToken = userRequest.getAccessToken().getTokenValue();
 
-        OAuth2UserDetail oAuth2UserDetail = OAuth2UserDetail.get(registrationId, oAuth2User, tokenValue);
+        var oAuth2UserDetail = OAuth2UserDetail.get(registrationId, oAuth2User, oauth2AccessToken);
 
         return OAuth2UserPrincipal.from(oAuth2UserDetail);
     }
