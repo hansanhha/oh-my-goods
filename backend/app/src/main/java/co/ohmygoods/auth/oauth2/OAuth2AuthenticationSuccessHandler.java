@@ -14,12 +14,14 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
 
 @Component
+@Transactional
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -27,8 +29,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private final RedirectStrategy redirect = new DefaultRedirectStrategy();
 
     /**
-     * 첫 로그인인 경우 애플리케이션 계정 생성 {@link SignService} <br>
-     * 애플리케이션 jwt 토큰 발급 및 리다이렉트 처리 {@link JWTService}
+     * 첫 OAuth2 로그인인 경우 애플리케이션 계정 생성 {@link SignService} <br>
+     * 서비스 로그인(애플리케이션 jwt 토큰 발급 및 리다이렉트 처리) {@link JWTService}
      * @param authentication {@link OAuth2UserPrincipal}
      */
     @Override

@@ -13,6 +13,7 @@ import com.nimbusds.jwt.SignedJWT;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.time.Duration;
@@ -26,6 +27,7 @@ import static co.ohmygoods.auth.jwt.vo.JWTClaimsKey.SUBJECT;
 import static co.ohmygoods.auth.jwt.vo.TokenType.REFRESH_TOKEN;
 
 @Component
+@Transactional
 @RequiredArgsConstructor
 public class NimbusJWTService implements JWTService {
 
