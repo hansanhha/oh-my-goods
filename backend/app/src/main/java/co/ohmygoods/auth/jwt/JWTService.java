@@ -2,7 +2,7 @@ package co.ohmygoods.auth.jwt;
 
 import co.ohmygoods.auth.jwt.vo.JWTClaimsKey;
 import co.ohmygoods.auth.jwt.vo.JWTs;
-import co.ohmygoods.auth.jwt.vo.JwtValidationResult;
+import co.ohmygoods.auth.jwt.vo.JWTValidationResult;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ public interface JWTService {
 
     JWTs regenerate(String refreshToken);
 
-    void deleteAllByEmail(String email);
+    void revokeRefreshToken(String email);
 
-    JwtValidationResult validateToken(String token);
+    JWTValidationResult validateToken(String token);
 }

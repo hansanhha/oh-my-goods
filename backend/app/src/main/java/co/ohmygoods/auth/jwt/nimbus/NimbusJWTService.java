@@ -1,9 +1,6 @@
 package co.ohmygoods.auth.jwt.nimbus;
 
-import co.ohmygoods.auth.jwt.JWTClaimValidator;
-import co.ohmygoods.auth.jwt.JWTService;
-import co.ohmygoods.auth.jwt.JWTValidators;
-import co.ohmygoods.auth.jwt.RefreshTokenRepository;
+import co.ohmygoods.auth.jwt.*;
 import co.ohmygoods.auth.jwt.exception.JWTValidationException;
 import co.ohmygoods.auth.jwt.model.RefreshToken;
 import co.ohmygoods.auth.jwt.vo.*;
@@ -12,7 +9,6 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +32,7 @@ import static co.ohmygoods.auth.jwt.vo.TokenType.REFRESH_TOKEN;
 @RequiredArgsConstructor
 public class NimbusJWTService implements JWTService {
 
+    private final JWTParseService<JWT> jwtParseService;
     private final JWTProperties jwtProperties;
     private final RefreshTokenRepository refreshTokenRepository;
     private JWTClaimValidator<JWT> jwtClaimValidator;
@@ -90,8 +87,20 @@ public class NimbusJWTService implements JWTService {
     }
 
     @Override
-    public void deleteAllByEmail(String email) {
-        var savedRefreshTokens = refreshTokenRepository.findAllBySubject(email);
+    public void revokeRefreshToken(String accessToken) {
+        var parsedJWT = jwtParseService.parse(accessToken);
+        if (parsedJWT.isFailed()) {
+            return;
+        }
+
+        var jwt = parsedJWT.token();
+        var optionalJWTClaimsSet = getClaimsSet(jwt);
+        if (optionalJWTClaimsSet.isEmpty()) {
+            return;
+        }
+
+        var claimsSet = optionalJWTClaimsSet.get();
+        var savedRefreshTokens = refreshTokenRepository.findAllBySubject(claimsSet.getSubject());
 
         if (!savedRefreshTokens.isEmpty()) {
             refreshTokenRepository.deleteAll(savedRefreshTokens);
@@ -99,38 +108,46 @@ public class NimbusJWTService implements JWTService {
     }
 
     @Override
-    public JwtValidationResult validateToken(String token) {
+    public JWTValidationResult validateToken(String token) {
+        var paredJWT = jwtParseService.parse(token);
+        if (paredJWT.isFailed()) {
+            return JWTValidationResult.error(paredJWT.cause());
+        }
+
+        var jwt = paredJWT.token();
+        if (!(jwt instanceof SignedJWT)) {
+            return JWTValidationResult.error(JWTError.NOT_SIGNED);
+        }
+
+        var result = jwtClaimValidator.validate(jwt);
+        if (result.hasError()) {
+            return result;
+        }
+
+        var optionalClaimsSet = getClaimsSet(jwt);
+        if (optionalClaimsSet.isEmpty()) {
+            return JWTValidationResult.error(JWTError.INVALID);
+        }
+
+        var claimsSet = optionalClaimsSet.get();
+        var jwtInfo = JWTInfo
+                .builder()
+                .subject(claimsSet.getSubject())
+                .role((String) claimsSet.getClaim(ROLE.name()))
+                .issuer(claimsSet.getIssuer())
+                .audience(claimsSet.getAudience().getFirst())
+                .issuedAt(claimsSet.getIssueTime().toInstant())
+                .expiresIn(claimsSet.getExpirationTime().toInstant())
+                .build();
+
+        return JWTValidationResult.valid(jwtInfo);
+    }
+
+    private Optional<JWTClaimsSet> getClaimsSet(JWT jwt) {
         try {
-            var jwt = JWTParser.parse(token);
-
-            if (!(jwt instanceof SignedJWT)) {
-                return JwtValidationResult.error(JWTError.NOT_SIGNED);
-            }
-
-            var result = jwtClaimValidator.validate(jwt);
-
-            if (result.hasError()) {
-                return result;
-            }
-
-            var claimsSet = jwt.getJWTClaimsSet();
-            var jwtInfo = JWTInfo
-                    .builder()
-                    .subject(claimsSet.getSubject())
-                    .role((String) claimsSet.getClaim(ROLE.name()))
-                    .issuer(claimsSet.getIssuer())
-                    .audience(claimsSet.getAudience().getFirst())
-                    .issuedAt(claimsSet.getIssueTime().toInstant())
-                    .expiresIn(claimsSet.getExpirationTime().toInstant())
-                    .build();
-
-            return JwtValidationResult.valid(jwtInfo);
-
-        } catch (Exception ex) {
-            if (ex instanceof ParseException) {
-                return JwtValidationResult.error(JWTError.MALFORMED);
-            }
-            return JwtValidationResult.error(JWTError.INVALID);
+            return Optional.of(jwt.getJWTClaimsSet());
+        } catch (ParseException e) {
+            return Optional.empty();
         }
     }
 

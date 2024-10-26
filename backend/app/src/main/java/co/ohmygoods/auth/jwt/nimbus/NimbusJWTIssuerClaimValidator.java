@@ -2,7 +2,7 @@ package co.ohmygoods.auth.jwt.nimbus;
 
 import co.ohmygoods.auth.jwt.JWTClaimValidator;
 import co.ohmygoods.auth.jwt.vo.JWTError;
-import co.ohmygoods.auth.jwt.vo.JwtValidationResult;
+import co.ohmygoods.auth.jwt.vo.JWTValidationResult;
 import com.nimbusds.jwt.JWT;
 import lombok.RequiredArgsConstructor;
 
@@ -14,15 +14,15 @@ public class NimbusJWTIssuerClaimValidator implements JWTClaimValidator<JWT> {
     private final String issuer;
 
     @Override
-    public JwtValidationResult validate(JWT jwt) {
+    public JWTValidationResult validate(JWT jwt) {
         try {
             if (jwt.getJWTClaimsSet().getIssuer().equals(issuer)) {
-                return JwtValidationResult.success();
+                return JWTValidationResult.success();
             }
 
-            return JwtValidationResult.error(JWTError.INVALID_ISSUER);
+            return JWTValidationResult.error(JWTError.INVALID_ISSUER);
         } catch (ParseException e) {
-            return JwtValidationResult.error(JWTError.MALFORMED);
+            return JWTValidationResult.error(JWTError.MALFORMED);
         }
     }
 }

@@ -1,7 +1,7 @@
 package co.ohmygoods.auth.jwt.nimbus;
 
 import co.ohmygoods.auth.jwt.JWTClaimValidator;
-import co.ohmygoods.auth.jwt.vo.JwtValidationResult;
+import co.ohmygoods.auth.jwt.vo.JWTValidationResult;
 import com.nimbusds.jwt.JWT;
 import lombok.RequiredArgsConstructor;
 
@@ -13,11 +13,11 @@ public class DelegatingNimbusJWTClaimValidator implements JWTClaimValidator<JWT>
     private final List<JWTClaimValidator<JWT>> jwtClaimValidators;
 
     @Override
-    public JwtValidationResult validate(JWT jwt) {
+    public JWTValidationResult validate(JWT jwt) {
         return jwtClaimValidators.stream()
                 .map(jwtValidator -> jwtValidator.validate(jwt))
-                .filter(JwtValidationResult::hasError)
+                .filter(JWTValidationResult::hasError)
                 .findFirst()
-                .orElse(JwtValidationResult.success());
+                .orElse(JWTValidationResult.success());
     }
 }

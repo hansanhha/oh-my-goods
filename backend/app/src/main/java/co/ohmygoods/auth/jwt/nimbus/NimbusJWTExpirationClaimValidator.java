@@ -2,7 +2,7 @@ package co.ohmygoods.auth.jwt.nimbus;
 
 import co.ohmygoods.auth.jwt.JWTClaimValidator;
 import co.ohmygoods.auth.jwt.vo.JWTError;
-import co.ohmygoods.auth.jwt.vo.JwtValidationResult;
+import co.ohmygoods.auth.jwt.vo.JWTValidationResult;
 import com.nimbusds.jwt.JWT;
 
 import java.text.ParseException;
@@ -27,15 +27,15 @@ public class NimbusJWTExpirationClaimValidator implements JWTClaimValidator<JWT>
     }
 
     @Override
-    public JwtValidationResult validate(JWT jwt) {
+    public JWTValidationResult validate(JWT jwt) {
         try {
             if (Instant.now(clock).minus(clockSkew).isAfter(jwt.getJWTClaimsSet().getExpirationTime().toInstant())) {
-                return JwtValidationResult.success();
+                return JWTValidationResult.success();
             }
 
-            return JwtValidationResult.error(JWTError.EXPIRED);
+            return JWTValidationResult.error(JWTError.EXPIRED);
         } catch (ParseException e) {
-            return JwtValidationResult.error(JWTError.MALFORMED);
+            return JWTValidationResult.error(JWTError.MALFORMED);
         }
     }
 }

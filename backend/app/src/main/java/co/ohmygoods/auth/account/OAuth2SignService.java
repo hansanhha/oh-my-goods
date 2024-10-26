@@ -46,7 +46,7 @@ public class OAuth2SignService implements SignService {
 
     @Override
     public void signOut(String email) {
-        jwtService.deleteAllByEmail(email);
+        jwtService.revokeRefreshToken(email);
     }
 
     @Override
