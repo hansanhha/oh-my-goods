@@ -1,4 +1,4 @@
-package co.ohmygoods.auth.account.model;
+package co.ohmygoods.auth.oauth2.vo;
 
 public enum OAuth2Vendor {
 

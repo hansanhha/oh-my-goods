@@ -138,6 +138,7 @@ public class NimbusJWTService implements JWTService {
         var claimsSet = optionalClaimsSet.get();
         var jwtInfo = JWTInfo
                 .builder()
+                .tokenValue(token)
                 .subject(claimsSet.getSubject())
                 .role((String) claimsSet.getClaim(ROLE.name()))
                 .issuer(claimsSet.getIssuer())

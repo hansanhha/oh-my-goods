@@ -5,7 +5,8 @@ import lombok.Builder;
 import java.time.Instant;
 
 @Builder
-public record JWTInfo(String jwtId,
+public record JWTInfo(String tokenValue,
+                      String jwtId,
                       String subject,
                       String role,
                       String issuer,

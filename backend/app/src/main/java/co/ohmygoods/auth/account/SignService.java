@@ -12,7 +12,7 @@ public interface SignService {
 
     JWTs signIn(String email);
 
-    void signOut(String email);
+    void signOut(String accessToken);
 
     void deleteAccount(String email);
 }

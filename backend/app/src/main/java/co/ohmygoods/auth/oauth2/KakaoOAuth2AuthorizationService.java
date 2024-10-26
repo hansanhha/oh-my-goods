@@ -1,6 +1,9 @@
 package co.ohmygoods.auth.oauth2;
 
 import co.ohmygoods.auth.account.SignService;
+import co.ohmygoods.auth.jwt.JWTAuthenticationToken;
+import co.ohmygoods.auth.jwt.vo.JWTInfo;
+import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -8,16 +11,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
 
 @Component
+@Transactional
 @RequiredArgsConstructor
 public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationService {
 
     private final SignService signService;
+    private final OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
 
     @Value("${application.security.oauth2.client.provider.kakao.signout-uri}")
     private String signOutUri;
@@ -27,21 +34,27 @@ public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        var oauth2UserPrincipal = (OAuth2UserPrincipal) authentication.getPrincipal();
-        signService.signOut(oauth2UserPrincipal.getOAuth2UserDetail().oauth2AccessTokenValue());
-        handleOAuth2RequestInternal(oauth2UserPrincipal, signOutUri);
+        var jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
+        var jwtInfo = (JWTInfo) jwtAuthenticationToken.getPrincipal();
+        signService.signOut(jwtInfo.tokenValue());
+
+        var oAuth2AuthorizedClient = oAuth2AuthorizedClientService.loadAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
+        handleOAuth2RequestInternal(oAuth2AuthorizedClient.getAccessToken().getTokenValue(), signOutUri);
+        oAuth2AuthorizedClientService.removeAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
     }
 
     @Override
-    public void unlink(OAuth2UserPrincipal oAuth2UserPrincipal) {
-        signService.deleteAccount(oAuth2UserPrincipal.getName());
-        handleOAuth2RequestInternal(oAuth2UserPrincipal, unlinkUri);
+    public void unlink(Authentication authentication) {
+        var jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
+        var jwtInfo = (JWTInfo) jwtAuthenticationToken.getPrincipal();
+
+        var oAuth2AuthorizedClient = oAuth2AuthorizedClientService.loadAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
+        handleOAuth2RequestInternal(oAuth2AuthorizedClient.getAccessToken().getTokenValue(), unlinkUri);
+        oAuth2AuthorizedClientService.removeAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
     }
 
-    private void handleOAuth2RequestInternal(OAuth2UserPrincipal oAuth2UserPrincipal, String requestUri) {
-        var accessToken = oAuth2UserPrincipal.getOAuth2UserDetail().oauth2AccessTokenValue();
-
-        var restClient = buildHttpRequest(accessToken, requestUri);
+    private void handleOAuth2RequestInternal(String oAuth2AccessToken, String requestUri) {
+        var restClient = buildHttpRequest(oAuth2AccessToken, requestUri);
 
         var response = restClient
                 .post()
@@ -52,38 +65,30 @@ public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationServi
         }
     }
 
-    private RestClient buildHttpRequest(String accessToken, String uri) {
+    private RestClient buildHttpRequest(String oAuth2AccessToken, String uri) {
         return RestClient
                 .builder()
                 .baseUrl(uri)
                 .defaultHeaders(headers -> {
-                    headers.setBearerAuth(accessToken);
+                    headers.setBearerAuth(oAuth2AccessToken);
                     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
                 })
                 .build();
     }
 
-    private KakaoAuthResponse handleResponse(HttpRequest request, RestClient.RequestHeadersSpec.ConvertibleClientHttpResponse response) throws IOException {
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return KakaoAuthResponse.from(response.bodyTo(SuccessResponse.class));
-        } else {
-            return KakaoAuthResponse.from(response.bodyTo(FailureResponse.class));
-        }
+    private KakaoAuthorizationResponse handleResponse(HttpRequest request, RestClient.RequestHeadersSpec.ConvertibleClientHttpResponse response) throws IOException {
+        return KakaoAuthorizationResponse.from(response.bodyTo(KakaoAuthorizationResponseMapper.class));
     }
 
-    private record SuccessResponse(String id) {
-    }
+    private record KakaoAuthorizationResponseMapper(String id, String error, String error_description) {}
 
-    private record FailureResponse(String error, String error_description) {
-    }
+    private record KakaoAuthorizationResponse(boolean isSuccessful, String oAuth2MemberId, String errorCode, String errorMessage) {
+        private static KakaoAuthorizationResponse from(KakaoAuthorizationResponseMapper mapper) {
+            if (mapper.error() != null) {
+                return new KakaoAuthorizationResponse(false, null, mapper.error(), mapper.error_description());
+            }
 
-    private record KakaoAuthResponse(boolean isSuccessful, String errorCode, String errorMessage) {
-        private static KakaoAuthResponse from(SuccessResponse response) {
-            return new KakaoAuthResponse(true, null, null);
-        }
-
-        private static KakaoAuthResponse from(FailureResponse response) {
-            return new KakaoAuthResponse(false, response.error(), response.error_description());
+            return new KakaoAuthorizationResponse(true, mapper.id(), null, null);
         }
     }
 

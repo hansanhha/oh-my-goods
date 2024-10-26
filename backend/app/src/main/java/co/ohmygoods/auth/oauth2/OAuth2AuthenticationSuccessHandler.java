@@ -4,7 +4,7 @@ import co.ohmygoods.auth.jwt.JWTService;
 import co.ohmygoods.auth.jwt.vo.JWTs;
 import co.ohmygoods.auth.account.SignService;
 import co.ohmygoods.auth.account.SignUpRequest;
-import co.ohmygoods.auth.account.model.OAuth2Vendor;
+import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

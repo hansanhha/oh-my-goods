@@ -1,5 +1,6 @@
 package co.ohmygoods.auth.account.model;
 
+import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import co.ohmygoods.global.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
