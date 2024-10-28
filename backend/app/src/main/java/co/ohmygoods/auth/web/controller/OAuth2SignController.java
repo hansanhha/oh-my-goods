@@ -17,6 +17,16 @@ public class OAuth2SignController {
 
     private final OAuth2SignService oAuth2SignService;
 
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getUserInfo(@AuthenticationPrincipal Authentication authentication) {
+        var jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
+        var optionalOAuth2AccountDTO = oAuth2SignService.getOne(jwtAuthenticationToken.getName());
+
+        return optionalOAuth2AccountDTO
+                .<ResponseEntity<Map<String, Object>>>map(oAuth2AccountDTO -> ResponseEntity.ok(Map.of("userInfo", oAuth2AccountDTO)))
+                .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(@AuthenticationPrincipal Authentication authentication) {
         var jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
