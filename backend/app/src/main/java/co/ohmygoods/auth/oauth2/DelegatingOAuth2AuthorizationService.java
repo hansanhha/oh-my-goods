@@ -1,5 +1,6 @@
 package co.ohmygoods.auth.oauth2;
 
+import co.ohmygoods.auth.jwt.vo.JWTInfo;
 import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -15,19 +16,19 @@ public class DelegatingOAuth2AuthorizationService implements OAuth2Authorization
     private final List<OAuth2AuthorizationService> oAuth2AuthorizationServices;
 
     @Override
-    public void signOut(String subject) {
+    public void signOut(JWTInfo jwtInfo) {
         oAuth2AuthorizationServices.stream()
-                .filter(service -> service.canSupport())
+                .filter(service -> service.canSupport(jwtInfo.oAuth2Vendor()))
                 .findFirst()
-                .ifPresent(service -> service.signOut(subject));
+                .ifPresent(service -> service.signOut(jwtInfo));
     }
 
     @Override
-    public void unlink(String subject) {
+    public void unlink(JWTInfo jwtInfo) {
         oAuth2AuthorizationServices.stream()
-                .filter(service -> service.canSupport())
+                .filter(service -> service.canSupport(jwtInfo.oAuth2Vendor()))
                 .findFirst()
-                .ifPresent(service -> service.unlink(subject));
+                .ifPresent(service -> service.unlink(jwtInfo));
     }
 
     @Override

@@ -6,6 +6,6 @@ public record FilterErrorResponse(String message,
                                   Instant timestamp) {
 
     public static FilterErrorResponse of(String message, Instant timestamp) {
-        return new FilterErrorRe            sponse(message, timestamp);
+        return new FilterErrorResponse(message, timestamp);
     }
 }

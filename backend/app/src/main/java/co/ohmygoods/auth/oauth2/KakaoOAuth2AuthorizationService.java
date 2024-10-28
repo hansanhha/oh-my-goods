@@ -1,5 +1,6 @@
 package co.ohmygoods.auth.oauth2;
 
+import co.ohmygoods.auth.jwt.vo.JWTInfo;
 import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,17 +27,17 @@ public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationServi
     private String unlinkUri;
 
     @Override
-    public void signOut(String subject) {
-        var oAuth2AuthorizedClient = oAuth2AuthorizedClientService.loadAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), subject);
+    public void signOut(JWTInfo jwtInfo) {
+        var oAuth2AuthorizedClient = oAuth2AuthorizedClientService.loadAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
         handleOAuth2RequestInternal(oAuth2AuthorizedClient.getAccessToken().getTokenValue(), signOutUri);
-        oAuth2AuthorizedClientService.removeAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), subject);
+        oAuth2AuthorizedClientService.removeAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
     }
 
     @Override
-    public void unlink(String subject) {
-        var oAuth2AuthorizedClient = oAuth2AuthorizedClientService.loadAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), subject);
+    public void unlink(JWTInfo jwtInfo) {
+        var oAuth2AuthorizedClient = oAuth2AuthorizedClientService.loadAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
         handleOAuth2RequestInternal(oAuth2AuthorizedClient.getAccessToken().getTokenValue(), unlinkUri);
-        oAuth2AuthorizedClientService.removeAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), subject);
+        oAuth2AuthorizedClientService.removeAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
     }
 
     @Override

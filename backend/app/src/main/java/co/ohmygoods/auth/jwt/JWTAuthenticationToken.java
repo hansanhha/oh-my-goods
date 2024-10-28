@@ -23,7 +23,7 @@ public class JWTAuthenticationToken implements Authentication {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Role.valueOf(jwtInfo.role().toUpperCase())
+        return jwtInfo.role()
                 .getAuthorities()
                 .stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.name()))

@@ -53,7 +53,7 @@ public class OAuth2SignService {
         var optionalJwtInfo = jwtService.extractTokenInfo(accessToken);
 
         optionalJwtInfo.ifPresent(jwtInfo -> {
-            oAuth2AuthorizationService.signOut(jwtInfo.subject());
+            oAuth2AuthorizationService.signOut(jwtInfo);
             jwtService.revokeRefreshToken(accessToken);
         });
     }
@@ -69,7 +69,7 @@ public class OAuth2SignService {
         var account = optionalAccount.get();
         var jwtInfo = optionalJwtInfo.get();
 
-        oAuth2AuthorizationService.unlink(jwtInfo.subject());
+        oAuth2AuthorizationService.unlink(jwtInfo);
         jwtService.revokeRefreshToken(accessToken);
         accountRepository.delete(account);
     }

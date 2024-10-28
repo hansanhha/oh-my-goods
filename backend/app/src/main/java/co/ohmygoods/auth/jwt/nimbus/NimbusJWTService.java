@@ -1,9 +1,11 @@
 package co.ohmygoods.auth.jwt.nimbus;
 
+import co.ohmygoods.auth.account.vo.Role;
 import co.ohmygoods.auth.jwt.*;
 import co.ohmygoods.auth.jwt.exception.JWTValidationException;
 import co.ohmygoods.auth.jwt.entity.RefreshToken;
 import co.ohmygoods.auth.jwt.vo.*;
+import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -22,8 +24,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static co.ohmygoods.auth.jwt.exception.JWTValidationException.TEMPLATE;
-import static co.ohmygoods.auth.jwt.vo.JWTClaimsKey.ROLE;
-import static co.ohmygoods.auth.jwt.vo.JWTClaimsKey.SUBJECT;
+import static co.ohmygoods.auth.jwt.vo.JWTClaimsKey.*;
 import static co.ohmygoods.auth.jwt.vo.TokenType.REFRESH_TOKEN;
 
 @Component
@@ -77,7 +78,7 @@ public class NimbusJWTService implements JWTService {
 
         var claims = new HashMap<JWTClaimsKey, Object>();
         claims.put(SUBJECT,jwtInfo.subject());
-        claims.put(ROLE, jwtInfo.role());
+        claims.put(ROLE, jwtInfo.role().name());
         var refreshTokenId = getRefreshTokenId();
         var newAccessToken = buildAccessToken(claims, getAccessTokenId(), refreshTokenId);
         var newRefreshToken = buildRefreshToken(claims, refreshTokenId);
@@ -265,7 +266,8 @@ public class NimbusJWTService implements JWTService {
                 .builder()
                 .tokenValue(token)
                 .subject(jwtClaimsSet.getSubject())
-                .role((String) jwtClaimsSet.getClaim(ROLE.name()))
+                .oAuth2Vendor(OAuth2Vendor.valueOf(jwtClaimsSet.getClaim(VENDOR.name()).toString().toUpperCase()))
+                .role(Role.valueOf(jwtClaimsSet.getClaim(ROLE.name()).toString().toUpperCase()))
                 .issuer(jwtClaimsSet.getIssuer())
                 .audience(jwtClaimsSet.getAudience().getFirst())
                 .issuedAt(jwtClaimsSet.getIssueTime().toInstant())
