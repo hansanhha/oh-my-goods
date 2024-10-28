@@ -56,7 +56,6 @@ public class SecurityConfig {
                         .successHandler(oAuth2AuthenticationSuccessHandler))
                 .logout(logout -> logout
                         .logoutUrl(signUrlProperties.getLogoutUrl())
-                        .addLogoutHandler(oAuth2AuthorizationService)
                         .clearAuthentication(true)
                         .logoutSuccessUrl(signUrlProperties.getLogoutUrl())
                         .invalidateHttpSession(true)

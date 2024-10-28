@@ -23,7 +23,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationService {
 
-    private final SignService signService;
     private final OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
 
     @Value("${application.security.oauth2.client.provider.kakao.signout-uri}")
@@ -33,24 +32,17 @@ public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationServi
     private String unlinkUri;
 
     @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        var jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
-        var jwtInfo = (JWTInfo) jwtAuthenticationToken.getPrincipal();
-        signService.signOut(jwtInfo.tokenValue());
-
-        var oAuth2AuthorizedClient = oAuth2AuthorizedClientService.loadAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
+    public void signOut(String subject) {
+        var oAuth2AuthorizedClient = oAuth2AuthorizedClientService.loadAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), subject);
         handleOAuth2RequestInternal(oAuth2AuthorizedClient.getAccessToken().getTokenValue(), signOutUri);
-        oAuth2AuthorizedClientService.removeAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
+        oAuth2AuthorizedClientService.removeAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), subject);
     }
 
     @Override
-    public void unlink(Authentication authentication) {
-        var jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
-        var jwtInfo = (JWTInfo) jwtAuthenticationToken.getPrincipal();
-
-        var oAuth2AuthorizedClient = oAuth2AuthorizedClientService.loadAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
+    public void unlink(String subject) {
+        var oAuth2AuthorizedClient = oAuth2AuthorizedClientService.loadAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), subject);
         handleOAuth2RequestInternal(oAuth2AuthorizedClient.getAccessToken().getTokenValue(), unlinkUri);
-        oAuth2AuthorizedClientService.removeAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), jwtInfo.subject());
+        oAuth2AuthorizedClientService.removeAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), subject);
     }
 
     private void handleOAuth2RequestInternal(String oAuth2AccessToken, String requestUri) {

@@ -90,6 +90,24 @@ public class NimbusJWTService implements JWTService {
     }
 
     @Override
+    public Optional<JWTInfo> extractTokenInfo(String token) {
+        var parseResult = jwtParser.parse(token);
+        if (parseResult.isFailed()) {
+            return Optional.empty();
+        }
+
+        var jwt = parseResult.token();
+        var optionalJwtClaimsSet = getClaimsSet(jwt);
+        Optional<JWTInfo> jwtInfo = Optional.empty();
+
+        if (optionalJwtClaimsSet.isPresent()) {
+            jwtInfo = Optional.of(buildJWTInfo(optionalJwtClaimsSet.get(), token));
+        }
+
+        return jwtInfo;
+    }
+
+    @Override
     public void revokeRefreshToken(String accessToken) {
         var parseResult = jwtParser.parse(accessToken);
         if (parseResult.isFailed()) {
@@ -136,16 +154,7 @@ public class NimbusJWTService implements JWTService {
         }
 
         var claimsSet = optionalClaimsSet.get();
-        var jwtInfo = JWTInfo
-                .builder()
-                .tokenValue(token)
-                .subject(claimsSet.getSubject())
-                .role((String) claimsSet.getClaim(ROLE.name()))
-                .issuer(claimsSet.getIssuer())
-                .audience(claimsSet.getAudience().getFirst())
-                .issuedAt(claimsSet.getIssueTime().toInstant())
-                .expiresIn(claimsSet.getExpirationTime().toInstant())
-                .build();
+        var jwtInfo = buildJWTInfo(claimsSet, token);
 
         return JWTValidationResult.valid(jwtInfo);
     }
@@ -249,5 +258,18 @@ public class NimbusJWTService implements JWTService {
         } catch (ParseException e) {
             throw new RuntimeException("Unable build refresh token entity");
         }
+    }
+
+    private JWTInfo buildJWTInfo(JWTClaimsSet jwtClaimsSet, String token) {
+        return JWTInfo
+                .builder()
+                .tokenValue(token)
+                .subject(jwtClaimsSet.getSubject())
+                .role((String) jwtClaimsSet.getClaim(ROLE.name()))
+                .issuer(jwtClaimsSet.getIssuer())
+                .audience(jwtClaimsSet.getAudience().getFirst())
+                .issuedAt(jwtClaimsSet.getIssueTime().toInstant())
+                .expiresIn(jwtClaimsSet.getExpirationTime().toInstant())
+                .build();
     }
 }

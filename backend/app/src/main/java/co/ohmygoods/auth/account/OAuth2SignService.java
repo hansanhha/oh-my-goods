@@ -3,8 +3,10 @@ package co.ohmygoods.auth.account;
 import co.ohmygoods.auth.account.model.Account;
 import co.ohmygoods.auth.account.model.Role;
 import co.ohmygoods.auth.jwt.JWTService;
+import co.ohmygoods.auth.jwt.vo.JWTInfo;
 import co.ohmygoods.auth.jwt.vo.JWTs;
 import co.ohmygoods.auth.jwt.vo.JWTClaimsKey;
+import co.ohmygoods.auth.oauth2.OAuth2AuthorizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OAuth2SignService implements SignService {
 
+    private final OAuth2AuthorizationService oAuth2AuthorizationService;
     private final JWTService jwtService;
     private final AccountRepository accountRepository;
 
@@ -46,7 +49,12 @@ public class OAuth2SignService implements SignService {
 
     @Override
     public void signOut(String accessToken) {
-        jwtService.revokeRefreshToken(accessToken);
+        var optionalJwtInfo = jwtService.extractTokenInfo(accessToken);
+
+        optionalJwtInfo.ifPresent(jwtInfo -> {
+            oAuth2AuthorizationService.signOut(jwtInfo.subject());
+            jwtService.revokeRefreshToken(accessToken);
+        });
     }
 
     @Override
