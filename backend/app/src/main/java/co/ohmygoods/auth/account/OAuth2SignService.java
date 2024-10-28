@@ -58,19 +58,25 @@ public class OAuth2SignService {
         });
     }
 
-    public void deleteAccount(String accessToken, String email) {
+    public boolean deleteAccount(String accessToken, String email) {
         var optionalAccount = accountRepository.findByEmail(email);
         var optionalJwtInfo = jwtService.extractTokenInfo(accessToken);
 
         if (optionalAccount.isEmpty() || optionalJwtInfo.isEmpty()) {
-            return;
+            return true;
         }
 
         var account = optionalAccount.get();
         var jwtInfo = optionalJwtInfo.get();
 
+        if (!account.getEmail().equals(jwtInfo.subject())) {
+            return false;
+        }
+
         oAuth2AuthorizationService.unlink(jwtInfo);
         jwtService.revokeRefreshToken(accessToken);
         accountRepository.delete(account);
+
+        return true;
     }
 }
