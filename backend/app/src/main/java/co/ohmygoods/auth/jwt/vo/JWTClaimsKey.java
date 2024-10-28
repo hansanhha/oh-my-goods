@@ -4,5 +4,6 @@ public enum JWTClaimsKey {
 
     SUBJECT,
     ROLE,
-    REFERENCE_REFRESH_TOKEN_ID;
+    REFERENCE_REFRESH_TOKEN_ID,
+    VENDOR;
 }

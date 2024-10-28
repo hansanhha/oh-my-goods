@@ -1,5 +1,6 @@
 package co.ohmygoods.auth.account;
 
+import co.ohmygoods.auth.account.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.vo.Role;
 import co.ohmygoods.auth.jwt.JWTService;
@@ -17,23 +18,22 @@ import java.util.UUID;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class OAuth2SignService implements SignService {
+public class OAuth2SignService {
 
     private final OAuth2AuthorizationService oAuth2AuthorizationService;
     private final JWTService jwtService;
     private final AccountRepository accountRepository;
 
-    @Override
     public Optional<Long> findIdByEmail(String email) {
         return accountRepository.findByEmail(email).map(OAuth2Account::getId);
     }
 
-    public Long signUp(SignUpRequest signUpRequest) {
+    public Long signUp(OAuth2SignUpRequest OAuth2SignUpRequest) {
         var newAccountInfo = OAuth2Account.builder()
                 .nickname(UUID.randomUUID().toString())
-                .oauth2Vendor(signUpRequest.vendor())
-                .oauth2MemberId(signUpRequest.oauth2MemberId())
-                .email(signUpRequest.email())
+                .oauth2Vendor(OAuth2SignUpRequest.vendor())
+                .oauth2MemberId(OAuth2SignUpRequest.oauth2MemberId())
+                .email(OAuth2SignUpRequest.email())
                 .role(Role.USER)
                 .build();
 
@@ -41,12 +41,10 @@ public class OAuth2SignService implements SignService {
         return newAccount.getId();
     }
 
-    @Override
     public JWTs signIn(String email) {
         return jwtService.generate(Map.of(JWTClaimsKey.SUBJECT, email));
     }
 
-    @Override
     public void signOut(String accessToken) {
         var optionalJwtInfo = jwtService.extractTokenInfo(accessToken);
 
@@ -56,7 +54,6 @@ public class OAuth2SignService implements SignService {
         });
     }
 
-    @Override
     public void deleteAccount(String accessToken, String email) {
         var optionalAccount = accountRepository.findByEmail(email);
         var optionalJwtInfo = jwtService.extractTokenInfo(accessToken);

@@ -1,16 +1,10 @@
 package co.ohmygoods.auth.oauth2;
 
-import co.ohmygoods.auth.account.SignService;
-import co.ohmygoods.auth.jwt.JWTAuthenticationToken;
-import co.ohmygoods.auth.jwt.vo.JWTInfo;
 import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +37,11 @@ public class KakaoOAuth2AuthorizationService implements OAuth2AuthorizationServi
         var oAuth2AuthorizedClient = oAuth2AuthorizedClientService.loadAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), subject);
         handleOAuth2RequestInternal(oAuth2AuthorizedClient.getAccessToken().getTokenValue(), unlinkUri);
         oAuth2AuthorizedClientService.removeAuthorizedClient(OAuth2Vendor.KAKAO.name().toLowerCase(), subject);
+    }
+
+    @Override
+    public boolean canSupport(OAuth2Vendor vendor) {
+        return vendor.equals(OAuth2Vendor.KAKAO);
     }
 
     private void handleOAuth2RequestInternal(String oAuth2AccessToken, String requestUri) {
