@@ -1,6 +1,7 @@
 package co.ohmygoods.auth.oauth2;
 
 import co.ohmygoods.auth.account.OAuth2SignService;
+import co.ohmygoods.auth.account.dto.OAuth2AccountDTO;
 import co.ohmygoods.auth.account.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.jwt.JWTService;
 import co.ohmygoods.auth.jwt.vo.JWTs;
@@ -36,20 +37,23 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         var oAuth2UserPrincipal = (OAuth2UserPrincipal) authentication.getPrincipal();
         var email = oAuth2UserPrincipal.getName();
-        var foundId = oAuth2SignService.findIdByEmail(email);
+        var optionalOAuth2AccountDTO = oAuth2SignService.getOne(email);
 
-        if (foundId.isEmpty()) {
-            var signUpInfo = getSignUpInfo(oAuth2UserPrincipal);
-            oAuth2SignService.signUp(signUpInfo);
+        OAuth2AccountDTO oAuth2AccountDTO;
+        if (optionalOAuth2AccountDTO.isEmpty()) {
+            var signUpInfo = buildSignUpInfo(oAuth2UserPrincipal);
+            oAuth2AccountDTO = oAuth2SignService.signUp(signUpInfo);
+        } else {
+            oAuth2AccountDTO = optionalOAuth2AccountDTO.get();
         }
 
-        var jwts = oAuth2SignService.signIn(email);
+        var jwts = oAuth2SignService.signIn(email, OAuth2Vendor.valueOf(oAuth2UserPrincipal.getOAuth2UserDetail().registrationId().toUpperCase()), oAuth2AccountDTO.role());
         var redirectUri = calculateRedirectURI(request, jwts);
 
         redirect.sendRedirect(request, response, redirectUri.toString());
     }
 
-    private OAuth2SignUpRequest getSignUpInfo(OAuth2UserPrincipal oAuth2UserPrincipal) {
+    private OAuth2SignUpRequest buildSignUpInfo(OAuth2UserPrincipal oAuth2UserPrincipal) {
         OAuth2UserDetail oAuth2UserDetail = oAuth2UserPrincipal.getOAuth2UserDetail();
         String email = oAuth2UserPrincipal.getName();
         String oAuth2MemberId = oAuth2UserDetail.getOAuth2MemberId();

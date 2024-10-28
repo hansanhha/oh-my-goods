@@ -1,12 +1,13 @@
 package co.ohmygoods.auth.account;
 
+import co.ohmygoods.auth.account.dto.OAuth2AccountDTO;
 import co.ohmygoods.auth.account.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.vo.Role;
 import co.ohmygoods.auth.jwt.JWTService;
-import co.ohmygoods.auth.jwt.vo.JWTClaimsKey;
 import co.ohmygoods.auth.jwt.vo.JWTs;
 import co.ohmygoods.auth.oauth2.OAuth2AuthorizationService;
+import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import static co.ohmygoods.auth.jwt.vo.JWTClaimsKey.*;
 
 @Service
 @Transactional
@@ -24,11 +27,12 @@ public class OAuth2SignService {
     private final JWTService jwtService;
     private final AccountRepository accountRepository;
 
-    public Optional<Long> findIdByEmail(String email) {
-        return accountRepository.findByEmail(email).map(OAuth2Account::getId);
+    public Optional<OAuth2AccountDTO> getOne(String email) {
+        return accountRepository.findByEmail(email)
+                .map(OAuth2AccountDTO::from);
     }
 
-    public Long signUp(OAuth2SignUpRequest OAuth2SignUpRequest) {
+    public OAuth2AccountDTO signUp(OAuth2SignUpRequest OAuth2SignUpRequest) {
         var newAccountInfo = OAuth2Account.builder()
                 .nickname(UUID.randomUUID().toString())
                 .oauth2Vendor(OAuth2SignUpRequest.vendor())
@@ -38,11 +42,11 @@ public class OAuth2SignService {
                 .build();
 
         var newAccount = accountRepository.save(newAccountInfo);
-        return newAccount.getId();
+        return OAuth2AccountDTO.from(newAccount);
     }
 
-    public JWTs signIn(String email) {
-        return jwtService.generate(Map.of(JWTClaimsKey.SUBJECT, email));
+    public JWTs signIn(String email, OAuth2Vendor vendor, Role role) {
+        return jwtService.generate(Map.of(SUBJECT, email, VENDOR, vendor.name(), ROLE, role.name()));
     }
 
     public void signOut(String accessToken) {
