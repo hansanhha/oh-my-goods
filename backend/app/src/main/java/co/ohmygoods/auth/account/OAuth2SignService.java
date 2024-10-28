@@ -1,10 +1,10 @@
 package co.ohmygoods.auth.account;
 
-import co.ohmygoods.auth.account.entity.Account;
+import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.vo.Role;
 import co.ohmygoods.auth.jwt.JWTService;
-import co.ohmygoods.auth.jwt.vo.JWTs;
 import co.ohmygoods.auth.jwt.vo.JWTClaimsKey;
+import co.ohmygoods.auth.jwt.vo.JWTs;
 import co.ohmygoods.auth.oauth2.OAuth2AuthorizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,11 +25,11 @@ public class OAuth2SignService implements SignService {
 
     @Override
     public Optional<Long> findIdByEmail(String email) {
-        return accountRepository.findByEmail(email).map(Account::getId);
+        return accountRepository.findByEmail(email).map(OAuth2Account::getId);
     }
 
     public Long signUp(SignUpRequest signUpRequest) {
-        var newAccountInfo = Account.builder()
+        var newAccountInfo = OAuth2Account.builder()
                 .nickname(UUID.randomUUID().toString())
                 .oauth2Vendor(signUpRequest.vendor())
                 .oauth2MemberId(signUpRequest.oauth2MemberId())
