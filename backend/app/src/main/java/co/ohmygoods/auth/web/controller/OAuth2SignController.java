@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +20,7 @@ public class OAuth2SignController {
 
     private final OAuth2SignService oAuth2SignService;
 
-    @PostMapping("/account")
+    @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(@AuthenticationPrincipal Authentication authentication) {
         var jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
         oAuth2SignService.signOut(jwtAuthenticationToken.getPrincipal().tokenValue());
