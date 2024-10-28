@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt;
 
-import co.ohmygoods.auth.account.model.Role;
+import co.ohmygoods.auth.account.vo.Role;
 import co.ohmygoods.auth.jwt.vo.JWTInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;

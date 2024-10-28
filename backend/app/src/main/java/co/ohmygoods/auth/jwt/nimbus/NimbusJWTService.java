@@ -2,7 +2,7 @@ package co.ohmygoods.auth.jwt.nimbus;
 
 import co.ohmygoods.auth.jwt.*;
 import co.ohmygoods.auth.jwt.exception.JWTValidationException;
-import co.ohmygoods.auth.jwt.model.RefreshToken;
+import co.ohmygoods.auth.jwt.entity.RefreshToken;
 import co.ohmygoods.auth.jwt.vo.*;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
