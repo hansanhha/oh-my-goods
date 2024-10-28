@@ -58,7 +58,19 @@ public class OAuth2SignService implements SignService {
     }
 
     @Override
-    public void deleteAccount(String email) {
+    public void deleteAccount(String accessToken, String email) {
+        var optionalAccount = accountRepository.findByEmail(email);
+        var optionalJwtInfo = jwtService.extractTokenInfo(accessToken);
 
+        if (optionalAccount.isEmpty() || optionalJwtInfo.isEmpty()) {
+            return;
+        }
+
+        var account = optionalAccount.get();
+        var jwtInfo = optionalJwtInfo.get();
+
+        oAuth2AuthorizationService.unlink(jwtInfo.subject());
+        jwtService.revokeRefreshToken(accessToken);
+        accountRepository.delete(account);
     }
 }

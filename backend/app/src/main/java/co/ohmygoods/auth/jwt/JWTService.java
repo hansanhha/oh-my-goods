@@ -16,7 +16,7 @@ public interface JWTService {
 
     Optional<JWTInfo> extractTokenInfo(String token);
 
-    void revokeRefreshToken(String email);
+    void revokeRefreshToken(String accessToken);
 
     JWTValidationResult validateToken(String token);
 }

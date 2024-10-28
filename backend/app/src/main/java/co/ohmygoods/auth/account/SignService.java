@@ -14,5 +14,5 @@ public interface SignService {
 
     void signOut(String accessToken);
 
-    void deleteAccount(String email);
+    void deleteAccount(String accessToken, String email);
 }
