@@ -41,7 +41,7 @@ public class JWTAuthenticationToken implements Authentication {
     }
 
     @Override
-    public Object getPrincipal() {
+    public JWTInfo getPrincipal() {
         return jwtInfo;
     }
 
