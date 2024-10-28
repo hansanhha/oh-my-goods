@@ -1,9 +1,8 @@
 package co.ohmygoods.auth.account;
 
-import co.ohmygoods.auth.account.model.Account;
-import co.ohmygoods.auth.account.model.Role;
+import co.ohmygoods.auth.account.entity.Account;
+import co.ohmygoods.auth.account.vo.Role;
 import co.ohmygoods.auth.jwt.JWTService;
-import co.ohmygoods.auth.jwt.vo.JWTInfo;
 import co.ohmygoods.auth.jwt.vo.JWTs;
 import co.ohmygoods.auth.jwt.vo.JWTClaimsKey;
 import co.ohmygoods.auth.oauth2.OAuth2AuthorizationService;
