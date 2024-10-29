@@ -27,11 +27,6 @@ public class OAuth2SignService {
     private final JWTService jwtService;
     private final AccountRepository accountRepository;
 
-    public Optional<OAuth2AccountDTO> getOne(String email) {
-        return accountRepository.findByEmail(email)
-                .map(OAuth2AccountDTO::from);
-    }
-
     public OAuth2AccountDTO signUp(OAuth2SignUpRequest OAuth2SignUpRequest) {
         var newAccountInfo = OAuth2Account.builder()
                 .nickname(UUID.randomUUID().toString())

@@ -1,5 +1,6 @@
 package co.ohmygoods.auth.oauth2;
 
+import co.ohmygoods.auth.account.AccountService;
 import co.ohmygoods.auth.account.OAuth2SignService;
 import co.ohmygoods.auth.account.dto.OAuth2AccountDTO;
 import co.ohmygoods.auth.account.dto.OAuth2SignUpRequest;
@@ -26,6 +27,7 @@ import java.net.URI;
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final OAuth2SignService oAuth2SignService;
+    private final AccountService accountService;
     private final RedirectStrategy redirect = new DefaultRedirectStrategy();
 
     /**
@@ -37,7 +39,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         var oAuth2UserPrincipal = (OAuth2UserPrincipal) authentication.getPrincipal();
         var email = oAuth2UserPrincipal.getName();
-        var optionalOAuth2AccountDTO = oAuth2SignService.getOne(email);
+        var optionalOAuth2AccountDTO = accountService.getOne(email);
 
         OAuth2AccountDTO oAuth2AccountDTO;
         if (optionalOAuth2AccountDTO.isEmpty()) {
