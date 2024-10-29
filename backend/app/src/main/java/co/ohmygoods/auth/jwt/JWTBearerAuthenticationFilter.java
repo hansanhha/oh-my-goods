@@ -1,6 +1,7 @@
 package co.ohmygoods.auth.jwt;
 
 import co.ohmygoods.auth.config.SecurityConfigProperties;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,6 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,20 +27,27 @@ public class JWTBearerAuthenticationFilter extends OncePerRequestFilter {
     private final SecurityConfigProperties.SignUrlProperties signUrlProperties;
     private final SecurityConfigProperties.WhitelistProperties whitelistProperties;
     private final HttpErrorExceptions httpErrorExceptions;
+    private final List<RequestMatcher> oauth2ProcessingRequestMatchers;
+
+    @PostConstruct
+    void init() {
+        oauth2ProcessingRequestMatchers.add(new AntPathRequestMatcher(signUrlProperties.getOauth2AuthorizationProcessingUrl()));
+        oauth2ProcessingRequestMatchers.add(new AntPathRequestMatcher(signUrlProperties.getOauth2LoginProcessingUrl()));
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var optionalBearerToken = extractBearerToken(request);
 
         if (optionalBearerToken.isEmpty()) {
-            throw httpErrorExceptions.unauthorized(Map.of("message","invalid credentials"));
+            throw httpErrorExceptions.unauthorized(Map.of("message", "invalid credentials"));
         }
 
         var bearerToken = optionalBearerToken.get();
         var validationResult = jwtService.validateToken(bearerToken);
 
         if (validationResult.hasError()) {
-            throw httpErrorExceptions.unauthorized(Map.of("message",validationResult.error().getDescription()));
+            throw httpErrorExceptions.unauthorized(Map.of("message", validationResult.error().getDescription()));
         }
 
         var jwtAuthenticationToken = JWTAuthenticationToken.authenticated(validationResult.jwtInfo(), null);
@@ -62,12 +72,14 @@ public class JWTBearerAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        var servletPath = request.getServletPath();
-        return whitelistProperties.getWhiteServletPathList()
-                .stream()
-                .anyMatch(servletPath::equals) ||
-                servletPath.startsWith(signUrlProperties.getOauth2AuthorizationBaseUrl()) ||
-                servletPath.startsWith(signUrlProperties.getOauth2LoginProcessingUrl());
+        return
+                whitelistProperties
+                        .getWhiteServletPathList()
+                        .stream()
+                        .anyMatch(servletPath -> servletPath.equals(request.getServletPath())) ||
+                oauth2ProcessingRequestMatchers
+                        .stream()
+                        .anyMatch(matcher -> matcher.matches(request));
     }
 
 }

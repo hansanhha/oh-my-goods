@@ -33,6 +33,9 @@ public class SecurityConfigProperties {
         private String oauth2AuthorizationBaseUrl;
 
         @NotEmpty
+        private String oauth2AuthorizationProcessingUrl;
+
+        @NotEmpty
         private String oauth2LoginProcessingUrl;
 
         @NotEmpty

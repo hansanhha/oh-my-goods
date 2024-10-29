@@ -7,6 +7,7 @@ import co.ohmygoods.auth.jwt.JsonAuthenticationEntryPoint;
 import co.ohmygoods.auth.oauth2.OAuth2AuthenticationSuccessHandler;
 import co.ohmygoods.auth.oauth2.OAuth2AuthorizationService;
 import co.ohmygoods.auth.oauth2.OAuth2UserPrincipalService;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,6 +54,8 @@ public class SecurityConfig {
                         .requestMatchers(whitelistProperties.getWhiteServletPathList().toArray(new String[0])).permitAll()
                         .requestMatchers(signUrlProperties.getOauth2AuthorizationBaseUrl()).permitAll()
                         .requestMatchers(signUrlProperties.getOauth2LoginProcessingUrl()).permitAll()
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2Login -> oauth2Login
                         .loginProcessingUrl(signUrlProperties.getOauth2LoginProcessingUrl())
