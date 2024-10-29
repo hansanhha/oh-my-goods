@@ -1,5 +1,6 @@
 package co.ohmygoods.auth.config;
 
+import co.ohmygoods.auth.jwt.HttpErrorExceptionHandleFilter;
 import co.ohmygoods.auth.jwt.JWTBearerAuthenticationFilter;
 import co.ohmygoods.auth.jwt.JsonAccessDeniedHandler;
 import co.ohmygoods.auth.jwt.JsonAuthenticationEntryPoint;
@@ -27,13 +28,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final HttpErrorExceptionHandleFilter httpErrorExceptionHandleFilter;
     private final JWTBearerAuthenticationFilter jwtBearerAuthenticationFilter;
     private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
     private final JsonAccessDeniedHandler jsonAccessDeniedHandler;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2UserPrincipalService oAuth2UserPrincipalService;
-    private final OAuth2AuthorizationService oAuth2AuthorizationService;
     private final SecurityConfigProperties.SignUrlProperties signUrlProperties;
+    private final SecurityConfigProperties.CorsProperties corsProperties;
+    private final SecurityConfigProperties.WhitelistProperties whitelistProperties;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -45,9 +48,11 @@ public class SecurityConfig {
                 .rememberMe(RememberMeConfigurer::disable)
                 .anonymous(AnonymousConfigurer::disable)
                 .formLogin(FormLoginConfigurer::disable)
-                .cors(cors -> cors.configurationSource(testCorsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(buildCorsConfigurationSource(corsProperties)))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("*").permitAll()
+                        .requestMatchers(whitelistProperties.getWhiteServletPathList().toArray(new String[0])).permitAll()
+                        .requestMatchers(signUrlProperties.getOauth2AuthorizationBaseUrl()).permitAll()
+                        .requestMatchers(signUrlProperties.getOauth2LoginProcessingUrl()).permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2Login -> oauth2Login
                         .loginProcessingUrl(signUrlProperties.getOauth2LoginProcessingUrl())
@@ -61,20 +66,21 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID"))
                 .addFilterBefore(jwtBearerAuthenticationFilter, OAuth2AuthorizationRequestRedirectFilter.class)
+                .addFilterBefore(httpErrorExceptionHandleFilter, JWTBearerAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(jsonAuthenticationEntryPoint)
                         .accessDeniedHandler(jsonAccessDeniedHandler))
                 .build();
     }
 
-    @Bean
-    public CorsConfigurationSource testCorsConfigurationSource() {
+    private CorsConfigurationSource buildCorsConfigurationSource(SecurityConfigProperties.CorsProperties corsProperties) {
         return request -> {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedHeaders(Collections.singletonList("*"));
-            config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-            config.setAllowedOriginPatterns(List.of("*"));
-            config.setAllowCredentials(true);
+            config.setAllowedHeaders(corsProperties.getAccessControlAllowHeaders());
+            config.setAllowedMethods(corsProperties.getAccessControlAllowMethods());
+            config.setAllowedOriginPatterns(corsProperties.getAccessControlAllowOrigin());
+            config.setExposedHeaders(corsProperties.getAccessControlExposeHeaders());
+            config.setAllowCredentials(corsProperties.isAccessControlAllowCredentials());
             return config;
         };
     }
