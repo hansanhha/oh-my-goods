@@ -21,6 +21,7 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 import static co.ohmygoods.auth.jwt.exception.JWTValidationException.TEMPLATE;
@@ -216,8 +217,9 @@ public class NimbusJWTService implements JWTService {
     }
 
     private JWTClaimsSet buildAccessTokenClaimsSet(Map<JWTClaimsKey, Object> claims, String accessTokenId, String refreshTokenId) {
-        claims.put(JWTClaimsKey.REFERENCE_REFRESH_TOKEN_ID, refreshTokenId);
-        return buildClaimsSet(claims, jwtProperties.getAccessTokenExpiresIn(), accessTokenId);
+        var accessTokenClaims = new HashMap<>(claims);
+        accessTokenClaims.put(JWTClaimsKey.REFERENCE_REFRESH_TOKEN_ID, refreshTokenId);
+        return buildClaimsSet(accessTokenClaims, jwtProperties.getAccessTokenExpiresIn(), accessTokenId);
     }
 
     private JWTClaimsSet buildRefreshTokenClaimsSet(Map<JWTClaimsKey, Object> claims, String refreshTokenId) {
@@ -242,22 +244,24 @@ public class NimbusJWTService implements JWTService {
     }
 
     private RefreshToken getRefreshTokenEntity(SignedJWT refreshToken) {
-        try {
-            var refreshTokenClaimsSet = refreshToken.getJWTClaimsSet();
-            var serializedRefreshTokenValue = refreshToken.serialize();
+        var optionalRefreshTokenClaimsSet = getClaimsSet(refreshToken);
 
-            return RefreshToken.builder()
-                    .tokenValue(serializedRefreshTokenValue)
-                    .jwtId(refreshTokenClaimsSet.getJWTID())
-                    .subject(refreshTokenClaimsSet.getSubject())
-                    .issuer(refreshTokenClaimsSet.getIssuer())
-                    .audience(refreshTokenClaimsSet.getAudience().getFirst())
-                    .issuedAt(LocalDateTime.from(refreshTokenClaimsSet.getIssueTime().toInstant()))
-                    .expiresIn(LocalDateTime.from(refreshTokenClaimsSet.getExpirationTime().toInstant()))
-                    .build();
-        } catch (ParseException e) {
+        if (optionalRefreshTokenClaimsSet.isEmpty()) {
             throw new RuntimeException("Unable build refresh token entity");
         }
+
+        var refreshTokenClaimsSet = optionalRefreshTokenClaimsSet.get();
+        var serializedRefreshTokenValue = refreshToken.serialize();
+
+        return RefreshToken.builder()
+                .tokenValue(serializedRefreshTokenValue)
+                .jwtId(refreshTokenClaimsSet.getJWTID())
+                .subject(refreshTokenClaimsSet.getSubject())
+                .issuer(refreshTokenClaimsSet.getIssuer())
+                .audience(refreshTokenClaimsSet.getAudience().getFirst())
+                .issuedAt(LocalDateTime.ofInstant(refreshTokenClaimsSet.getIssueTime().toInstant(), ZoneId.systemDefault()))
+                .expiresIn(LocalDateTime.ofInstant(refreshTokenClaimsSet.getExpirationTime().toInstant(), ZoneId.systemDefault()))
+                .build();
     }
 
     private JWTInfo buildJWTInfo(JWTClaimsSet jwtClaimsSet, String token) {

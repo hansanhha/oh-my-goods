@@ -66,8 +66,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     }
 
     private URI calculateRedirectURI(HttpServletRequest request, JWTs jwts) {
-        String redirectUri = request.getParameter("redirect_uri");
-        return UriComponentsBuilder.fromUriString(redirectUri)
+        return UriComponentsBuilder.fromUriString("/")
                 .queryParam("access_token", jwts.accessToken())
                 .queryParam("refresh_token", jwts.refreshToken())
                 .build()
