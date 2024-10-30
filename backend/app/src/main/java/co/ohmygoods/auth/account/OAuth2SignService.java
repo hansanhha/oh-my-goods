@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static co.ohmygoods.auth.jwt.vo.JWTClaimsKey.*;
@@ -42,6 +41,10 @@ public class OAuth2SignService {
 
     public JWTs signIn(String email, OAuth2Vendor vendor, Role role) {
         return jwtService.generate(Map.of(SUBJECT, email, VENDOR, vendor.name(), ROLE, role.name()));
+    }
+
+    public JWTs reissueJWT(String refreshToken) {
+        return jwtService.regenerate(refreshToken);
     }
 
     public void signOut(String accessToken) {

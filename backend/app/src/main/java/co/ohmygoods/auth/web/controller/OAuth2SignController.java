@@ -2,6 +2,8 @@ package co.ohmygoods.auth.web.controller;
 
 import co.ohmygoods.auth.account.OAuth2SignService;
 import co.ohmygoods.auth.jwt.JWTAuthenticationToken;
+import co.ohmygoods.auth.jwt.vo.JWTInfo;
+import co.ohmygoods.auth.jwt.vo.JWTs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,6 +18,15 @@ import java.util.Map;
 public class OAuth2SignController {
 
     private final OAuth2SignService oAuth2SignService;
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<Map<String, Object>> refreshToken(@AuthenticationPrincipal Authentication authentication) {
+        var jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
+        var principal = jwtAuthenticationToken.getPrincipal();
+
+        var jwts = oAuth2SignService.reissueJWT(principal.tokenValue());
+        return ResponseEntity.ok(Map.of("message", "succeed reissue tokens", "tokens", jwts));
+    }
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(@AuthenticationPrincipal Authentication authentication) {
