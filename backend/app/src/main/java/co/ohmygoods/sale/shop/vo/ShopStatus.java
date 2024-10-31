@@ -4,8 +4,14 @@ public enum ShopStatus {
 
     ACTIVE,
     INACTIVE,
-    DELETED,
-    REQUESTED_TRANSFER,
-    APPROVED_TRANSFER,
-    REJECTED_TRANSFER
+    ENTIRE_SOLDOUT,
+    DELETED;
+
+    public boolean isChangeable(ShopStatus targetStatus) {
+        if (this.equals(ShopStatus.DELETED)) {
+            return targetStatus.equals(INACTIVE);
+        }
+
+        return true;
+    }
 }

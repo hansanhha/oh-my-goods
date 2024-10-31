@@ -1,6 +1,8 @@
 package co.ohmygoods.sale.shop.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.sale.shop.exception.UnchangeableShopOwnerException;
+import co.ohmygoods.sale.shop.exception.UnchangeableShopStatusException;
 import co.ohmygoods.sale.shop.vo.ShopStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,12 +19,40 @@ public class Shop {
     private String name;
 
     @OneToOne
-    @JoinColumn(name = "onwer_id")
+    @JoinColumn(name = "owner_id")
     private OAuth2Account owner;
 
     @Column(columnDefinition = "TEXT")
     private String introduction;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ShopStatus status;
+
+    public static Shop toEntity(String name, OAuth2Account owner, String introduction, ShopStatus status) {
+        var shop = new Shop();
+        shop.name = name;
+        shop.owner = owner;
+        shop.introduction = introduction;
+        shop.status = status;
+        return shop;
+    }
+
+    public void changeShopStatus(ShopStatus status) {
+        if (!this.status.isChangeable(status)) {
+            throw UnchangeableShopStatusException.unchangeable(this.status.name(), status.name());
+        }
+
+        this.status = status;
+    }
+
+    public void changeOwner(OAuth2Account targetAccount) {
+        owner = targetAccount;
+    }
+
+    public void ownerCheck(OAuth2Account account) {
+        if (!owner.getId().equals(account.getId())) {
+            throw UnchangeableShopOwnerException.isNotOwner(account.getEmail(), name);
+        }
+    }
 }
