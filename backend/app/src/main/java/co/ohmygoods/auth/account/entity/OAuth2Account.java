@@ -3,6 +3,7 @@ package co.ohmygoods.auth.account.entity;
 import co.ohmygoods.auth.account.vo.Role;
 import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import co.ohmygoods.global.jpa.BaseEntity;
+import co.ohmygoods.sale.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,6 +17,9 @@ public class OAuth2Account extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToOne(mappedBy = "owner")
+    private Shop shop;
 
     @Enumerated(EnumType.STRING)
     private Role role;
