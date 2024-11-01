@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class ShopOwnerChange extends BaseEntity {
+public class ShopOwnerChangeHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,8 +31,8 @@ public class ShopOwnerChange extends BaseEntity {
     @Column(nullable = false)
     private ShopOwnerStatus status;
 
-    public static ShopOwnerChange toEntity(Shop shop, OAuth2Account originalOwner, OAuth2Account targetAccount, ShopOwnerStatus status) {
-        var shopOwnerChange = new ShopOwnerChange();
+    public static ShopOwnerChangeHistory toEntity(Shop shop, OAuth2Account originalOwner, OAuth2Account targetAccount, ShopOwnerStatus status) {
+        var shopOwnerChange = new ShopOwnerChangeHistory();
         shopOwnerChange.shop = shop;
         shopOwnerChange.originalOwner = originalOwner;
         shopOwnerChange.targetAccount = targetAccount;

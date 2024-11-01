@@ -1,6 +1,7 @@
 package co.ohmygoods.sale.shop.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.global.jpa.BaseEntity;
 import co.ohmygoods.sale.shop.exception.UnchangeableShopOwnerException;
 import co.ohmygoods.sale.shop.exception.UnchangeableShopStatusException;
 import co.ohmygoods.sale.shop.vo.ShopStatus;
@@ -9,7 +10,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class Shop {
+public class Shop extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
