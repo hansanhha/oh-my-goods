@@ -2,8 +2,7 @@ package co.ohmygoods.sale.shop;
 
 import co.ohmygoods.auth.account.AccountRepository;
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
-import co.ohmygoods.sale.shop.dto.ShopOwnerChangeHistoryDto;
-import co.ohmygoods.sale.shop.entity.ShopOwnerChangeHistory;
+import co.ohmygoods.sale.shop.dto.ShopOwnerChangeHistory;
 import co.ohmygoods.sale.shop.exception.ShopNotFoundException;
 import co.ohmygoods.sale.shop.exception.ShopOwnerChangeHistoryException;
 import co.ohmygoods.sale.shop.exception.ShopOwnerChangeNotFoundException;
@@ -12,8 +11,6 @@ import co.ohmygoods.sale.shop.vo.ShopOwnerStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -24,11 +21,11 @@ public class ShopOwnerChangeService {
     private final ShopRepository shopRepository;
     private final ShopOwnerChangeHistoryRepository shopOwnerChangeHistoryRepository;
 
-    public ShopOwnerChangeHistoryDto getRequestHistory(Long historyId) {
+    public ShopOwnerChangeHistory getRequestHistory(Long historyId) {
         var shopOwnerChangeHistory = shopOwnerChangeHistoryRepository.findById(historyId)
                 .orElseThrow(() -> new ShopOwnerChangeHistoryException(historyId.toString()));
 
-        return new ShopOwnerChangeHistoryDto(historyId,
+        return new ShopOwnerChangeHistory(historyId,
                 shopOwnerChangeHistory.getOriginalOwner().getEmail(),
                 shopOwnerChangeHistory.getTargetAccount().getEmail(),
                 shopOwnerChangeHistory.getStatus(),
@@ -45,7 +42,7 @@ public class ShopOwnerChangeService {
 
         shop.ownerCheck(requestAccount);
 
-        var requestedShopOwnerChange = ShopOwnerChangeHistory.toEntity(shop, requestAccount, targetAccount, ShopOwnerStatus.OWNER_CHANGE_REQUESTED);
+        var requestedShopOwnerChange = co.ohmygoods.sale.shop.entity.ShopOwnerChangeHistory.toEntity(shop, requestAccount, targetAccount, ShopOwnerStatus.OWNER_CHANGE_REQUESTED);
         shopOwnerChangeHistoryRepository.save(requestedShopOwnerChange);
     }
 
