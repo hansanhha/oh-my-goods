@@ -20,7 +20,6 @@ public class ShopManagementService {
 
     private final AccountRepository accountRepository;
     private final ShopRepository shopRepository;
-    private final ShopOwnerChangeHistoryRepository shopOwnerChangeHistoryRepository;
 
     public Long createShop(ShopCreationRequest request) {
         var shopName = request.shopName();
@@ -53,62 +52,6 @@ public class ShopManagementService {
 
     public void deleteShop() {
 
-    }
-
-    public ShopOwnerChangeHistoryDto getOne(Long requestedOwnerChangeHistoryId) {
-
-    }
-
-    public void requestShopOwnerChange(String requestAccountEmail, String targetAccountEmail, Long shopId) {
-        var requestAccount = accountRepository.findByEmail(requestAccountEmail)
-                .orElseThrow(() -> new AccountNotFoundException(requestAccountEmail));
-        var targetAccount = accountRepository.findByEmail(targetAccountEmail)
-                .orElseThrow(() -> new AccountNotFoundException(targetAccountEmail));
-        var shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
-
-        shop.ownerCheck(requestAccount);
-
-        var requestedShopOwnerChange = ShopOwnerChangeHistory.toEntity(shop, requestAccount, targetAccount, ShopOwnerStatus.OWNER_CHANGE_REQUESTED);
-        shopOwnerChangeHistoryRepository.save(requestedShopOwnerChange);
-    }
-
-    public void cancelShopOwnerChangeRequest(String requestedAccountEmail, Long requestedOwnerChangeHistoryId) {
-        var requestedAccount = accountRepository.findByEmail(requestedAccountEmail)
-                .orElseThrow(() -> new AccountNotFoundException(requestedAccountEmail));
-        var requestedOwnerChangeHistory = shopOwnerChangeHistoryRepository.findById(requestedOwnerChangeHistoryId)
-                .orElseThrow(() -> new ShopOwnerChangeNotFoundException(requestedOwnerChangeHistoryId.toString()));
-
-        var shop = requestedOwnerChangeHistory.getShop();
-        shop.ownerCheck(requestedAccount);
-
-        if (requestedAccount.getId().equals(requestedOwnerChangeHistory.getOriginalOwner().getId())) {
-            throw UnchangeableShopOwnerException.isNotOwner(requestedAccountEmail, shop.getName());
-        }
-
-        requestedOwnerChangeHistory.changeShopOwnerStatus(ShopOwnerStatus.OWNER_CHANGE_CANCELED);
-    }
-
-    public void approveShopOwnerChange(String targetAccountEmail, Long requestedOwnerChangeHistoryId) {
-        var targetAccount = accountRepository.findByEmail(targetAccountEmail)
-                .orElseThrow(() -> new AccountNotFoundException(targetAccountEmail));
-        var requestedOwnerChangeHistory = shopOwnerChangeHistoryRepository.findById(requestedOwnerChangeHistoryId)
-                .orElseThrow(() -> new ShopOwnerChangeNotFoundException(requestedOwnerChangeHistoryId.toString()));
-        var shop = requestedOwnerChangeHistory.getShop();
-
-        requestedOwnerChangeHistory.targetAccountCheck(targetAccount);
-        requestedOwnerChangeHistory.changeShopOwnerStatus(ShopOwnerStatus.OWNER_CHANGE_APPROVED);
-        shop.changeOwner(targetAccount);
-    }
-
-    public void rejectShopOwnerChange(String targetAccountEmail, Long requestedOwnerChangeHistoryId) {
-        var targetAccount = accountRepository.findByEmail(targetAccountEmail)
-                .orElseThrow(() -> new AccountNotFoundException(targetAccountEmail));
-        var requestedOwnerChangeHistory = shopOwnerChangeHistoryRepository.findById(requestedOwnerChangeHistoryId)
-                .orElseThrow(() -> new ShopOwnerChangeNotFoundException(requestedOwnerChangeHistoryId.toString()));
-
-        requestedOwnerChangeHistory.targetAccountCheck(targetAccount);
-        requestedOwnerChangeHistory.changeShopOwnerStatus(ShopOwnerStatus.OWNER_CHANGE_REJECTED);
     }
 
 }
