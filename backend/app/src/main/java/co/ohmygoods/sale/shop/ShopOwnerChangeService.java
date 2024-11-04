@@ -5,12 +5,15 @@ import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.sale.shop.dto.ShopOwnerChangeHistoryDto;
 import co.ohmygoods.sale.shop.entity.ShopOwnerChangeHistory;
 import co.ohmygoods.sale.shop.exception.ShopNotFoundException;
+import co.ohmygoods.sale.shop.exception.ShopOwnerChangeHistoryException;
 import co.ohmygoods.sale.shop.exception.ShopOwnerChangeNotFoundException;
 import co.ohmygoods.sale.shop.exception.UnchangeableShopOwnerException;
 import co.ohmygoods.sale.shop.vo.ShopOwnerStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -22,7 +25,14 @@ public class ShopOwnerChangeService {
     private final ShopOwnerChangeHistoryRepository shopOwnerChangeHistoryRepository;
 
     public ShopOwnerChangeHistoryDto getRequestHistory(Long historyId) {
+        var shopOwnerChangeHistory = shopOwnerChangeHistoryRepository.findById(historyId)
+                .orElseThrow(() -> new ShopOwnerChangeHistoryException(historyId.toString()));
 
+        return new ShopOwnerChangeHistoryDto(historyId,
+                shopOwnerChangeHistory.getOriginalOwner().getEmail(),
+                shopOwnerChangeHistory.getTargetAccount().getEmail(),
+                shopOwnerChangeHistory.getStatus(),
+                shopOwnerChangeHistory.getCreatedAt());
     }
 
     public void requestChange(String requestAccountEmail, String targetAccountEmail, Long shopId) {
