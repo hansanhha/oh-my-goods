@@ -30,6 +30,10 @@ public class Shop extends BaseEntity {
     @Column(nullable = false)
     private ShopStatus status;
 
+    private String shopImagePath;
+
+    private String shopImageName;
+
     public static Shop toEntity(String name, OAuth2Account owner, String introduction, ShopStatus status) {
         var shop = new Shop();
         shop.name = name;

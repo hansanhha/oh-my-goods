@@ -7,5 +7,6 @@ import java.time.LocalDateTime;
 public record ShopDto(String name,
                       String introduction,
                       LocalDateTime createdAt,
+                      String shopImage,
                       ShopStatus status) {
 }

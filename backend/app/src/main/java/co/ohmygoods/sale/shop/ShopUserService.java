@@ -17,6 +17,11 @@ public class ShopUserService {
         var shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
 
-        return new ShopDto(shop.getName(), shop.getIntroduction(), shop.getCreatedAt(), shop.getStatus());
+        return new ShopDto(
+                shop.getName(),
+                shop.getIntroduction(),
+                shop.getCreatedAt(),
+                shop.getShopImagePath().concat(shop.getShopImageName()),
+                shop.getStatus());
     }
 }
