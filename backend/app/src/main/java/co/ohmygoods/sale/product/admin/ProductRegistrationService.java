@@ -5,8 +5,10 @@ import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.sale.product.ProductDetailCategoryRepository;
 import co.ohmygoods.sale.product.ProductRepository;
 import co.ohmygoods.sale.product.ProductSeriesRepository;
+import co.ohmygoods.sale.product.dto.ProductMetadataModifyInfo;
 import co.ohmygoods.sale.product.dto.ProductRegisterInfo;
 import co.ohmygoods.sale.product.entity.*;
+import co.ohmygoods.sale.product.exception.ProductNotFoundException;
 import co.ohmygoods.sale.shop.ShopRepository;
 import co.ohmygoods.sale.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ProductRegisterService {
+public class ProductRegistrationService {
 
     private final AccountRepository accountRepository;
     private final ShopRepository shopRepository;
@@ -29,12 +31,12 @@ public class ProductRegisterService {
 
     public Long register(ProductRegisterInfo info) {
         var shopId = info.shopId();
-        var registerAccountEmail = info.registerAccountEmail();
+        var accountEmail = info.accountEmail();
 
         var shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
-        var account = accountRepository.findByEmail(registerAccountEmail)
-                .orElseThrow(() -> new AccountNotFoundException(registerAccountEmail));
+        var account = accountRepository.findByEmail(accountEmail)
+                .orElseThrow(() -> new AccountNotFoundException(accountEmail));
 
         shop.ownerCheck(account);
 
@@ -80,5 +82,63 @@ public class ProductRegisterService {
         }
 
         return savedProduct.getId();
+    }
+
+    public void modifyMetadata(ProductMetadataModifyInfo info) {
+        var shopId = info.shopId();
+        var accountEmail = info.accountEmail();
+        var productId = info.modifyProductId();
+
+        var shop = shopRepository.findById(shopId)
+                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+        var account = accountRepository.findByEmail(accountEmail)
+                .orElseThrow(() -> new AccountNotFoundException(accountEmail));
+        var product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId.toString()));
+
+        shop.ownerCheck(account);
+        product.shopCheck(shop);
+
+        var detailCategoryIds = info.modifyDetailCategoryIds();
+        var seriesIds = info.modifySeriesIds();
+        List<ProductDetailCategoryMapping> modifyProductDetailCategoryMappings = null;
+        List<ProductSeriesMapping> modifyProductSeriesMappings = null;
+
+        if (!detailCategoryIds.isEmpty()) {
+            var productDetailCategories = (List<ProductDetailCategory>) productDetailCategoryRepository.findAllById(detailCategoryIds);
+            modifyProductDetailCategoryMappings = productDetailCategories
+                    .stream()
+                    .map(detailCategory -> ProductDetailCategoryMapping.toEntity(product, detailCategory))
+                    .toList();
+        }
+
+        if (!seriesIds.isEmpty()) {
+            var productSeries = (List<ProductSeries>)productSeriesRepository.findAllById(seriesIds);
+            modifyProductSeriesMappings = productSeries.stream()
+                    .map(series -> ProductSeriesMapping.toEntity(product, series))
+                    .toList();
+        }
+
+        product.updateMetadata(
+                info.modifyName(),
+                info.modifyDescription(),
+                info.modifyType(),
+                info.modifyCategory(),
+                modifyProductDetailCategoryMappings,
+                modifyProductSeriesMappings);
+    }
+
+    public void delete(Long shopId, String accountEmail, Long productId) {
+        var shop = shopRepository.findById(shopId)
+                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+        var account = accountRepository.findByEmail(accountEmail)
+                .orElseThrow(() -> new AccountNotFoundException(accountEmail));
+        var product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId.toString()));
+
+        shop.ownerCheck(account);
+        product.shopCheck(shop);
+
+        productRepository.delete(product);
     }
 }

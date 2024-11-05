@@ -1,6 +1,7 @@
 package co.ohmygoods.sale.product.entity;
 
 import co.ohmygoods.global.jpa.BaseEntity;
+import co.ohmygoods.sale.product.exception.ProductShopCheckException;
 import co.ohmygoods.sale.product.vo.ProductCategory;
 import co.ohmygoods.sale.product.vo.ProductStatus;
 import co.ohmygoods.sale.product.vo.ProductType;
@@ -68,4 +69,23 @@ public class Product extends BaseEntity {
 
     private LocalDateTime discountEndDate;
 
+    public void shopCheck(Shop shop) {
+        if (this.shop.getId().equals(shop.getId())) {
+            throw new ProductShopCheckException(shop.getId().toString());
+        }
+    }
+
+    public void updateMetadata(String name,
+                               String description,
+                               ProductType type,
+                               ProductCategory category,
+                               List<ProductDetailCategoryMapping> productDetailCategoryMappings,
+                               List<ProductSeriesMapping> productSeriesMappings) {
+        this.name = name;
+        this.description = description;
+        this.type = type;
+        this.category = category;
+        this.productDetailCategoryMappings = productDetailCategoryMappings;
+        this.productSeriesMappings = productSeriesMappings;
+    }
 }

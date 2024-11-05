@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
-public record ProductRegisterInfo(String registerAccountEmail,
+public record ProductRegisterInfo(String accountEmail,
                                   Long shopId,
                                   ProductType type,
                                   ProductCategory category,

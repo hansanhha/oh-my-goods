@@ -2,6 +2,7 @@ package co.ohmygoods.sale.shop.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.jpa.BaseEntity;
+import co.ohmygoods.sale.shop.exception.InvalidShopOwnerException;
 import co.ohmygoods.sale.shop.exception.UnchangeableShopOwnerException;
 import co.ohmygoods.sale.shop.exception.UnchangeableShopStatusException;
 import co.ohmygoods.sale.shop.vo.ShopStatus;
@@ -57,7 +58,7 @@ public class Shop extends BaseEntity {
 
     public void ownerCheck(OAuth2Account account) {
         if (!owner.getId().equals(account.getId())) {
-            throw UnchangeableShopOwnerException.isNotOwner(account.getEmail(), name);
+            throw InvalidShopOwnerException.isNotOwner(account.getEmail(), name);
         }
     }
 }
