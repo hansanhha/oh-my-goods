@@ -1,6 +1,6 @@
 package co.ohmygoods.sale.shop;
 
-import co.ohmygoods.sale.shop.entity.Shop;
+import co.ohmygoods.domain.shop.entity.Shop;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

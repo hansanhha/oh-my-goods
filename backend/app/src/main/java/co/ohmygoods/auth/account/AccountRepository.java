@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.account;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.domain.account.entity.OAuth2Account;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

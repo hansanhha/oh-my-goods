@@ -1,8 +1,8 @@
 package co.ohmygoods.sale.product.dto;
 
-import co.ohmygoods.sale.product.vo.ProductCategory;
-import co.ohmygoods.sale.product.vo.ProductStatus;
-import co.ohmygoods.sale.product.vo.ProductType;
+import co.ohmygoods.domain.product.vo.ProductCategory;
+import co.ohmygoods.domain.product.vo.ProductStatus;
+import co.ohmygoods.domain.product.vo.ProductType;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

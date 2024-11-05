@@ -1,7 +1,7 @@
 package co.ohmygoods.sale.product.dto;
 
-import co.ohmygoods.sale.product.vo.ProductCategory;
-import co.ohmygoods.sale.product.vo.ProductType;
+import co.ohmygoods.domain.product.vo.ProductCategory;
+import co.ohmygoods.domain.product.vo.ProductType;
 
 import java.util.List;
 

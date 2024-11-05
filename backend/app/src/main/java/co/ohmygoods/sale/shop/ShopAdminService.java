@@ -1,11 +1,12 @@
 package co.ohmygoods.sale.shop;
 
 import co.ohmygoods.auth.account.AccountRepository;
-import co.ohmygoods.auth.account.exception.AccountNotFoundException;
+import co.ohmygoods.domain.account.exception.AccountNotFoundException;
+import co.ohmygoods.domain.shop.exception.InvalidShopNameException;
+import co.ohmygoods.domain.shop.exception.NotFoundShopException;
 import co.ohmygoods.sale.shop.dto.ShopCreationRequest;
-import co.ohmygoods.sale.shop.entity.Shop;
-import co.ohmygoods.sale.shop.exception.*;
-import co.ohmygoods.sale.shop.vo.ShopStatus;
+import co.ohmygoods.domain.shop.entity.Shop;
+import co.ohmygoods.domain.shop.vo.ShopStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

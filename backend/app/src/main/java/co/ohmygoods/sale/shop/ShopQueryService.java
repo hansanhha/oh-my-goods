@@ -1,7 +1,7 @@
 package co.ohmygoods.sale.shop;
 
 import co.ohmygoods.sale.shop.dto.ShopDetailInfo;
-import co.ohmygoods.sale.shop.exception.ShopNotFoundException;
+import co.ohmygoods.domain.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

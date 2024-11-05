@@ -1,9 +1,9 @@
 package co.ohmygoods.auth.jwt;
 
-import co.ohmygoods.auth.jwt.vo.JWTClaimsKey;
-import co.ohmygoods.auth.jwt.vo.JWTInfo;
-import co.ohmygoods.auth.jwt.vo.JWTs;
-import co.ohmygoods.auth.jwt.vo.JWTValidationResult;
+import co.ohmygoods.domain.jwt.vo.JWTClaimsKey;
+import co.ohmygoods.domain.jwt.vo.JWTInfo;
+import co.ohmygoods.domain.jwt.vo.JWTs;
+import co.ohmygoods.domain.jwt.vo.JWTValidationResult;
 
 import java.util.Map;
 import java.util.Optional;

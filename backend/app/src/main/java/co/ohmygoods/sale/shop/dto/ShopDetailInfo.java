@@ -1,6 +1,6 @@
 package co.ohmygoods.sale.shop.dto;
 
-import co.ohmygoods.sale.shop.vo.ShopStatus;
+import co.ohmygoods.domain.shop.vo.ShopStatus;
 
 import java.time.LocalDateTime;
 

@@ -2,8 +2,6 @@ package co.ohmygoods.auth.web.controller;
 
 import co.ohmygoods.auth.account.OAuth2SignService;
 import co.ohmygoods.auth.jwt.JWTAuthenticationToken;
-import co.ohmygoods.auth.jwt.vo.JWTInfo;
-import co.ohmygoods.auth.jwt.vo.JWTs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

@@ -1,13 +1,13 @@
 package co.ohmygoods.sale.shop;
 
 import co.ohmygoods.auth.account.AccountRepository;
-import co.ohmygoods.auth.account.exception.AccountNotFoundException;
+import co.ohmygoods.domain.account.exception.AccountNotFoundException;
 import co.ohmygoods.sale.shop.dto.ShopOwnerChangeHistory;
-import co.ohmygoods.sale.shop.exception.ShopNotFoundException;
-import co.ohmygoods.sale.shop.exception.ShopOwnerChangeHistoryException;
-import co.ohmygoods.sale.shop.exception.ShopOwnerChangeNotFoundException;
-import co.ohmygoods.sale.shop.exception.UnchangeableShopOwnerException;
-import co.ohmygoods.sale.shop.vo.ShopOwnerStatus;
+import co.ohmygoods.domain.shop.exception.ShopNotFoundException;
+import co.ohmygoods.domain.shop.exception.ShopOwnerChangeHistoryException;
+import co.ohmygoods.domain.shop.exception.ShopOwnerChangeNotFoundException;
+import co.ohmygoods.domain.shop.exception.UnchangeableShopOwnerException;
+import co.ohmygoods.domain.shop.vo.ShopOwnerStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +42,7 @@ public class ShopOwnerChangeService {
 
         shop.ownerCheck(requestAccount);
 
-        var requestedShopOwnerChange = co.ohmygoods.sale.shop.entity.ShopOwnerChangeHistory.toEntity(shop, requestAccount, targetAccount, ShopOwnerStatus.OWNER_CHANGE_REQUESTED);
+        var requestedShopOwnerChange = co.ohmygoods.domain.shop.entity.ShopOwnerChangeHistory.toEntity(shop, requestAccount, targetAccount, ShopOwnerStatus.OWNER_CHANGE_REQUESTED);
         shopOwnerChangeHistoryRepository.save(requestedShopOwnerChange);
     }
 

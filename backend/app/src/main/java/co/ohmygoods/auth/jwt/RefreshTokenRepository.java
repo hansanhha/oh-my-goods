@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt;
 
-import co.ohmygoods.auth.jwt.entity.RefreshToken;
+import co.ohmygoods.domain.jwt.entity.RefreshToken;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
