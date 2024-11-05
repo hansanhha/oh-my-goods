@@ -1,15 +1,13 @@
-package co.ohmygoods.sale.product.admin;
+package co.ohmygoods.admin.product;
 
 import co.ohmygoods.auth.account.AccountRepository;
 import co.ohmygoods.domain.account.exception.AccountNotFoundException;
 import co.ohmygoods.domain.product.entity.*;
-import co.ohmygoods.sale.product.ProductDetailCategoryRepository;
-import co.ohmygoods.sale.product.ProductRepository;
-import co.ohmygoods.sale.product.ProductSeriesRepository;
-import co.ohmygoods.sale.product.dto.ProductMetadataModifyInfo;
-import co.ohmygoods.sale.product.dto.ProductRegisterInfo;
+import co.ohmygoods.admin.product.dto.ProductMetadataModifyInfo;
+import co.ohmygoods.admin.product.dto.ProductRegisterInfo;
 import co.ohmygoods.domain.product.exception.ProductNotFoundException;
-import co.ohmygoods.sale.shop.ShopRepository;
+import co.ohmygoods.product.ProductRepository;
+import co.ohmygoods.shop.ShopRepository;
 import co.ohmygoods.domain.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

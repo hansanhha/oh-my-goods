@@ -1,6 +1,6 @@
-package co.ohmygoods.sale.shop;
+package co.ohmygoods.shop;
 
-import co.ohmygoods.sale.shop.dto.ShopDetailInfo;
+import co.ohmygoods.admin.shop.dto.ShopDetailInfo;
 import co.ohmygoods.domain.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

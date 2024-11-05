@@ -1,4 +1,4 @@
-package co.ohmygoods.sale.product.dto;
+package co.ohmygoods.admin.product.dto;
 
 import co.ohmygoods.domain.product.vo.ProductCategory;
 import co.ohmygoods.domain.product.vo.ProductType;

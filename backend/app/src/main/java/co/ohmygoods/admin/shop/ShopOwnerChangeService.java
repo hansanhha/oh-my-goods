@@ -1,13 +1,14 @@
-package co.ohmygoods.sale.shop;
+package co.ohmygoods.admin.shop;
 
 import co.ohmygoods.auth.account.AccountRepository;
 import co.ohmygoods.domain.account.exception.AccountNotFoundException;
-import co.ohmygoods.sale.shop.dto.ShopOwnerChangeHistory;
+import co.ohmygoods.admin.shop.dto.ShopOwnerChangeHistory;
 import co.ohmygoods.domain.shop.exception.ShopNotFoundException;
 import co.ohmygoods.domain.shop.exception.ShopOwnerChangeHistoryException;
 import co.ohmygoods.domain.shop.exception.ShopOwnerChangeNotFoundException;
 import co.ohmygoods.domain.shop.exception.UnchangeableShopOwnerException;
 import co.ohmygoods.domain.shop.vo.ShopOwnerStatus;
+import co.ohmygoods.shop.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

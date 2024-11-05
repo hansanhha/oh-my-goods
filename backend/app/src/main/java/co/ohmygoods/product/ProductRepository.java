@@ -1,4 +1,4 @@
-package co.ohmygoods.sale.product;
+package co.ohmygoods.product;
 
 import co.ohmygoods.domain.product.entity.Product;
 import org.springframework.data.repository.CrudRepository;
