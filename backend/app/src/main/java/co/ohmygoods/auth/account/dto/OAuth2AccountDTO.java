@@ -1,8 +1,8 @@
 package co.ohmygoods.auth.account.dto;
 
-import co.ohmygoods.domain.account.entity.OAuth2Account;
-import co.ohmygoods.domain.account.vo.Role;
-import co.ohmygoods.domain.oauth2.vo.OAuth2Vendor;
+import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.vo.Role;
+import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 
 public record OAuth2AccountDTO(String email,
                                String nickname,

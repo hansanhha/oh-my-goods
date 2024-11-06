@@ -1,11 +1,11 @@
 package co.ohmygoods.auth.jwt.nimbus;
 
-import co.ohmygoods.domain.account.vo.Role;
+import co.ohmygoods.auth.account.vo.Role;
 import co.ohmygoods.auth.jwt.*;
-import co.ohmygoods.domain.jwt.exception.JWTValidationException;
-import co.ohmygoods.domain.jwt.entity.RefreshToken;
-import co.ohmygoods.domain.oauth2.vo.OAuth2Vendor;
-import co.ohmygoods.domain.jwt.vo.*;
+import co.ohmygoods.auth.jwt.exception.JWTValidationException;
+import co.ohmygoods.auth.jwt.entity.RefreshToken;
+import co.ohmygoods.auth.jwt.vo.*;
+import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -24,9 +24,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
-import static co.ohmygoods.domain.jwt.exception.JWTValidationException.TEMPLATE;
-import static co.ohmygoods.domain.jwt.vo.JWTClaimsKey.*;
-import static co.ohmygoods.domain.jwt.vo.TokenType.REFRESH_TOKEN;
+import static co.ohmygoods.auth.jwt.exception.JWTValidationException.TEMPLATE;
+import static co.ohmygoods.auth.jwt.vo.JWTClaimsKey.*;
+import static co.ohmygoods.auth.jwt.vo.TokenType.REFRESH_TOKEN;
 
 @Component
 @Transactional

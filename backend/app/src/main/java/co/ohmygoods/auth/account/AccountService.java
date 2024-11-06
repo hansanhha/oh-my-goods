@@ -1,6 +1,7 @@
 package co.ohmygoods.auth.account;
 
 import co.ohmygoods.auth.account.dto.OAuth2AccountDTO;
+import co.ohmygoods.auth.account.persistence.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

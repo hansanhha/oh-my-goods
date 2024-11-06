@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt;
 
-import co.ohmygoods.domain.jwt.vo.JWTParseResult;
+import co.ohmygoods.auth.jwt.vo.JWTParseResult;
 
 public interface JWTParser<T> {
 

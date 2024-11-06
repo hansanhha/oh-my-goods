@@ -1,8 +1,8 @@
 package co.ohmygoods.auth.jwt.nimbus;
 
 import co.ohmygoods.auth.jwt.JWTClaimValidator;
-import co.ohmygoods.domain.jwt.vo.JWTError;
-import co.ohmygoods.domain.jwt.vo.JWTValidationResult;
+import co.ohmygoods.auth.jwt.vo.JWTError;
+import co.ohmygoods.auth.jwt.vo.JWTValidationResult;
 import com.nimbusds.jwt.JWT;
 
 import java.text.ParseException;

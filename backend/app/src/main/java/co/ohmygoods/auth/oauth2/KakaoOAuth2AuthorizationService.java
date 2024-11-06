@@ -1,7 +1,7 @@
 package co.ohmygoods.auth.oauth2;
 
-import co.ohmygoods.domain.jwt.vo.JWTInfo;
-import co.ohmygoods.domain.oauth2.vo.OAuth2Vendor;
+import co.ohmygoods.auth.jwt.vo.JWTInfo;
+import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpRequest;

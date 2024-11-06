@@ -2,12 +2,13 @@ package co.ohmygoods.auth.account;
 
 import co.ohmygoods.auth.account.dto.OAuth2AccountDTO;
 import co.ohmygoods.auth.account.dto.OAuth2SignUpRequest;
-import co.ohmygoods.domain.account.entity.OAuth2Account;
-import co.ohmygoods.domain.account.vo.Role;
+import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.persistence.AccountRepository;
+import co.ohmygoods.auth.account.vo.Role;
 import co.ohmygoods.auth.jwt.JWTService;
-import co.ohmygoods.domain.jwt.vo.JWTs;
+import co.ohmygoods.auth.jwt.vo.JWTs;
 import co.ohmygoods.auth.oauth2.OAuth2AuthorizationService;
-import co.ohmygoods.domain.oauth2.vo.OAuth2Vendor;
+import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.UUID;
 
-import static co.ohmygoods.domain.jwt.vo.JWTClaimsKey.*;
+import static co.ohmygoods.auth.jwt.vo.JWTClaimsKey.*;
 
 @Service
 @Transactional
