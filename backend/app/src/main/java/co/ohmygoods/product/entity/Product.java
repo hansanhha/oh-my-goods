@@ -129,4 +129,9 @@ public class Product extends BaseEntity {
         }
         this.stockStatus = stockStatus;
     }
+
+    public void discount(int discountRate, LocalDateTime discountEndDate) {
+        this.discountRate = Math.max(discountRate, 0);
+        this.discountEndDate = discountEndDate;
+    }
 }
