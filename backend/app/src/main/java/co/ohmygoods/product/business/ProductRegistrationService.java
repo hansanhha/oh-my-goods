@@ -1,17 +1,19 @@
 package co.ohmygoods.product.business;
 
-import co.ohmygoods.auth.account.persistence.AccountRepository;
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
-import co.ohmygoods.product.business.dto.ProductMetadataModifyInfo;
-import co.ohmygoods.product.business.dto.ProductRegisterInfo;
+import co.ohmygoods.auth.account.persistence.AccountRepository;
 import co.ohmygoods.product.ProductDetailCategoryRepository;
+import co.ohmygoods.product.ProductRepository;
 import co.ohmygoods.product.ProductSeriesRepository;
+import co.ohmygoods.product.business.dto.ProductBusinessInfo;
+import co.ohmygoods.product.business.dto.ProductMetadataModifyInfo;
+import co.ohmygoods.product.business.dto.ProductRegisterRequest;
 import co.ohmygoods.product.entity.*;
 import co.ohmygoods.product.exception.ProductNotFoundException;
-import co.ohmygoods.product.ProductRepository;
 import co.ohmygoods.shop.ShopRepository;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +31,44 @@ public class ProductRegistrationService {
     private final ProductDetailCategoryRepository productDetailCategoryRepository;
     private final ProductSeriesRepository productSeriesRepository;
 
-    public Long register(ProductRegisterInfo info) {
+    public List<ProductBusinessInfo> getSimpleList(Long shopId) {
+        return getSimpleList(shopId, Pageable.ofSize(20));
+    }
+
+    public List<ProductBusinessInfo> getSimpleList(Long shopId, Pageable pageable) {
+        var shop = shopRepository.findById(shopId)
+                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+        var productPage = productRepository.findAllByShop(shop, pageable);
+
+        return productPage.map(product -> {
+            var series = product.getProductSeriesMappings()
+                    .stream()
+                    .map(seriesMapping -> seriesMapping.getProductSeries().getSeriesName())
+                    .toList();
+            var detailCategories = product.getProductDetailCategoryMappings()
+                    .stream()
+                    .map(detailCategoryMapping -> detailCategoryMapping.getProductDetailCategory().getDetailCategory())
+                    .toList();
+
+            return ProductBusinessInfo.builder()
+                    .shopId(shopId)
+                    .productId(product.getId())
+                    .description(product.getDescription())
+                    .category(product.getCategory())
+                    .stockStatus(product.getStockStatus())
+                    .series(series)
+                    .detailCategory(detailCategories)
+                    .quantity(product.getRemainingQuantity())
+                    .purchaseLimit(product.getPurchaseMaximumQuantity())
+                    .price(product.getOriginalPrice())
+                    .discountRate(product.getDiscountRate())
+                    .discountEndDate(product.getDiscountStartDate())
+                    .discountEndDate(product.getDiscountEndDate())
+                    .build();
+        }).toList();
+    }
+
+    public Long register(ProductRegisterRequest info) {
         var shopId = info.shopId();
         var accountEmail = info.accountEmail();
 
@@ -46,7 +85,7 @@ public class ProductRegistrationService {
                 .name(info.name())
                 .type(info.type())
                 .category(info.category())
-                .status(info.status())
+                .stockStatus(info.status())
                 .originalPrice(info.price())
                 .remainingQuantity(Math.max(info.quantity(), 0))
                 .purchaseMaximumQuantity(Math.max(info.purchaseLimitCount(), 1))
