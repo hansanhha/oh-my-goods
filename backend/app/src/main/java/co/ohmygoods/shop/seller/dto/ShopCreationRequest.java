@@ -1,6 +1,6 @@
 package co.ohmygoods.shop.seller.dto;
 
-public record ShopCreationRequest(String ownerId,
+public record ShopCreationRequest(String ownerEmail,
                                   String shopName,
                                   String shopIntroduction) {
 }

@@ -33,7 +33,7 @@ public class ShopManagementService {
             throw InvalidShopNameException.duplicate(shopName);
         });
 
-        var ownerId = request.ownerId();
+        var ownerId = request.ownerEmail();
         var owner = accountRepository.findByEmail(ownerId)
                 .orElseThrow(() -> new AccountNotFoundException(ownerId));
 
