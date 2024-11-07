@@ -1,6 +1,6 @@
 package co.ohmygoods.product.vo;
 
-public enum ProductFixedCategory {
+public enum ProductTopCategory {
 
     MOVIE,
     SPORTS,
@@ -10,6 +10,7 @@ public enum ProductFixedCategory {
     MUSIC,
     CONCERT_ART,
     ANIMATION,
-    FASHION;
+    FASHION,
+    STATIONERY
 
 }
