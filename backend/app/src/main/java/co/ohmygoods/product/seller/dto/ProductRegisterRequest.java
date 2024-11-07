@@ -1,6 +1,6 @@
 package co.ohmygoods.product.seller.dto;
 
-import co.ohmygoods.product.vo.ProductCategory;
+import co.ohmygoods.product.vo.ProductFixedCategory;
 import co.ohmygoods.product.vo.ProductStockStatus;
 import co.ohmygoods.product.vo.ProductType;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import java.util.List;
 public record ProductRegisterRequest(String accountEmail,
                                      Long shopId,
                                      ProductType type,
-                                     ProductCategory category,
+                                     ProductFixedCategory category,
                                      ProductStockStatus status,
                                      List<Long> detailCategoryIds,
                                      List<Long> seriesIds,

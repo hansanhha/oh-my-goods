@@ -1,7 +1,6 @@
 package co.ohmygoods.shop.dto;
 
 import co.ohmygoods.product.entity.Product;
-import co.ohmygoods.product.entity.ProductDetailCategory;
 import co.ohmygoods.shop.vo.ShopStatus;
 import lombok.Builder;
 

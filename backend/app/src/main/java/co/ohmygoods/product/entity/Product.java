@@ -3,7 +3,7 @@ package co.ohmygoods.product.entity;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.product.exception.InvalidProductUpdateParameterException;
 import co.ohmygoods.product.exception.ProductShopCheckException;
-import co.ohmygoods.product.vo.ProductCategory;
+import co.ohmygoods.product.vo.ProductFixedCategory;
 import co.ohmygoods.product.vo.ProductStockStatus;
 import co.ohmygoods.product.vo.ProductType;
 import co.ohmygoods.shop.entity.Shop;
@@ -38,7 +38,7 @@ public class Product extends BaseEntity {
     private ProductType type;
 
     @Enumerated(EnumType.STRING)
-    private ProductCategory category;
+    private ProductFixedCategory category;
 
     @Enumerated(EnumType.STRING)
     private ProductStockStatus stockStatus;
@@ -49,7 +49,7 @@ public class Product extends BaseEntity {
 
     @Setter
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductDetailCategoryMapping> productDetailCategoryMappings;
+    private List<ProductFlexibleCategoryMapping> productFlexibleCategoryMappings;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -82,14 +82,14 @@ public class Product extends BaseEntity {
     public void updateMetadata(String name,
                                String description,
                                ProductType type,
-                               ProductCategory category,
-                               List<ProductDetailCategoryMapping> productDetailCategoryMappings,
+                               ProductFixedCategory category,
+                               List<ProductFlexibleCategoryMapping> productFlexibleCategoryMappings,
                                List<ProductSeriesMapping> productSeriesMappings) {
         this.name = name;
         this.description = description;
         this.type = type;
         this.category = category;
-        this.productDetailCategoryMappings = productDetailCategoryMappings;
+        this.productFlexibleCategoryMappings = productFlexibleCategoryMappings;
         this.productSeriesMappings = productSeriesMappings;
     }
 

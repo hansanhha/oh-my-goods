@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class ProductDetailCategory {
+public class ProductFlexibleCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,5 +17,5 @@ public class ProductDetailCategory {
     private Shop shop;
 
     @Column(unique = true, nullable = false)
-    private String detailCategory;
+    private String categoryName;
 }

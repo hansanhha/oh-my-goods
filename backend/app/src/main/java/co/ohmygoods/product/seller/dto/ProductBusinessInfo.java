@@ -1,6 +1,6 @@
 package co.ohmygoods.product.seller.dto;
 
-import co.ohmygoods.product.vo.ProductCategory;
+import co.ohmygoods.product.vo.ProductFixedCategory;
 import co.ohmygoods.product.vo.ProductStockStatus;
 import co.ohmygoods.product.vo.ProductType;
 import lombok.Builder;
@@ -14,7 +14,7 @@ public record ProductBusinessInfo(Long shopId,
                                   String name,
                                   String description,
                                   ProductType type,
-                                  ProductCategory category,
+                                  ProductFixedCategory category,
                                   ProductStockStatus stockStatus,
                                   List<String> series,
                                   List<String> detailCategory,
