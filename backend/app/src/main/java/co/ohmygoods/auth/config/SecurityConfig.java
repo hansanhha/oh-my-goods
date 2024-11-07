@@ -1,12 +1,11 @@
 package co.ohmygoods.auth.config;
 
-import co.ohmygoods.auth.jwt.HttpErrorExceptionHandleFilter;
-import co.ohmygoods.auth.jwt.JWTBearerAuthenticationFilter;
-import co.ohmygoods.auth.jwt.JsonAccessDeniedHandler;
-import co.ohmygoods.auth.jwt.JsonAuthenticationEntryPoint;
-import co.ohmygoods.auth.oauth2.OAuth2AuthenticationSuccessHandler;
-import co.ohmygoods.auth.oauth2.OAuth2AuthorizationService;
-import co.ohmygoods.auth.oauth2.OAuth2UserPrincipalService;
+import co.ohmygoods.auth.jwt.service.HttpErrorExceptionHandleFilter;
+import co.ohmygoods.auth.jwt.service.JWTBearerAuthenticationFilter;
+import co.ohmygoods.auth.jwt.service.JsonAccessDeniedHandler;
+import co.ohmygoods.auth.jwt.service.JsonAuthenticationEntryPoint;
+import co.ohmygoods.auth.oauth2.service.OAuth2AuthenticationSuccessHandler;
+import co.ohmygoods.auth.oauth2.service.OAuth2UserPrincipalService;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,9 +18,6 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-
-import java.util.Collections;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity

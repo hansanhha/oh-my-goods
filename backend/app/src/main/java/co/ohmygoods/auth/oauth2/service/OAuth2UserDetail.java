@@ -1,4 +1,4 @@
-package co.ohmygoods.auth.oauth2;
+package co.ohmygoods.auth.oauth2.service;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;

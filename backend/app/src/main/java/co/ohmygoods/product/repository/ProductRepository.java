@@ -1,7 +1,6 @@
-package co.ohmygoods.product;
+package co.ohmygoods.product.repository;
 
 import co.ohmygoods.product.entity.Product;
-import co.ohmygoods.product.entity.ProductSeries;
 import co.ohmygoods.shop.entity.Shop;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

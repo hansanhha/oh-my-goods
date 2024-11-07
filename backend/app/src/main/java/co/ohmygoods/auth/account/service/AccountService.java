@@ -1,4 +1,4 @@
-package co.ohmygoods.auth.account;
+package co.ohmygoods.auth.account.service;
 
 import co.ohmygoods.auth.account.dto.OAuth2AccountDTO;
 import co.ohmygoods.auth.account.persistence.AccountRepository;

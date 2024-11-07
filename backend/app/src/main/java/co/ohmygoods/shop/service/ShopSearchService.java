@@ -1,10 +1,11 @@
-package co.ohmygoods.shop;
+package co.ohmygoods.shop.service;
 
-import co.ohmygoods.product.ProductDetailCategoryRepository;
-import co.ohmygoods.product.ProductRepository;
-import co.ohmygoods.product.ProductSeriesRepository;
+import co.ohmygoods.product.repository.ProductDetailCategoryRepository;
+import co.ohmygoods.product.repository.ProductRepository;
+import co.ohmygoods.product.repository.ProductSeriesRepository;
 import co.ohmygoods.product.entity.ProductFlexibleCategory;
 import co.ohmygoods.product.entity.ProductSeries;
+import co.ohmygoods.shop.repository.ShopRepository;
 import co.ohmygoods.shop.dto.ShopOverviewResponse;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ShopService {
+public class ShopSearchService {
 
     private final ShopRepository shopRepository;
     private final ProductRepository productRepository;

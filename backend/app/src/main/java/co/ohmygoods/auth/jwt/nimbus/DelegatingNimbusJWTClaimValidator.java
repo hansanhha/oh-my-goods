@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt.nimbus;
 
-import co.ohmygoods.auth.jwt.JWTClaimValidator;
+import co.ohmygoods.auth.jwt.service.JWTClaimValidator;
 import co.ohmygoods.auth.jwt.vo.JWTValidationResult;
 import com.nimbusds.jwt.JWT;
 import lombok.RequiredArgsConstructor;

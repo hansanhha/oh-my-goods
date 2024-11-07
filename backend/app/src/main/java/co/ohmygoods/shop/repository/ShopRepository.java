@@ -1,4 +1,4 @@
-package co.ohmygoods.shop;
+package co.ohmygoods.shop.repository;
 
 import co.ohmygoods.shop.entity.Shop;
 import org.springframework.data.repository.CrudRepository;

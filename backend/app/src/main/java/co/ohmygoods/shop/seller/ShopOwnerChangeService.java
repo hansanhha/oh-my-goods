@@ -8,7 +8,7 @@ import co.ohmygoods.shop.exception.ShopOwnerChangeHistoryException;
 import co.ohmygoods.shop.exception.ShopOwnerChangeNotFoundException;
 import co.ohmygoods.shop.exception.UnchangeableShopOwnerException;
 import co.ohmygoods.shop.seller.vo.ShopOwnerStatus;
-import co.ohmygoods.shop.ShopRepository;
+import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

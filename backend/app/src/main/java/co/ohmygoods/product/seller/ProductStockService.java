@@ -1,9 +1,9 @@
 package co.ohmygoods.product.seller;
 
-import co.ohmygoods.product.ProductRepository;
+import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.exception.ProductNotFoundException;
 import co.ohmygoods.product.vo.ProductStockStatus;
-import co.ohmygoods.shop.ShopRepository;
+import co.ohmygoods.shop.repository.ShopRepository;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

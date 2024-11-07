@@ -1,4 +1,4 @@
-package co.ohmygoods.auth.oauth2;
+package co.ohmygoods.auth.oauth2.service;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;

@@ -1,10 +1,10 @@
-package co.ohmygoods.auth.oauth2;
+package co.ohmygoods.auth.oauth2.service;
 
-import co.ohmygoods.auth.account.AccountService;
-import co.ohmygoods.auth.account.OAuth2SignService;
+import co.ohmygoods.auth.account.service.AccountService;
+import co.ohmygoods.auth.account.service.OAuth2SignService;
 import co.ohmygoods.auth.account.dto.OAuth2AccountDTO;
 import co.ohmygoods.auth.account.dto.OAuth2SignUpRequest;
-import co.ohmygoods.auth.jwt.JWTService;
+import co.ohmygoods.auth.jwt.service.JWTService;
 import co.ohmygoods.auth.jwt.vo.JWTs;
 import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import jakarta.servlet.http.HttpServletRequest;

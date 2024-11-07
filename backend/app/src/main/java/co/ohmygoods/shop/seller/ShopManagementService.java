@@ -7,7 +7,7 @@ import co.ohmygoods.shop.exception.NotFoundShopException;
 import co.ohmygoods.shop.seller.dto.ShopCreationRequest;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.vo.ShopStatus;
-import co.ohmygoods.shop.ShopRepository;
+import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

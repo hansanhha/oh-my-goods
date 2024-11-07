@@ -1,4 +1,4 @@
-package co.ohmygoods.auth.oauth2;
+package co.ohmygoods.auth.oauth2.service;
 
 import co.ohmygoods.auth.jwt.vo.JWTInfo;
 import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;

@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt.nimbus;
 
-import co.ohmygoods.auth.jwt.JWTParser;
+import co.ohmygoods.auth.jwt.service.JWTParser;
 import co.ohmygoods.auth.jwt.vo.JWTError;
 import co.ohmygoods.auth.jwt.vo.JWTParseResult;
 import com.nimbusds.jwt.JWT;

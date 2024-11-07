@@ -1,4 +1,4 @@
-package co.ohmygoods.auth.jwt;
+package co.ohmygoods.auth.jwt.service;
 
 import co.ohmygoods.auth.jwt.vo.JWTClaimsKey;
 import co.ohmygoods.auth.jwt.vo.JWTInfo;
