@@ -1,4 +1,4 @@
-package co.ohmygoods.shop.business.dto;
+package co.ohmygoods.shop.seller.dto;
 
 public record ShopCreationRequest(String ownerId,
                                   String shopName,

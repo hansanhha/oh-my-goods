@@ -1,6 +1,6 @@
-package co.ohmygoods.shop.business.dto;
+package co.ohmygoods.shop.seller.dto;
 
-import co.ohmygoods.shop.business.vo.ShopOwnerStatus;
+import co.ohmygoods.shop.seller.vo.ShopOwnerStatus;
 
 import java.time.LocalDateTime;
 

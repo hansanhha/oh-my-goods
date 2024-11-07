@@ -1,10 +1,10 @@
-package co.ohmygoods.shop.business;
+package co.ohmygoods.shop.seller;
 
 import co.ohmygoods.auth.account.persistence.AccountRepository;
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.shop.exception.InvalidShopNameException;
 import co.ohmygoods.shop.exception.NotFoundShopException;
-import co.ohmygoods.shop.business.dto.ShopCreationRequest;
+import co.ohmygoods.shop.seller.dto.ShopCreationRequest;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.vo.ShopStatus;
 import co.ohmygoods.shop.ShopRepository;

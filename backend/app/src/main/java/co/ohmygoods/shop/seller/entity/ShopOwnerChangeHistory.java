@@ -1,10 +1,10 @@
-package co.ohmygoods.shop.business.entity;
+package co.ohmygoods.shop.seller.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.exception.UnchangeableShopOwnerException;
-import co.ohmygoods.shop.business.vo.ShopOwnerStatus;
+import co.ohmygoods.shop.seller.vo.ShopOwnerStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 

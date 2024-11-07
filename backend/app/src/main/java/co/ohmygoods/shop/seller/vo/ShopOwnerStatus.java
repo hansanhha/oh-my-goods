@@ -1,4 +1,4 @@
-package co.ohmygoods.shop.business.vo;
+package co.ohmygoods.shop.seller.vo;
 
 public enum ShopOwnerStatus {
 

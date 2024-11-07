@@ -1,13 +1,13 @@
-package co.ohmygoods.product.business;
+package co.ohmygoods.product.seller;
 
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.auth.account.persistence.AccountRepository;
 import co.ohmygoods.product.ProductDetailCategoryRepository;
 import co.ohmygoods.product.ProductRepository;
 import co.ohmygoods.product.ProductSeriesRepository;
-import co.ohmygoods.product.business.dto.ProductBusinessInfo;
-import co.ohmygoods.product.business.dto.ProductMetadataModifyInfo;
-import co.ohmygoods.product.business.dto.ProductRegisterRequest;
+import co.ohmygoods.product.seller.dto.ProductBusinessInfo;
+import co.ohmygoods.product.seller.dto.ProductMetadataModifyInfo;
+import co.ohmygoods.product.seller.dto.ProductRegisterRequest;
 import co.ohmygoods.product.entity.*;
 import co.ohmygoods.product.exception.ProductNotFoundException;
 import co.ohmygoods.shop.ShopRepository;

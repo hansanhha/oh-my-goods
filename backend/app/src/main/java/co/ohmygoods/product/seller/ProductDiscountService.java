@@ -1,4 +1,4 @@
-package co.ohmygoods.product.business;
+package co.ohmygoods.product.seller;
 
 import co.ohmygoods.product.ProductRepository;
 import co.ohmygoods.product.ProductSeriesRepository;
