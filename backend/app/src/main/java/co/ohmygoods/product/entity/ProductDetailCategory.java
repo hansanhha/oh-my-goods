@@ -16,6 +16,9 @@ public class ProductDetailCategory {
     @JoinColumn(name = "shop_id")
     private Shop shop;
 
+    @Enumerated(EnumType.STRING)
+    private String topCategoryName;
+
     @Column(unique = true, nullable = false)
     private String categoryName;
 }

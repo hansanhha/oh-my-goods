@@ -18,12 +18,12 @@ public class ProductDetailCategoryMapping {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_detail_category_id")
-    private ProductDetailCategory productDetailCategory;
+    private ProductDetailCategory detailCategory;
 
     public static ProductDetailCategoryMapping toEntity(Product product, ProductDetailCategory detailCategory) {
         var productDetailCategoryMapping = new ProductDetailCategoryMapping();
         productDetailCategoryMapping.product = product;
-        productDetailCategoryMapping.productDetailCategory = detailCategory;
+        productDetailCategoryMapping.detailCategory = detailCategory;
         return productDetailCategoryMapping;
     }
 }

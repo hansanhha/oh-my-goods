@@ -3,7 +3,7 @@ package co.ohmygoods.product.entity;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.product.exception.InvalidProductUpdateParameterException;
 import co.ohmygoods.product.exception.ProductShopCheckException;
-import co.ohmygoods.product.vo.ProductFixedCategory;
+import co.ohmygoods.product.vo.ProductTopCategory;
 import co.ohmygoods.product.vo.ProductStockStatus;
 import co.ohmygoods.product.vo.ProductType;
 import co.ohmygoods.shop.entity.Shop;
@@ -38,18 +38,18 @@ public class Product extends BaseEntity {
     private ProductType type;
 
     @Enumerated(EnumType.STRING)
-    private ProductFixedCategory category;
+    private ProductTopCategory topCategory;
 
     @Enumerated(EnumType.STRING)
     private ProductStockStatus stockStatus;
 
     @Setter
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductSeriesMapping> productSeriesMappings;
+    private List<ProductSeriesMapping> seriesMappings;
 
     @Setter
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductFlexibleCategoryMapping> productFlexibleCategoryMappings;
+    private List<ProductDetailCategoryMapping> detailCategoryMappings;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -82,15 +82,15 @@ public class Product extends BaseEntity {
     public void updateMetadata(String name,
                                String description,
                                ProductType type,
-                               ProductFixedCategory category,
-                               List<ProductFlexibleCategoryMapping> productFlexibleCategoryMappings,
+                               ProductTopCategory category,
+                               List<ProductDetailCategoryMapping> productDetailCategoryMappings,
                                List<ProductSeriesMapping> productSeriesMappings) {
         this.name = name;
         this.description = description;
         this.type = type;
-        this.category = category;
-        this.productFlexibleCategoryMappings = productFlexibleCategoryMappings;
-        this.productSeriesMappings = productSeriesMappings;
+        this.topCategory = category;
+        this.detailCategoryMappings = productDetailCategoryMappings;
+        this.seriesMappings = productSeriesMappings;
     }
 
     public void updateRemainingQuantity(int remainingQuantity) {

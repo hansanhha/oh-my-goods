@@ -37,7 +37,7 @@ public class ProductDiscountService {
         var productSeries = productSeriesRepository.findById(seriesId)
                 .orElseThrow(() -> new ProductSeriesNotFoundException());
 
-        var products = productRepository.findAllBySeries(productSeries.getId());
+        var products = productRepository.findAllByShopAndSeries(shop, productSeries);
         products.forEach(product -> {
             product.shopCheck(shop);
             product.discount(discountRate, discountEndDate);

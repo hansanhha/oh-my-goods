@@ -41,20 +41,20 @@ public class ProductRegistrationService {
         var productPage = productRepository.findAllByShop(shop, pageable);
 
         return productPage.map(product -> {
-            var series = product.getProductSeriesMappings()
+            var series = product.getSeriesMappings()
                     .stream()
-                    .map(seriesMapping -> seriesMapping.getProductSeries().getSeriesName())
+                    .map(seriesMapping -> seriesMapping.getSeries().getSeriesName())
                     .toList();
-            var detailCategories = product.getProductFlexibleCategoryMappings()
+            var detailCategories = product.getDetailCategoryMappings()
                     .stream()
-                    .map(detailCategoryMapping -> detailCategoryMapping.getProductFlexibleCategory().getCategoryName())
+                    .map(detailCategoryMapping -> detailCategoryMapping.getDetailCategory().getCategoryName())
                     .toList();
 
             return ProductBusinessInfo.builder()
                     .shopId(shopId)
                     .productId(product.getId())
                     .description(product.getDescription())
-                    .category(product.getCategory())
+                    .category(product.getTopCategory())
                     .stockStatus(product.getStockStatus())
                     .series(series)
                     .detailCategory(detailCategories)
@@ -102,13 +102,13 @@ public class ProductRegistrationService {
         var seriesIds = info.seriesIds();
 
         if (!detailCategoryIds.isEmpty()) {
-            var productDetailCategories = (List<ProductFlexibleCategory>) productDetailCategoryRepository.findAllById(detailCategoryIds);
+            var productDetailCategories = (List<ProductDetailCategory>) productDetailCategoryRepository.findAllById(detailCategoryIds);
             var productDetailCategoryMappings = productDetailCategories
                     .stream()
-                    .map(detailCategory -> ProductFlexibleCategoryMapping.toEntity(savedProduct, detailCategory))
+                    .map(detailCategory -> ProductDetailCategoryMapping.toEntity(savedProduct, detailCategory))
                     .toList();
 
-            savedProduct.setProductFlexibleCategoryMappings(productDetailCategoryMappings);
+            savedProduct.setDetailCategoryMappings(productDetailCategoryMappings);
         }
 
         if (!seriesIds.isEmpty()) {
@@ -117,7 +117,7 @@ public class ProductRegistrationService {
                     .map(series -> ProductSeriesMapping.toEntity(savedProduct, series))
                     .toList();
 
-            savedProduct.setProductSeriesMappings(productSeriesMappings);
+            savedProduct.setSeriesMappings(productSeriesMappings);
         }
 
         return savedProduct.getId();
@@ -140,14 +140,14 @@ public class ProductRegistrationService {
 
         var detailCategoryIds = info.modifyDetailCategoryIds();
         var seriesIds = info.modifySeriesIds();
-        List<ProductFlexibleCategoryMapping> modifyProductFlexibleCategoryMappings = null;
+        List<ProductDetailCategoryMapping> modifyProductDetailCategoryMappings = null;
         List<ProductSeriesMapping> modifyProductSeriesMappings = null;
 
         if (!detailCategoryIds.isEmpty()) {
-            var productDetailCategories = (List<ProductFlexibleCategory>) productDetailCategoryRepository.findAllById(detailCategoryIds);
-            modifyProductFlexibleCategoryMappings = productDetailCategories
+            var productDetailCategories = (List<ProductDetailCategory>) productDetailCategoryRepository.findAllById(detailCategoryIds);
+            modifyProductDetailCategoryMappings = productDetailCategories
                     .stream()
-                    .map(detailCategory -> ProductFlexibleCategoryMapping.toEntity(product, detailCategory))
+                    .map(detailCategory -> ProductDetailCategoryMapping.toEntity(product, detailCategory))
                     .toList();
         }
 
@@ -163,7 +163,7 @@ public class ProductRegistrationService {
                 info.modifyDescription(),
                 info.modifyType(),
                 info.modifyCategory(),
-                modifyProductFlexibleCategoryMappings,
+                modifyProductDetailCategoryMappings,
                 modifyProductSeriesMappings);
     }
 

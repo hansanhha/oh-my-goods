@@ -3,7 +3,7 @@ package co.ohmygoods.shop.service;
 import co.ohmygoods.product.repository.ProductDetailCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.repository.ProductSeriesRepository;
-import co.ohmygoods.product.entity.ProductFlexibleCategory;
+import co.ohmygoods.product.entity.ProductDetailCategory;
 import co.ohmygoods.product.entity.ProductSeries;
 import co.ohmygoods.shop.repository.ShopRepository;
 import co.ohmygoods.shop.dto.ShopOverviewResponse;
@@ -31,7 +31,7 @@ public class ShopSearchService {
         var productSeries = productSeriesRepository.findAllByShop(shop)
                 .stream().collect(Collectors.toMap(ProductSeries::getId, ProductSeries::getSeriesName));
         var productCategoriesMap = productDetailCategoryRepository.findAllByShop(shop).stream()
-                .collect(Collectors.toMap(ProductFlexibleCategory::getId, ProductFlexibleCategory::getCategoryName));
+                .collect(Collectors.toMap(ProductDetailCategory::getId, ProductDetailCategory::getCategoryName));
         var products = productRepository.findAll(Pageable.ofSize(20));
 
         return ShopOverviewResponse.builder()

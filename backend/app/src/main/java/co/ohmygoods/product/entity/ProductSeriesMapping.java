@@ -18,12 +18,12 @@ public class ProductSeriesMapping {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_series_id")
-    private ProductSeries productSeries;
+    private ProductSeries series;
 
     public static ProductSeriesMapping toEntity(Product product, ProductSeries series) {
         var productSeriesMapping = new ProductSeriesMapping();
         productSeriesMapping.product = product;
-        productSeriesMapping.productSeries = series;
+        productSeriesMapping.series = series;
         return productSeriesMapping;
     }
 }

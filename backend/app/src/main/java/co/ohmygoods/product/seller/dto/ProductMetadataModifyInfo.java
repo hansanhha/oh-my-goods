@@ -1,6 +1,6 @@
 package co.ohmygoods.product.seller.dto;
 
-import co.ohmygoods.product.vo.ProductFixedCategory;
+import co.ohmygoods.product.vo.ProductTopCategory;
 import co.ohmygoods.product.vo.ProductType;
 
 import java.util.List;
@@ -11,7 +11,7 @@ public record ProductMetadataModifyInfo(String accountEmail,
                                         String modifyName,
                                         String modifyDescription,
                                         ProductType modifyType,
-                                        ProductFixedCategory modifyCategory,
+                                        ProductTopCategory modifyCategory,
                                         List<Long> modifyDetailCategoryIds,
                                         List<Long> modifySeriesIds) {
 }

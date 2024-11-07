@@ -9,4 +9,6 @@ import java.util.List;
 public interface ProductDetailCategoryRepository extends CrudRepository<ProductDetailCategory, Long> {
 
     List<ProductDetailCategory> findAllByShop(Shop shop);
+
+    List<ProductDetailCategory> findAllByShopAndTopCategoryName(Shop shop, String topCategoryName);
 }
