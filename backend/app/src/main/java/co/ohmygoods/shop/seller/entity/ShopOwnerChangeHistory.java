@@ -48,8 +48,8 @@ public class ShopOwnerChangeHistory extends BaseEntity {
     }
 
     public void changeShopOwnerStatus(ShopOwnerStatus status) {
-        if (this.status.isChangeable(status)) {
-            throw UnchangeableShopOwnerException.unchangeable(this.status.name(), status.name());
+        if (!getStatus().isChangeable(status)) {
+            throw UnchangeableShopOwnerException.unchangeable(getStatus().name(), status.name());
         }
 
         this.status = status;

@@ -57,10 +57,6 @@ public class ShopOwnerChangeService {
         var shop = requestedOwnerChangeHistory.getShop();
         shop.ownerCheck(requestedAccount);
 
-        if (requestedAccount.getId().equals(requestedOwnerChangeHistory.getOriginalOwner().getId())) {
-            throw UnchangeableShopOwnerException.isNotOwner(requestAccountEmail, shop.getName());
-        }
-
         requestedOwnerChangeHistory.changeShopOwnerStatus(ShopOwnerStatus.OWNER_CHANGE_CANCELED);
     }
 
