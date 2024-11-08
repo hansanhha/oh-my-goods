@@ -38,27 +38,15 @@ class ShopRegistrationServiceTest {
     @Mock
     private Shop mockShop;
 
-    private ShopCreationRequest shopCreationRequest;
-
+    @Mock
     private OAuth2Account mockAccount;
+
+    private ShopCreationRequest shopCreationRequest;
     private static final String MOCK_ACCOUNT_EMAIL = "mockAccount@test.com";
 
     @BeforeEach
     void init() {
-        mockAccount = OAuth2Account.builder()
-                .id(1L)
-                .role(Role.USER)
-                .email(MOCK_ACCOUNT_EMAIL)
-                .nickname("mockAccountNickname")
-                .profileImageName(null)
-                .profileImagePath(null)
-                .phone(null)
-                .businessConversionCount(0)
-                .oauth2Vendor(OAuth2Vendor.KAKAO)
-                .oauth2MemberId(null)
-                .build();
-
-        shopCreationRequest = new ShopCreationRequest(mockAccount.getEmail(), "testShop", "testShopIntroduction");
+        shopCreationRequest = new ShopCreationRequest("testEmail", "testShop", "testShopIntroduction");
     }
 
     @Test
