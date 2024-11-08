@@ -84,7 +84,7 @@ public class ProductRegistrationService {
                 .shop(shop)
                 .name(info.name())
                 .type(info.type())
-                .category(info.category())
+                .topCategory(info.category())
                 .stockStatus(info.status())
                 .originalPrice(info.price())
                 .remainingQuantity(Math.max(info.quantity(), 0))

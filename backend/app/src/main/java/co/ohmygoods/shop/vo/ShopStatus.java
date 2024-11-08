@@ -9,7 +9,7 @@ public enum ShopStatus {
 
     public boolean isChangeable(ShopStatus targetStatus) {
         if (this.equals(ShopStatus.DELETED)) {
-            return targetStatus.equals(INACTIVE);
+            return !targetStatus.equals(INACTIVE);
         }
 
         return true;

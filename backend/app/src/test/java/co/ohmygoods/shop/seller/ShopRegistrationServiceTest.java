@@ -1,0 +1,131 @@
+package co.ohmygoods.shop.seller;
+
+import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.persistence.AccountRepository;
+import co.ohmygoods.auth.account.vo.Role;
+import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
+import co.ohmygoods.shop.entity.Shop;
+import co.ohmygoods.shop.exception.InvalidShopNameException;
+import co.ohmygoods.shop.exception.UnchangeableShopStatusException;
+import co.ohmygoods.shop.repository.ShopRepository;
+import co.ohmygoods.shop.seller.dto.ShopCreationRequest;
+import co.ohmygoods.shop.vo.ShopStatus;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class ShopRegistrationServiceTest {
+
+    @Mock
+    private AccountRepository accountRepository;
+
+    @Mock
+    private ShopRepository shopRepository;
+
+    @InjectMocks
+    private ShopRegistrationService shopRegistrationService;
+
+    @Mock
+    private Shop mockShop;
+
+    private ShopCreationRequest shopCreationRequest;
+
+    private OAuth2Account mockAccount;
+    private static final String MOCK_ACCOUNT_EMAIL = "mockAccount@test.com";
+
+    @BeforeEach
+    void init() {
+        mockAccount = OAuth2Account.builder()
+                .id(1L)
+                .role(Role.USER)
+                .email(MOCK_ACCOUNT_EMAIL)
+                .nickname("mockAccountNickname")
+                .profileImageName(null)
+                .profileImagePath(null)
+                .phone(null)
+                .businessConversionCount(0)
+                .oauth2Vendor(OAuth2Vendor.KAKAO)
+                .oauth2MemberId(null)
+                .build();
+
+        shopCreationRequest = new ShopCreationRequest(mockAccount.getEmail(), "testShop", "testShopIntroduction");
+    }
+
+    @Test
+    void 상점_생성() {
+        var shopId = 1L;
+
+        when(shopRepository.findByName(anyString()))
+                .thenReturn(Optional.empty());
+
+        when(accountRepository.findByEmail(anyString()))
+                .thenReturn(Optional.of(mockAccount));
+
+        when(shopRepository.save(any(Shop.class)))
+                .thenReturn(mockShop);
+
+        when(mockShop.getId())
+                .thenReturn(shopId);
+
+        var createdShopId = shopRegistrationService.createShop(shopCreationRequest);
+
+        then(shopRepository).should(times(1)).findByName(anyString());
+        then(accountRepository).should(times(1)).findByEmail(anyString());
+        then(shopRepository).should(times(1)).save(any(Shop.class));
+
+        assertThat(createdShopId).isEqualTo(shopId);
+    }
+
+    @Test
+    void 중복된_이름의_상점_생성_불가능() {
+        when(shopRepository.findByName(anyString()))
+                .thenReturn(Optional.of(mockShop));
+
+        assertThatThrownBy(() -> shopRegistrationService.createShop(shopCreationRequest))
+                .isExactlyInstanceOf(InvalidShopNameException.class);
+
+        then(shopRepository).should(times(1)).findByName(anyString());
+        then(accountRepository).shouldHaveNoInteractions();
+        then(shopRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    void 상점_비활성화() {
+        var expectedShopStatus = ShopStatus.INACTIVE;
+
+        when(shopRepository.findById(anyLong()))
+                .thenReturn(Optional.of(mockShop));
+
+        shopRegistrationService.inactiveShop(anyLong());
+
+        then(shopRepository).should(times(1)).findById(anyLong());
+        then(mockShop).should(times(1)).changeShopStatus(expectedShopStatus);
+    }
+
+    @Test
+    void 삭제된_상태의_상점은_비활성화_할수없음() {
+        when(shopRepository.findById(anyLong()))
+                .thenReturn(Optional.of(mockShop));
+
+        doThrow(new UnchangeableShopStatusException("Shop status cannot be changed"))
+                .when(mockShop).changeShopStatus(ShopStatus.INACTIVE);
+
+        assertThatThrownBy(() -> shopRegistrationService.inactiveShop(anyLong()))
+                .isExactlyInstanceOf(UnchangeableShopStatusException.class);
+
+        then(shopRepository).should(times(1)).findById(anyLong());
+        then(mockShop).should(times(1)).changeShopStatus(ShopStatus.INACTIVE);
+        assertThat(mockShop.getStatus()).isNotEqualTo(ShopStatus.INACTIVE);
+    }
+
+}
