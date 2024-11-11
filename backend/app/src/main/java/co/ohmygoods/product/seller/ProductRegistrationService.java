@@ -2,6 +2,10 @@ package co.ohmygoods.product.seller;
 
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.auth.account.persistence.AccountRepository;
+import co.ohmygoods.product.dto.ProductDetailCategoryDto;
+import co.ohmygoods.product.dto.ProductSeriesDto;
+import co.ohmygoods.product.exception.InvalidProductDetailCategoryException;
+import co.ohmygoods.product.exception.InvalidProductSeriesException;
 import co.ohmygoods.product.repository.ProductDetailCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.repository.ProductSeriesRepository;
@@ -10,6 +14,7 @@ import co.ohmygoods.product.seller.dto.ProductMetadataModifyInfo;
 import co.ohmygoods.product.seller.dto.ProductRegisterRequest;
 import co.ohmygoods.product.entity.*;
 import co.ohmygoods.product.exception.ProductNotFoundException;
+import co.ohmygoods.product.vo.ProductTopCategory;
 import co.ohmygoods.shop.repository.ShopRepository;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +36,11 @@ public class ProductRegistrationService {
     private final ProductDetailCategoryRepository productDetailCategoryRepository;
     private final ProductSeriesRepository productSeriesRepository;
 
-    public List<ProductBusinessInfo> getSimpleList(Long shopId) {
-        return getSimpleList(shopId, Pageable.ofSize(20));
+    public List<ProductBusinessInfo> getRegisteredProducts(Long shopId) {
+        return getRegisteredProducts(shopId, Pageable.ofSize(20));
     }
 
-    public List<ProductBusinessInfo> getSimpleList(Long shopId, Pageable pageable) {
+    public List<ProductBusinessInfo> getRegisteredProducts(Long shopId, Pageable pageable) {
         var shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
         var productPage = productRepository.findAllByShop(shop, pageable);
@@ -68,7 +73,49 @@ public class ProductRegistrationService {
         }).toList();
     }
 
-    public Long register(ProductRegisterRequest info) {
+    public ProductDetailCategoryDto registerProductDetailCategory(Long shopId, String email, ProductTopCategory topCategory, String categoryName) {
+        var shop = shopRepository.findById(shopId)
+                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+
+        var account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AccountNotFoundException(email));
+
+        shop.ownerCheck(account);
+
+        var optionalProductDetailCategory = productDetailCategoryRepository.findByCategoryName(categoryName);
+
+        if (optionalProductDetailCategory.isPresent()) {
+            throw InvalidProductDetailCategoryException.duplicateName(categoryName);
+        }
+
+        var productDetailCategory = ProductDetailCategory.toEntity(shop, topCategory, categoryName);
+        var saved = productDetailCategoryRepository.save(productDetailCategory);
+
+        return new ProductDetailCategoryDto(topCategory.name(), saved.getId(), saved.getCategoryName());
+    }
+
+    public ProductSeriesDto registerProductSeries(Long shopId, String email, String seriesName) {
+        var shop = shopRepository.findById(shopId)
+                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+
+        var account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AccountNotFoundException(email));
+
+        shop.ownerCheck(account);
+
+        var optionalProductSeries = productSeriesRepository.findBySeriesName(seriesName);
+
+        if (optionalProductSeries.isPresent()) {
+            throw InvalidProductSeriesException.duplicateName(seriesName);
+        }
+
+        var productSeries = ProductSeries.toEntity(shop, seriesName);
+        var saved = productSeriesRepository.save(productSeries);
+
+        return new ProductSeriesDto(saved.getId(), saved.getSeriesName());
+    }
+
+    public Long registerProduct(ProductRegisterRequest info) {
         var shopId = info.shopId();
         var accountEmail = info.accountEmail();
 
@@ -123,7 +170,7 @@ public class ProductRegistrationService {
         return savedProduct.getId();
     }
 
-    public void modifyMetadata(ProductMetadataModifyInfo info) {
+    public void modifyProductMetadata(ProductMetadataModifyInfo info) {
         var shopId = info.shopId();
         var accountEmail = info.accountEmail();
         var productId = info.modifyProductId();

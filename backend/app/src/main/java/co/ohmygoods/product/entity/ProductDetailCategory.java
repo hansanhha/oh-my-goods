@@ -1,5 +1,6 @@
 package co.ohmygoods.product.entity;
 
+import co.ohmygoods.product.vo.ProductTopCategory;
 import co.ohmygoods.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,8 +18,16 @@ public class ProductDetailCategory {
     private Shop shop;
 
     @Enumerated(EnumType.STRING)
-    private String topCategoryName;
+    private ProductTopCategory topCategory;
 
     @Column(unique = true, nullable = false)
     private String categoryName;
+
+    public static ProductDetailCategory toEntity(Shop shop, ProductTopCategory topCategory, String categoryName) {
+        var productDetailCategory = new ProductDetailCategory();
+        productDetailCategory.shop = shop;
+        productDetailCategory.topCategory = topCategory;
+        productDetailCategory.categoryName = categoryName;
+        return productDetailCategory;
+    }
 }
