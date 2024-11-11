@@ -60,8 +60,8 @@ public class ProductSearchService {
         var products = productRepository.findAllByShopAndDetailCategory(shop, detailCategory, pageable);
 
         return new ProductsByCategoryResponse(shopId,
-                detailCategory.getTopCategory(),
-                Collections.singletonList(new ProductDetailCategoryDto(detailCategory.getTopCategory(), detailCategoryId, detailCategory.getCategoryName())),
+                detailCategory.getTopCategory().name(),
+                Collections.singletonList(new ProductDetailCategoryDto(detailCategory.getTopCategory().name(), detailCategoryId, detailCategory.getCategoryName())),
                 products);
     }
 

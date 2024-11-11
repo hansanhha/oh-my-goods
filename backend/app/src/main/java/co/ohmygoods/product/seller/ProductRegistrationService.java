@@ -14,6 +14,7 @@ import co.ohmygoods.product.seller.dto.ProductMetadataModifyInfo;
 import co.ohmygoods.product.seller.dto.ProductRegisterRequest;
 import co.ohmygoods.product.entity.*;
 import co.ohmygoods.product.exception.ProductNotFoundException;
+import co.ohmygoods.product.vo.ProductStockStatus;
 import co.ohmygoods.product.vo.ProductTopCategory;
 import co.ohmygoods.shop.repository.ShopRepository;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
@@ -137,7 +138,7 @@ public class ProductRegistrationService {
                 .remainingQuantity(Math.max(info.quantity(), 0))
                 .purchaseMaximumQuantity(Math.max(info.purchaseLimitCount(), 1))
                 .description(info.description())
-                .saleStartDate(info.isImmediateSale() ? LocalDateTime.now() : info.expectedSaleDate())
+                .saleStartDate(info.status().equals(ProductStockStatus.TO_BE_SOLD) ? info.expectedSaleDate() : LocalDateTime.now())
                 .discountRate(Math.max(info.discountRate(), 0))
                 .discountStartDate(info.discountStartDate())
                 .discountEndDate(info.discountEndDate())
@@ -148,8 +149,8 @@ public class ProductRegistrationService {
         var detailCategoryIds = info.detailCategoryIds();
         var seriesIds = info.seriesIds();
 
-        if (!detailCategoryIds.isEmpty()) {
-            var productDetailCategories = (List<ProductDetailCategory>) productDetailCategoryRepository.findAllById(detailCategoryIds);
+        if (detailCategoryIds != null && !detailCategoryIds.isEmpty()) {
+            var productDetailCategories = productDetailCategoryRepository.findAllByIdAndShop(detailCategoryIds, shop);
             var productDetailCategoryMappings = productDetailCategories
                     .stream()
                     .map(detailCategory -> ProductDetailCategoryMapping.toEntity(savedProduct, detailCategory))
@@ -158,8 +159,8 @@ public class ProductRegistrationService {
             savedProduct.setDetailCategoryMappings(productDetailCategoryMappings);
         }
 
-        if (!seriesIds.isEmpty()) {
-            var productSeries = (List<ProductSeries>)productSeriesRepository.findAllById(seriesIds);
+        if (seriesIds != null && !seriesIds.isEmpty()) {
+            var productSeries = productSeriesRepository.findAllByIdAndShop(seriesIds, shop);
             var productSeriesMappings = productSeries.stream()
                     .map(series -> ProductSeriesMapping.toEntity(savedProduct, series))
                     .toList();
@@ -190,7 +191,7 @@ public class ProductRegistrationService {
         List<ProductDetailCategoryMapping> modifyProductDetailCategoryMappings = null;
         List<ProductSeriesMapping> modifyProductSeriesMappings = null;
 
-        if (!detailCategoryIds.isEmpty()) {
+        if (detailCategoryIds != null && !detailCategoryIds.isEmpty()) {
             var productDetailCategories = (List<ProductDetailCategory>) productDetailCategoryRepository.findAllById(detailCategoryIds);
             modifyProductDetailCategoryMappings = productDetailCategories
                     .stream()
@@ -198,7 +199,7 @@ public class ProductRegistrationService {
                     .toList();
         }
 
-        if (!seriesIds.isEmpty()) {
+        if (seriesIds != null && !seriesIds.isEmpty()) {
             var productSeries = (List<ProductSeries>)productSeriesRepository.findAllById(seriesIds);
             modifyProductSeriesMappings = productSeries.stream()
                     .map(series -> ProductSeriesMapping.toEntity(product, series))
@@ -209,7 +210,7 @@ public class ProductRegistrationService {
                 info.modifyName(),
                 info.modifyDescription(),
                 info.modifyType(),
-                info.modifyCategory(),
+                info.modifyTopCategory(),
                 modifyProductDetailCategoryMappings,
                 modifyProductSeriesMappings);
     }

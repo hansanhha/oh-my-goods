@@ -12,4 +12,6 @@ public interface ProductSeriesRepository extends CrudRepository<ProductSeries, L
     List<ProductSeries> findAllByShop(Shop shop);
 
     Optional<ProductSeries> findBySeriesName(String seriesName);
+
+    List<ProductSeries> findAllByIdAndShop(Iterable<Long> ids, Shop shop);
 }

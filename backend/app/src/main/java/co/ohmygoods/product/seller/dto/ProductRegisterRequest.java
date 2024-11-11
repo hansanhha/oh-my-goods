@@ -24,6 +24,5 @@ public record ProductRegisterRequest(String accountEmail,
                                      LocalDateTime discountEndDate,
                                      int purchaseLimitCount,
                                      String description,
-                                     boolean isImmediateSale,
                                      LocalDateTime expectedSaleDate) {
 }

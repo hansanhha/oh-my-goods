@@ -14,4 +14,6 @@ public interface ProductDetailCategoryRepository extends CrudRepository<ProductD
     List<ProductDetailCategory> findAllByShopAndTopCategoryName(Shop shop, String topCategoryName);
 
     Optional<ProductDetailCategory> findByCategoryName(String categoryName);
+
+    List<ProductDetailCategory> findAllByIdAndShop(Iterable<Long> ids, Shop shop);
 }
