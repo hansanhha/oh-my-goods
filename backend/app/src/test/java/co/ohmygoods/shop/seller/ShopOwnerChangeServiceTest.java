@@ -9,6 +9,8 @@ import co.ohmygoods.shop.repository.ShopRepository;
 import co.ohmygoods.shop.seller.dto.ShopOwnerChangeHistoryDto;
 import co.ohmygoods.shop.seller.entity.ShopOwnerChangeHistory;
 import co.ohmygoods.shop.seller.vo.ShopOwnerStatus;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class ShopOwnerChangeServiceTest {
 
     @Mock
