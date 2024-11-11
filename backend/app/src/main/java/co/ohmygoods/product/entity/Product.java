@@ -134,4 +134,12 @@ public class Product extends BaseEntity {
         this.discountRate = Math.max(discountRate, 0);
         this.discountEndDate = discountEndDate;
     }
+
+    public boolean isQuantityGreaterThanOwnPurchaseMaximumQuantity(int quantity) {
+        return purchaseMaximumQuantity < quantity;
+    }
+
+    public boolean isOnSold() {
+        return stockStatus.equals(ProductStockStatus.ON_SALES);
+    }
 }
