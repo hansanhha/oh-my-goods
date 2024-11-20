@@ -3,7 +3,7 @@ package co.ohmygoods.auth.account.service;
 import co.ohmygoods.auth.account.dto.OAuth2AccountDTO;
 import co.ohmygoods.auth.account.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.account.entity.OAuth2Account;
-import co.ohmygoods.auth.account.persistence.AccountRepository;
+import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.account.vo.Role;
 import co.ohmygoods.auth.jwt.service.JWTService;
 import co.ohmygoods.auth.jwt.vo.JWTs;

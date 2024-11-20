@@ -1,4 +1,4 @@
-package co.ohmygoods.auth.account.persistence;
+package co.ohmygoods.auth.account.repository;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import org.springframework.data.repository.CrudRepository;
