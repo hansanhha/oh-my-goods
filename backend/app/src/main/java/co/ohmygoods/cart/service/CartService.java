@@ -1,7 +1,7 @@
 package co.ohmygoods.cart.service;
 
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
-import co.ohmygoods.auth.account.persistence.AccountRepository;
+import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.cart.dto.AddCartRequest;
 import co.ohmygoods.cart.dto.UpdateCartQuantityRequest;
 import co.ohmygoods.cart.entity.Cart;
@@ -64,7 +64,7 @@ public class CartService {
 
         var product = cart.getProduct();
 
-        if (product.isQuantityGreaterThanOwnPurchaseMaximumQuantity(request.updateQuantity())) {
+        if (product.isInvalidRequestQuantity(request.updateQuantity())) {
             throw CartException.exceedProductMaximumQuantity(product.getId(), product.getPurchaseMaximumQuantity());
         }
 
