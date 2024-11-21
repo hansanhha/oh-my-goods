@@ -1,6 +1,6 @@
 package co.ohmygoods.shop.seller;
 
-import co.ohmygoods.auth.account.persistence.AccountRepository;
+import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.shop.exception.InvalidShopNameException;
 import co.ohmygoods.shop.exception.NotFoundShopException;

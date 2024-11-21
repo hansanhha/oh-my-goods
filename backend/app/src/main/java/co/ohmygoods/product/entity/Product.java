@@ -135,8 +135,8 @@ public class Product extends BaseEntity {
         this.discountEndDate = discountEndDate;
     }
 
-    public boolean isQuantityGreaterThanOwnPurchaseMaximumQuantity(int quantity) {
-        return purchaseMaximumQuantity < quantity;
+    public boolean isInvalidRequestQuantity(int quantity) {
+        return purchaseMaximumQuantity > quantity && remainingQuantity > quantity;
     }
 
     public boolean isOnSold() {

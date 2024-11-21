@@ -1,9 +1,7 @@
 package co.ohmygoods.shop.seller;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
-import co.ohmygoods.auth.account.persistence.AccountRepository;
-import co.ohmygoods.auth.account.vo.Role;
-import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
+import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.exception.InvalidShopNameException;
 import co.ohmygoods.shop.exception.UnchangeableShopStatusException;

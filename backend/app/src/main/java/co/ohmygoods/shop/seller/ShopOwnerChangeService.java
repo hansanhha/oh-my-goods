@@ -1,12 +1,11 @@
 package co.ohmygoods.shop.seller;
 
-import co.ohmygoods.auth.account.persistence.AccountRepository;
+import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.shop.seller.dto.ShopOwnerChangeHistoryDto;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
 import co.ohmygoods.shop.exception.ShopOwnerChangeHistoryException;
 import co.ohmygoods.shop.exception.ShopOwnerChangeNotFoundException;
-import co.ohmygoods.shop.exception.UnchangeableShopOwnerException;
 import co.ohmygoods.shop.seller.entity.ShopOwnerChangeHistory;
 import co.ohmygoods.shop.seller.vo.ShopOwnerStatus;
 import co.ohmygoods.shop.repository.ShopRepository;

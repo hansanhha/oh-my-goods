@@ -1,7 +1,7 @@
 package co.ohmygoods.product.seller;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
-import co.ohmygoods.auth.account.persistence.AccountRepository;
+import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.product.entity.*;
 import co.ohmygoods.product.exception.InvalidProductDetailCategoryException;
 import co.ohmygoods.product.exception.InvalidProductSeriesException;
