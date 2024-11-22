@@ -77,7 +77,7 @@ public class CancelOrder extends BaseEntity {
         }
 
         return new CancelOrder(0L, cancelTargetOrder, shop, manager,
-                CancelOrderStatus.CANCEL_ORDER_BEFORE_PACKAGING, null, requestResponse, LocalDateTime.now());
+                CancelOrderStatus.CANCELED_ORDER, null, requestResponse, LocalDateTime.now());
     }
 
     public void approveByShopManager(OAuth2Account manager, String requestResponse, CancelOrderStatus status) {

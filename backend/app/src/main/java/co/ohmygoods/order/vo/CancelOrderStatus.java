@@ -7,10 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CancelOrderStatus {
 
-    CANCEL_ORDER_BEFORE_PACKAGING("주문 취소됨"),
+    CANCELED_ORDER("주문 취소됨"),
     REQUESTED_CANCEL_ORDER("주문 취소 요청됨"),
-    REJECTED_CANCEL_ORDER("주문 취소 거절됨"),
-    CANCEL_ORDER_AFTER_PACKAGING("주문 취소됨");
+    REJECTED_CANCEL_ORDER("주문 취소 거절됨");
 
     private final String message;
 }

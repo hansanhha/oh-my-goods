@@ -18,4 +18,8 @@ public class OrderException extends RuntimeException {
     public static void throwCauseCannotUpdateStatus(OrderStatus orderStatus) {
         throw new OrderException(orderStatus.getMessage());
     }
+
+    public static void throwCauseInvalidProductStockStatus(String productStockStatus) {
+        throw new OrderException(productStockStatus);
+    }
 }

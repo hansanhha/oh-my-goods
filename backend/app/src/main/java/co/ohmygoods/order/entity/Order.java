@@ -5,6 +5,8 @@ import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.vo.OrderStatus;
 import co.ohmygoods.product.entity.Product;
+import co.ohmygoods.product.exception.ProductException;
+import co.ohmygoods.product.exception.ProductStockStatusException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,7 +36,7 @@ public class Order extends BaseEntity {
     private Address deliveryAddress;
 
     @Column(nullable = false)
-    private int quantity;
+    private int orderedQuantity;
 
     @Column(nullable = false, updatable = false)
     private String orderNumber;
@@ -48,12 +50,12 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private OrderStatus orderStatus = OrderStatus.PAYING;
+    private OrderStatus status = OrderStatus.PAYING;
 
     private LocalDateTime deliveredAt;
 
     public void updateOrderStatus(OrderStatus orderStatus) {
-        if (!this.orderStatus.isUpdatableStatus()) {
+        if (!this.status.isUpdatableStatus()) {
             OrderException.throwCauseCannotUpdateStatus(orderStatus);
         }
 
@@ -61,7 +63,7 @@ public class Order extends BaseEntity {
             deliveredAt = LocalDateTime.now();
         }
 
-        this.orderStatus = orderStatus;
+        this.status = orderStatus;
     }
 
     public void updatePurchaseQuantity(int quantity) {
@@ -69,16 +71,16 @@ public class Order extends BaseEntity {
             OrderException.throwCauseInvalidPurchaseQuantity(quantity);
         }
 
-        if (isCannotUpdateOrder(orderStatus)) {
-            OrderException.throwCauseInvalidOrderStatus(orderStatus);
+        if (isCannotUpdateOrder(status)) {
+            OrderException.throwCauseInvalidOrderStatus(status);
         }
 
-        this.quantity = quantity;
+        this.orderedQuantity = quantity;
     }
 
     public void updateDeliveryAddress(Address deliveryAddress) {
-        if (isCannotUpdateOrder(orderStatus)) {
-            OrderException.throwCauseInvalidOrderStatus(orderStatus);
+        if (isCannotUpdateOrder(status)) {
+            OrderException.throwCauseInvalidOrderStatus(status);
         }
 
         this.deliveryAddress = deliveryAddress;
@@ -86,5 +88,32 @@ public class Order extends BaseEntity {
 
     public static boolean isCannotUpdateOrder(OrderStatus orderStatus) {
         return !orderStatus.equals(OrderStatus.ORDERED) && !orderStatus.equals(OrderStatus.PACKAGING);
+    }
+
+    public void ordered() {
+        status = OrderStatus.ORDERED;
+    }
+
+    public void ready() {
+        try {
+            product.decrease(orderedQuantity);
+            status = OrderStatus.PAYING;
+        } catch (ProductException e) {
+            status = OrderStatus.ORDER_FAILED_LACK_QUANTITY;
+            OrderException.throwCauseInvalidPurchaseQuantity(orderedQuantity);
+        } catch (ProductStockStatusException e) {
+            status = OrderStatus.ORDER_FAILED_INVALID_PRODUCT_STOCK_STATUS;
+            OrderException.throwCauseInvalidProductStockStatus(product.getStockStatus().getMessage());
+        }
+    }
+
+    public void cancel() {
+        product.increase(orderedQuantity);
+        status = OrderStatus.CANCELED_ORDER;
+    }
+
+    public void fail(OrderStatus cause) {
+        product.increase(orderedQuantity);
+        status = cause;
     }
 }

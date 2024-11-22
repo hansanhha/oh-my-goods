@@ -2,7 +2,9 @@ package co.ohmygoods.product.entity;
 
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.product.exception.InvalidProductUpdateParameterException;
+import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.exception.ProductShopCheckException;
+import co.ohmygoods.product.exception.ProductStockStatusException;
 import co.ohmygoods.product.vo.ProductTopCategory;
 import co.ohmygoods.product.vo.ProductStockStatus;
 import co.ohmygoods.product.vo.ProductType;
@@ -141,5 +143,25 @@ public class Product extends BaseEntity {
 
     public boolean isOnSold() {
         return stockStatus.equals(ProductStockStatus.ON_SALES);
+    }
+
+    public void decrease(int quantity) {
+        if (!isInvalidRequestQuantity(quantity)) {
+            ProductException.throwCauseInvalidDecreaseQuantity(purchaseMaximumQuantity, remainingQuantity, quantity);
+        }
+
+        if (!stockStatus.equals(ProductStockStatus.ON_SALES)) {
+            ProductStockStatusException.throwInvalidStatus(stockStatus);
+        }
+
+        remainingQuantity -= quantity;
+    }
+
+    public void increase(int quantity) {
+        if (quantity < 0) {
+            ProductException.throwCauseInvalidIncreaseQuantity(quantity);
+        }
+
+        remainingQuantity += quantity;
     }
 }
