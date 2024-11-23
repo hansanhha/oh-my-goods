@@ -36,7 +36,7 @@ public abstract class AbstractExternalPaymentApiService {
                 .exchange((request, response) -> new ApprovalResult<>(response));
     }
 
-    protected  <T> Optional<T> convertExternalResponseBodyToFailCause(InputStream responseBody, Class<T> type) {
+    protected  <T> Optional<T> extractExternalFailureCause(InputStream responseBody, Class<T> type) {
         try {
             return Optional.of(objectMapper.readValue(responseBody, type));
         } catch (IOException e) {
