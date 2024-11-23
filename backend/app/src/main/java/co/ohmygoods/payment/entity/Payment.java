@@ -6,7 +6,7 @@ import co.ohmygoods.order.entity.Order;
 import co.ohmygoods.order.vo.OrderStatus;
 import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.vo.PaymentStatus;
-import co.ohmygoods.payment.vo.PaymentTransactionVendor;
+import co.ohmygoods.payment.vo.PaymentVendor;
 import co.ohmygoods.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -43,16 +43,18 @@ public class Payment extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
-    private PaymentTransactionVendor paymentTransactionVendor;
+    private PaymentVendor paymentVendor;
 
     @Column(nullable = false, updatable = false)
     private int totalPrice;
 
-    private String payTransactionId;
+    private String transactionId;
 
-    private LocalDateTime payTransactionEndedAt;
+    private LocalDateTime transactionEndedAt;
 
-    public static Payment request(Shop shop, OAuth2Account buyer, Order order, PaymentTransactionVendor vendor, int totalPrice) {
+    private LocalDateTime transactionReadyAt;
+
+    public static Payment create(Shop shop, OAuth2Account buyer, Order order, PaymentVendor vendor, int totalPrice) {
         if (totalPrice < 0) {
             PaymentException.throwCauseInvalidPaymentPrice(totalPrice);
         }
@@ -61,27 +63,32 @@ public class Payment extends BaseEntity {
             PaymentException.throwCauseInvalidOrderStatus(order.getStatus());
         }
 
-        return new Payment(0L, shop, buyer, order, PaymentStatus.PAYING, vendor,
-                totalPrice, null, null);
+        return new Payment(0L, shop, buyer, order, PaymentStatus.PAYMENT_READY, vendor,
+                totalPrice, null, null, null);
+    }
+
+    public void ready(String transactionId, LocalDateTime transactionReadyAt) {
+        this.transactionId = transactionId;
+        this.transactionReadyAt = transactionReadyAt;
+        status = PaymentStatus.PAYING;
     }
 
     public void cancel() {
-        payTransactionEndedAt = LocalDateTime.now();
+        transactionEndedAt = LocalDateTime.now();
         status = PaymentStatus.PAYMENT_CANCEL;
 
         order.cancel();
     }
 
     public void fail(PaymentStatus cause) {
-        payTransactionEndedAt = LocalDateTime.now();
+        transactionEndedAt = LocalDateTime.now();
         status = cause;
 
         order.fail(OrderStatus.valueOf(cause.name()));
     }
 
-    public void approve(String payTransactionId) {
-        this.payTransactionId = payTransactionId;
-        payTransactionEndedAt = LocalDateTime.now();
+    public void approve() {
+        transactionEndedAt = LocalDateTime.now();
         status = PaymentStatus.PAID;
 
         order.ordered();

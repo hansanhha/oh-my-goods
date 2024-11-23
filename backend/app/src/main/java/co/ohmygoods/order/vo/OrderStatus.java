@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum OrderStatus {
 
+    PAYMENT_READY("결제 준비"),
     PAYING("결제 중"),
     PAYMENT_CANCEL("결제 취소"),
     PAYMENT_FAILED_TIMEOUT("결제 실패(시간 초과)"),

@@ -1,6 +1,6 @@
 package co.ohmygoods.payment.vo;
 
-public enum PaymentTransactionVendor {
+public enum PaymentVendor {
 
     KAKAOPAY,
     NAVERPAY
