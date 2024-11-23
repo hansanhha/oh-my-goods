@@ -82,12 +82,12 @@ public abstract class AbstractExternalPaymentApiService {
 
         private final ApprovalResponse approvalResponse;
         private final boolean success;
-        private final HttpStatusCode approvalRequestResponseStatusCode;
-        private final InputStream approvalRequestResponseBody;
+        private final HttpStatusCode approvalResponseStatusCode;
+        private final InputStream approvalResponseBody;
 
         private ApprovalResult(ConvertibleClientHttpResponse response) throws IOException {
-            this.approvalRequestResponseStatusCode = response.getStatusCode();
-            this.approvalRequestResponseBody = response.getBody();
+            this.approvalResponseStatusCode = response.getStatusCode();
+            this.approvalResponseBody = response.getBody();
 
             if (response.getStatusCode().isError()) {
                 this.approvalResponse = null;
