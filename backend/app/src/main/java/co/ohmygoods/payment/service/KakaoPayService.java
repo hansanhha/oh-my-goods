@@ -81,7 +81,17 @@ public class KakaoPayService extends AbstractExternalPaymentApiService implement
         PreparationResult<KakaoPayPreparationResponse> result = sendExternalPreparationRequest(kakaoPayPreparationRequest);
 
         if (!result.isSuccess()) {
-            return handleExternalRequestFailure(result, payment);
+            Optional<KakaoPayApiFailCause> kakaoPayApiFailureCause = extractExternalFailureCause(result.getPreparationResponseBody(), KakaoPayApiFailCause.class);
+
+            if (kakaoPayApiFailureCause.isEmpty()) {
+                payment.fail(PaymentStatus.PAYMENT_FAILED_OTHER_EXTERNAL_API_ERROR);
+                return PaymentReadyResponse.failure(null);
+            }
+
+            KakaoPayApiFailCause kakaoPayApiFailCause = kakaoPayApiFailureCause.get();
+            payment.fail(convertPaymentFailedStatus(kakaoPayApiFailCause));
+
+            return PaymentReadyResponse.failure(kakaoPayApiFailCause.errorMessage());
         }
 
         KakaoPayPreparationResponse preparationResponse = result.getPreparationResponse();
@@ -119,20 +129,6 @@ public class KakaoPayService extends AbstractExternalPaymentApiService implement
         };
     }
 
-    private PaymentReadyResponse handleExternalRequestFailure(PreparationResult<KakaoPayPreparationResponse> result, Payment payment) {
-        Optional<KakaoPayApiFailCause> optionalKakaoPayApiFailCause = convertExternalResponseBodyToFailCause(result.getPreparationResponseBody(), KakaoPayApiFailCause.class);
-        String failCauseMessage = null;
-
-        if (optionalKakaoPayApiFailCause.isPresent()) {
-            KakaoPayApiFailCause kakaoPayApiFailCause = optionalKakaoPayApiFailCause.get();
-            payment.fail(convertPaymentFailedStatus(kakaoPayApiFailCause));
-            failCauseMessage = kakaoPayApiFailCause.errorMessage();
-        } else {
-            payment.fail(PaymentStatus.PAYMENT_FAILED_OTHER_EXTERNAL_API_ERROR);
-        }
-
-        return PaymentReadyResponse.failure(failCauseMessage);
-    }
 
     record KakaoPayPreparationRequest(String cid,
                                       String partnerOrderId,
