@@ -21,7 +21,7 @@ public abstract class AbstractExternalPaymentApiService {
 
         return externalApiClient
                 .post()
-                .uri(getExternalPaymentRequestUri(PaymentPhase.PREPARE))
+                .uri(getExternalPaymentRequestUri(PaymentPhase.PREPARATION))
                 .body(preparationRequestBody)
                 .exchange((request, response) -> new PreparationResult<>(response));
     }
@@ -31,7 +31,7 @@ public abstract class AbstractExternalPaymentApiService {
 
         return externalApiClient
                 .post()
-                .uri(getExternalPaymentRequestUri(PaymentPhase.APPROVE))
+                .uri(getExternalPaymentRequestUri(PaymentPhase.APPROVAL))
                 .body(approvalRequestBody)
                 .exchange((request, response) -> new ApprovalResult<>(response));
     }
@@ -45,8 +45,8 @@ public abstract class AbstractExternalPaymentApiService {
     }
 
     protected enum PaymentPhase {
-        PREPARE,
-        APPROVE
+        PREPARATION,
+        APPROVAL
     }
 
     private static <T> T convertResponse(ConvertibleClientHttpResponse response, ParameterizedTypeReference<T> convertType) {

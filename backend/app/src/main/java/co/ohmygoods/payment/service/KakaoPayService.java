@@ -63,7 +63,7 @@ public class KakaoPayService extends AbstractExternalPaymentApiService implement
 
     @Override
     protected URI getExternalPaymentRequestUri(PaymentPhase paymentPhase) {
-        return paymentPhase.equals(PaymentPhase.PREPARE)
+        return paymentPhase.equals(PaymentPhase.PREPARATION)
                 ? URI.create(kakaoPayProperties.getPreparationRequestUrl())
                 : URI.create(kakaoPayProperties.getApprovalRequestUrl());
     }
