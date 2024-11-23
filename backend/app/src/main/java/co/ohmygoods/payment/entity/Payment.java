@@ -87,9 +87,9 @@ public class Payment extends BaseEntity {
         order.fail(OrderStatus.valueOf(cause.name()));
     }
 
-    public void approve() {
+    public void succeed() {
         transactionEndedAt = LocalDateTime.now();
-        status = PaymentStatus.PAYING;
+        status = PaymentStatus.PAID;
 
         order.ordered();
     }

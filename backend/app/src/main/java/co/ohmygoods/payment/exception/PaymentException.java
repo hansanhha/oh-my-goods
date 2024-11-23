@@ -26,4 +26,8 @@ public class PaymentException extends RuntimeException {
     public static PaymentException notFoundOrder(Long orderId) {
         return new PaymentException(String.valueOf(orderId));
     }
+
+    public static PaymentException notFoundPayment(String transactionId) {
+        return new PaymentException(transactionId);
+    }
 }

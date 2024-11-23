@@ -97,8 +97,7 @@ public class KakaoPayService extends AbstractExternalPaymentApiService implement
 
     @Override
     public void approve(String transactionId, Map<String, String> properties) {
-        Payment payment = paymentRepository.findFetchByTransactionId(transactionId).orElseThrow(() -> PaymentException.notFoundPayment(transactionId));
-        payment.approve();
+        Payment payment = paymentRepository.findFetchOrderAndAccountByTransactionId(transactionId).orElseThrow(() -> PaymentException.notFoundPayment(transactionId));
 
         Order order = payment.getOrder();
         OAuth2Account account = order.getAccount();
@@ -114,16 +113,20 @@ public class KakaoPayService extends AbstractExternalPaymentApiService implement
             handlePaymentFailure(payment, kakaoPayRequestFailureCause);
             return;
         }
+
+        payment.succeed();
     }
 
     @Override
     public void fail(String transactionId) {
-
+        Payment payment = paymentRepository.findFetchOrderAndProductByTransactionId(transactionId).orElseThrow(() -> PaymentException.notFoundPayment(transactionId));
+        payment.fail(PaymentStatus.PAYMENT_FAILED_TIMEOUT); // 임시
     }
 
     @Override
     public void cancel(String transactionId) {
-
+        Payment payment = paymentRepository.findFetchOrderAndProductByTransactionId(transactionId).orElseThrow(() -> PaymentException.notFoundPayment(transactionId));
+        payment.cancel();
     }
 
     private void handlePaymentFailure(Payment payment, Optional<KakaoPayRequestFailureCause> kakaoPayRequestFailureCause) {
@@ -196,7 +199,42 @@ public class KakaoPayService extends AbstractExternalPaymentApiService implement
 
     }
 
-    record KakaoPayApprovalResponse() {
+    record KakaoPayApprovalResponse(String aid,
+                                    String tid,
+                                    String cid,
+                                    String partnerOrderId,
+                                    String partnerUserId,
+                                    String paymentMethodType,
+                                    String ItemName,
+                                    int quantity,
+                                    LocalDateTime createdAt,
+                                    LocalDateTime approvedAt,
+                                    String payload
+                                    ) {
+
+        record Amount(int total,
+                      int taxFree,
+                      int vat,
+                      int point,
+                      int discount,
+                      int greenDeposit) {
+
+        }
+
+        record CardInfo(String kakaopayPurchaseCorp,
+                        String kakaopayPurchaseCorpCode,
+                        String kakaopayIssuerCorp,
+                        String kakaopayIssuerCorpCode,
+                        String bin,
+                        String cardType,
+                        String installMonth,
+                        String approvedId,
+                        String cardMid,
+                        String interestFreeInstall,
+                        String installmentType,
+                        String cardItemCode) {
+
+        }
 
     }
 
