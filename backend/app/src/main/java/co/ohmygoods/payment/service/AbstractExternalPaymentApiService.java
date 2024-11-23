@@ -21,7 +21,7 @@ public abstract class AbstractExternalPaymentApiService {
 
         return externalApiClient
                 .post()
-                .uri(getExternalPaymentApiUri(PaymentPhase.PREPARE))
+                .uri(getExternalPaymentRequestUri(PaymentPhase.PREPARE))
                 .body(preparationRequestBody)
                 .exchange((request, response) -> new PreparationResult<>(response));
     }
@@ -31,7 +31,7 @@ public abstract class AbstractExternalPaymentApiService {
 
         return externalApiClient
                 .post()
-                .uri(getExternalPaymentApiUri(PaymentPhase.APPROVE))
+                .uri(getExternalPaymentRequestUri(PaymentPhase.APPROVE))
                 .body(approvalRequestBody)
                 .exchange((request, response) -> new ApprovalResult<>(response));
     }
@@ -103,6 +103,6 @@ public abstract class AbstractExternalPaymentApiService {
 
     abstract protected RestClient getExternalApiRestClient();
 
-    abstract protected URI getExternalPaymentApiUri(final PaymentPhase paymentPhase);
+    abstract protected URI getExternalPaymentRequestUri(final PaymentPhase paymentPhase);
 
 }
