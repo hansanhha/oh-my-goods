@@ -207,6 +207,8 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
                                     String paymentMethodType,
                                     String ItemName,
                                     int quantity,
+                                    Amount amount,
+                                    CardInfo cardInfo,
                                     LocalDateTime createdAt,
                                     LocalDateTime approvedAt,
                                     String payload
