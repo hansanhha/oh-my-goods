@@ -63,14 +63,14 @@ public class Payment extends BaseEntity {
             PaymentException.throwCauseInvalidOrderStatus(order.getStatus());
         }
 
-        return new Payment(0L, shop, buyer, order, PaymentStatus.PAYMENT_READY, vendor,
+        return new Payment(0L, shop, buyer, order, PaymentStatus.PAYMENT_START, vendor,
                 totalPrice, null, null, null);
     }
 
     public void ready(String transactionId, LocalDateTime transactionReadyAt) {
         this.transactionId = transactionId;
         this.transactionReadyAt = transactionReadyAt;
-        status = PaymentStatus.PAYING;
+        status = PaymentStatus.PAYMENT_READY;
     }
 
     public void cancel() {
@@ -89,7 +89,7 @@ public class Payment extends BaseEntity {
 
     public void approve() {
         transactionEndedAt = LocalDateTime.now();
-        status = PaymentStatus.PAID;
+        status = PaymentStatus.PAYING;
 
         order.ordered();
     }
