@@ -94,10 +94,14 @@ public class Order extends BaseEntity {
         status = OrderStatus.ORDERED;
     }
 
+    public boolean isReady() {
+        return status.equals(OrderStatus.ORDER_READY);
+    }
+
     public void ready() {
         try {
             product.decrease(orderedQuantity);
-            status = OrderStatus.PAYING;
+            status = OrderStatus.ORDER_READY;
         } catch (ProductException e) {
             status = OrderStatus.ORDER_FAILED_LACK_QUANTITY;
             OrderException.throwCauseInvalidPurchaseQuantity(orderedQuantity);

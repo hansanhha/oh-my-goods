@@ -57,7 +57,9 @@ public class Payment extends BaseEntity {
             PaymentException.throwCauseInvalidPaymentPrice(totalPrice);
         }
 
-        order.ready();
+        if (!order.isReady()) {
+            PaymentException.throwCauseInvalidOrderStatus(order.getStatus());
+        }
 
         return new Payment(0L, shop, buyer, order, PaymentStatus.PAYING, vendor,
                 totalPrice, null, null);
