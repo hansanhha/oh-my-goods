@@ -83,18 +83,18 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
         PreparationResult<KakaopayPreparationResponse> result = sendExternalPreparationRequest(kakaoPayPreparationRequest);
 
         if (!result.isSuccess()) {
-            Optional<KakaopayRequestFailureCause> kakaoPayRequestFailureCause = extractExternalFailureCause(result.getPreparationResponseBody(), KakaopayRequestFailureCause.class);
-            handlePaymentFailure(payment, kakaoPayRequestFailureCause);
+            Optional<KakaopayRequestFailureCause> kakaopayRequestFailureCause = extractExternalFailureCause(result.getPreparationResponseBody(), KakaopayRequestFailureCause.class);
+            handlePaymentFailure(payment, kakaopayRequestFailureCause);
 
-            return kakaoPayRequestFailureCause
-                    .map(cause -> PaymentReadyResponse.failure(cause.errorMessage()))
-                    .orElseGet(() -> PaymentReadyResponse.failure(null));
+            return kakaopayRequestFailureCause
+                    .map(cause -> PaymentReadyResponse.readyFailed(cause.errorCode(), cause.errorMsg()))
+                    .orElseGet(() -> PaymentReadyResponse.readyFailed(null,"unknown error"));
         }
 
         KakaopayPreparationResponse preparationResponse = result.getPreparationResponse();
         payment.ready(preparationResponse.tid(), preparationResponse.createdAt());
 
-        return PaymentReadyResponse.success(getNextRedirectUrlByUserAgent(userAgent, preparationResponse));
+        return PaymentReadyResponse.ready(getNextRedirectUrlByUserAgent(userAgent, preparationResponse), preparationResponse.createdAt());
     }
 
     @Override
@@ -248,7 +248,7 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
     }
 
     private record KakaopayRequestFailureCause(String errorCode,
-                                               String errorMessage) {
+                                               String errorMsg) {
 
     }
 }
