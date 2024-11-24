@@ -6,7 +6,6 @@ import lombok.Getter;
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
 public record DeliveryRequirement(String requirement) {
 
     public static final DeliveryRequirement AT_THE_DOOR = new DeliveryRequirement("문 앞에 놔주세요");
