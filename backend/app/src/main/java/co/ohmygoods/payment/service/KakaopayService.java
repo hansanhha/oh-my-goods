@@ -7,14 +7,13 @@ import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.entity.Payment;
 import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.repository.PaymentRepository;
-import co.ohmygoods.payment.vo.PaymentProperties;
+import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.vo.PaymentStatus;
 import co.ohmygoods.payment.vo.PaymentVendor;
 import co.ohmygoods.product.entity.Product;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
-import com.google.common.net.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
@@ -30,7 +29,7 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
 
     private static final PaymentVendor KAKAOPAY = PaymentVendor.KAKAOPAY;
 
-    private final PaymentProperties.KakaoPayProperties kakaoPayProperties;
+    private final PaymentServiceConfig.KakaoPayProperties kakaoPayProperties;
     private final RestClient kakaoPayApiClient;
 
     private final ShopRepository shopRepository;
@@ -38,24 +37,14 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
     private final AccountRepository accountRepository;
     private final PaymentRepository paymentRepository;
 
-    public KakaopayService(PaymentProperties.KakaoPayProperties kakaoPayProperties,
-                           ShopRepository shopRepository,
-                           OrderRepository orderRepository,
-                           AccountRepository accountRepository,
-                           PaymentRepository paymentRepository) {
-
+    public KakaopayService(PaymentServiceConfig.KakaoPayProperties kakaoPayProperties, @Qualifier("kakaopayApiRestClient") RestClient kakaoPayApiClient,
+                           ShopRepository shopRepository, OrderRepository orderRepository, AccountRepository accountRepository, PaymentRepository paymentRepository) {
         this.kakaoPayProperties = kakaoPayProperties;
+        this.kakaoPayApiClient = kakaoPayApiClient;
         this.shopRepository = shopRepository;
         this.orderRepository = orderRepository;
         this.accountRepository = accountRepository;
         this.paymentRepository = paymentRepository;
-
-        kakaoPayApiClient = RestClient.builder()
-                .defaultHeaders(headers -> {
-                    headers.add(HttpHeaders.AUTHORIZATION, kakaoPayProperties.getSecretKey());
-                    headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                })
-                .build();
     }
 
     @Override
@@ -207,7 +196,7 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
                                       String failURL) {
 
         private static KakaopayPreparationRequest create(Payment payment, OAuth2Account account, Order order,
-                                                         Product product, PaymentProperties.KakaoPayProperties kakaoPayProperties) {
+                                                         Product product, PaymentServiceConfig.KakaoPayProperties kakaoPayProperties) {
             return new KakaopayPreparationRequest(
                     kakaoPayProperties.getCid(),
                     order.getOrderNumber(),
