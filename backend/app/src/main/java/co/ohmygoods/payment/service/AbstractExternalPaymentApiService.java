@@ -16,7 +16,7 @@ public abstract class AbstractExternalPaymentApiService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    protected <RequestBody, Response> PreparationResult<Response> sendExternalPreparationRequest(RequestBody preparationRequestBody) {
+    protected <RequestBody, Response> PreparationResult<Response> sendExternalPaymentPreparationRequest(RequestBody preparationRequestBody) {
         var externalApiClient = getExternalApiRestClient();
 
         return externalApiClient
@@ -26,7 +26,7 @@ public abstract class AbstractExternalPaymentApiService {
                 .exchange((request, response) -> new PreparationResult<>(response));
     }
 
-    protected <RequestBody, Response> ApprovalResult<Response> sendExternalApprovalRequest(RequestBody approvalRequestBody) {
+    protected <RequestBody, Response> ApprovalResult<Response> sendExternalPaymentApprovalRequest(RequestBody approvalRequestBody) {
         var externalApiClient = getExternalApiRestClient();
 
         return externalApiClient

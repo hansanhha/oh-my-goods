@@ -80,7 +80,7 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
         paymentRepository.save(payment);
 
         KakaopayPreparationRequest kakaoPayPreparationRequest = KakaopayPreparationRequest.create(payment, buyer, order, order.getProduct(), kakaoPayProperties);
-        PreparationResult<KakaopayPreparationResponse> result = sendExternalPreparationRequest(kakaoPayPreparationRequest);
+        PreparationResult<KakaopayPreparationResponse> result = sendExternalPaymentPreparationRequest(kakaoPayPreparationRequest);
 
         if (!result.isSuccess()) {
             Optional<KakaopayRequestFailureCause> kakaopayRequestFailureCause = extractExternalFailureCause(result.getPreparationResponseBody(), KakaopayRequestFailureCause.class);
@@ -108,7 +108,7 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
                 transactionId, order.getOrderNumber(),
                 account.getEmail(),
                 properties.get("pgToken"));
-        ApprovalResult<KakaopayApprovalResponse> approvalResult = sendExternalApprovalRequest(kakaoPayApprovalRequest);
+        ApprovalResult<KakaopayApprovalResponse> approvalResult = sendExternalPaymentApprovalRequest(kakaoPayApprovalRequest);
 
         if (!approvalResult.isSuccess()) {
             Optional<KakaopayRequestFailureCause> kakaoPayRequestFailureCause = extractExternalFailureCause(approvalResult.getApprovalResponseBody(), KakaopayRequestFailureCause.class);
