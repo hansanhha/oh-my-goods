@@ -28,6 +28,8 @@ import java.util.Optional;
 @Service
 public class KakaopayService extends AbstractExternalPaymentApiService implements PaymentService {
 
+    private static final PaymentVendor KAKAOPAY = PaymentVendor.KAKAOPAY;
+
     private final PaymentProperties.KakaoPayProperties kakaoPayProperties;
     private final RestClient kakaoPayApiClient;
 
@@ -74,7 +76,7 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
         OAuth2Account buyer = accountRepository.findByEmail(buyerEmail).orElseThrow(() -> PaymentException.notFoundAccount(buyerEmail));
         Order order = orderRepository.findById(orderId).orElseThrow(() -> PaymentException.notFoundOrder(orderId));
 
-        Payment payment = Payment.create(shop, buyer, order, PaymentVendor.KAKAOPAY, totalPrice);
+        Payment payment = Payment.create(shop, buyer, order, KAKAOPAY, totalPrice);
         paymentRepository.save(payment);
 
         KakaopayPreparationRequest kakaoPayPreparationRequest = KakaopayPreparationRequest.create(payment, buyer, order, order.getProduct(), kakaoPayProperties);
@@ -127,6 +129,11 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
     public void cancel(String transactionId) {
         Payment payment = paymentRepository.findFetchOrderAndProductByTransactionId(transactionId).orElseThrow(() -> PaymentException.notFoundPayment(transactionId));
         payment.cancel();
+    }
+
+    @Override
+    public boolean canPay(PaymentVendor paymentVendor) {
+        return paymentVendor.equals(KAKAOPAY);
     }
 
     private void handlePaymentFailure(Payment payment, Optional<KakaopayRequestFailureCause> kakaoPayRequestFailureCause) {

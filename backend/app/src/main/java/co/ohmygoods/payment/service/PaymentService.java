@@ -1,5 +1,7 @@
 package co.ohmygoods.payment.service;
 
+import co.ohmygoods.payment.vo.PaymentVendor;
+
 import java.util.Map;
 
 public interface PaymentService {
@@ -11,6 +13,8 @@ public interface PaymentService {
     void fail(String transactionId);
 
     void cancel(String transactionId);
+
+    boolean canPay(PaymentVendor paymentVendor);
 
     enum UserAgent {
         DESKTOP,
