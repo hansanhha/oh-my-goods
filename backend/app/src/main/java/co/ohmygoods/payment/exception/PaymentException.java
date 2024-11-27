@@ -3,6 +3,9 @@ package co.ohmygoods.payment.exception;
 import co.ohmygoods.order.vo.OrderStatus;
 
 public class PaymentException extends RuntimeException {
+    public PaymentException() {
+    }
+
     public PaymentException(String message) {
         super(message);
     }
@@ -33,5 +36,9 @@ public class PaymentException extends RuntimeException {
 
     public static PaymentException notSupportPaymentVendor(String vendorName) {
         return new PaymentException(vendorName);
+    }
+
+    public static PaymentException invalidExternalRequestBody() {
+        return new PaymentException();
     }
 }

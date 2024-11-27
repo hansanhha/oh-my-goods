@@ -4,15 +4,16 @@ import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.order.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
+import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.entity.Payment;
 import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.repository.PaymentRepository;
-import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.vo.PaymentStatus;
 import co.ohmygoods.payment.vo.PaymentVendor;
 import co.ohmygoods.product.entity.Product;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +21,8 @@ import org.springframework.web.client.RestClient;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 
 @Transactional
 @Service
@@ -69,10 +70,11 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
         paymentRepository.save(payment);
 
         KakaopayPreparationRequest kakaoPayPreparationRequest = KakaopayPreparationRequest.create(payment, buyer, order, order.getProduct(), kakaoPayProperties);
-        PreparationResult<KakaopayPreparationResponse, KakaopayRequestFailureCause> externalPreparationResult = sendExternalPaymentPreparationRequest(kakaoPayPreparationRequest);
+        PreparationResult<KakaopayPreparationResponse, KakaopayFailureCause> externalPreparationResult = sendExternalPaymentPreparationRequest(
+                kakaoPayPreparationRequest, new TypeReference<>() {}, new TypeReference<>() {});
 
-        if (!externalPreparationResult.isSuccess()) {
-            KakaopayRequestFailureCause externalError = externalPreparationResult.getExternalError();
+        if (!externalPreparationResult.success()) {
+            KakaopayFailureCause externalError = externalPreparationResult.externalError();
             handlePaymentFailure(payment, externalError);
 
             return externalError != null
@@ -80,10 +82,10 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
                     : ReadyResponse.readyFailed(null, "unknown error");
         }
 
-        KakaopayPreparationResponse preparationResponse = externalPreparationResult.getPreparationResponse();
-        payment.ready(preparationResponse.tid(), preparationResponse.createdAt());
+        KakaopayPreparationResponse preparationResponse = externalPreparationResult.preparationResponse();
+        payment.ready(preparationResponse.tid(), LocalDateTime.from(preparationResponse.createdAt().toInstant()));
 
-        return ReadyResponse.ready(getNextRedirectUrlByUserAgent(userAgent, preparationResponse), preparationResponse.createdAt());
+        return ReadyResponse.ready(getNextRedirectUrlByUserAgent(userAgent, preparationResponse), LocalDateTime.from(preparationResponse.createdAt().toInstant()));
     }
 
     @Override
@@ -97,10 +99,11 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
                 transactionId, order.getOrderNumber(),
                 account.getEmail(),
                 properties.get("pgToken"));
-        ApprovalResult<KakaopayApprovalResponse, KakaopayRequestFailureCause> externalApprovalResult = sendExternalPaymentApprovalRequest(kakaoPayApprovalRequest);
+        ApprovalResult<KakaopayApprovalResponse, KakaopayFailureCause> externalApprovalResult = sendExternalPaymentApprovalRequest(
+                kakaoPayApprovalRequest, new TypeReference<>() {}, new TypeReference<>() {});
 
-        if (!externalApprovalResult.isSuccess()) {
-            KakaopayRequestFailureCause externalError = externalApprovalResult.getExternalError();
+        if (!externalApprovalResult.success()) {
+            KakaopayFailureCause externalError = externalApprovalResult.externalError();
             handlePaymentFailure(payment, externalError);
 
             return createApproveFailResponse(payment, order, account, order.getProduct(), externalError);
@@ -127,16 +130,16 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
         return paymentVendor.equals(KAKAOPAY);
     }
 
-    private void handlePaymentFailure(Payment payment, KakaopayRequestFailureCause kakaoPayRequestFailureCause) {
-        if (kakaoPayRequestFailureCause == null) {
+    private void handlePaymentFailure(Payment payment, KakaopayFailureCause kakaoPayFailureCause) {
+        if (kakaoPayFailureCause == null) {
             payment.fail(PaymentStatus.PAYMENT_FAILED_OTHER_EXTERNAL_API_ERROR);
             return;
         }
 
-        payment.fail(convertPaymentFailedStatus(kakaoPayRequestFailureCause));
+        payment.fail(convertPaymentFailedStatus(kakaoPayFailureCause));
     }
 
-    private PaymentStatus convertPaymentFailedStatus(KakaopayRequestFailureCause kakaoPayApiFailResponse) {
+    private PaymentStatus convertPaymentFailedStatus(KakaopayFailureCause kakaoPayApiFailResponse) {
         return switch (kakaoPayApiFailResponse.errorCode()) {
             default -> PaymentStatus.PAYMENT_FAILED_NETWORK_ERROR;
         };
@@ -151,15 +154,15 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
     }
 
     private ApproveResponse createApproveFailResponse(Payment payment, Order order, OAuth2Account account,
-                                                      Product product, KakaopayRequestFailureCause cause) {
+                                                      Product product, KakaopayFailureCause cause) {
         return createApproveResponse(false, payment, order, account, product,
                 null, cause != null ? new ExternalPaymentError(cause.errorCode(), cause.errorMessage()) : null);
     }
 
     private ApproveResponse createApproveSuccessResponse(Payment payment, Order order, OAuth2Account account,
-                                                         Product product, ApprovalResult<KakaopayApprovalResponse, KakaopayRequestFailureCause> approvalResult) {
+                                                         Product product, ApprovalResult<KakaopayApprovalResponse, KakaopayFailureCause> approvalResult) {
         return createApproveResponse(true, payment, order, account, product,
-                approvalResult.getApprovalResponse().approvedAt(), null);
+                LocalDateTime.from(approvalResult.approvalResponse().approvedAt().toInstant()), null);
     }
 
     private ApproveResponse createApproveResponse(boolean isApproved, Payment payment, Order order, OAuth2Account account, Product product,
@@ -224,7 +227,7 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
                                        String nextRedirectPcUrl,
                                        String androidAppScheme,
                                        String iosAppScheme,
-                                       LocalDateTime createdAt) {
+                                       Date createdAt) {
 
     }
 
@@ -238,8 +241,8 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
                                     int quantity,
                                     Amount amount,
                                     CardInfo cardInfo,
-                                    LocalDateTime createdAt,
-                                    LocalDateTime approvedAt,
+                                    Date createdAt,
+                                    Date approvedAt,
                                     String payload
                                     ) {
 
@@ -269,9 +272,9 @@ public class KakaopayService extends AbstractExternalPaymentApiService implement
 
     }
 
-    record KakaopayRequestFailureCause(String errorCode,
-                                               String errorMessage,
-                                               Extras extras) {
+    record KakaopayFailureCause(String errorCode,
+                                String errorMessage,
+                                Extras extras) {
 
         record Extras(String methodResultCode, String methodResultMessage) {
 
