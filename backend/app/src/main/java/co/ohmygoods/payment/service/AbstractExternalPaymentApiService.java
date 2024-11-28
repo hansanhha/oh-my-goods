@@ -14,26 +14,26 @@ import org.springframework.web.client.RestClient.RequestHeadersSpec.ConvertibleC
 import java.io.IOException;
 import java.net.URI;
 
-public abstract class AbstractExternalPaymentApiService {
+/**
+ *
+ * @param <PreparationResponse> 외부 결제 준비 API 응답 매핑 타입
+ * @param <ApprovalResponse> 외부 결제 승인 API 응답 매핑 타입
+ * @param <Error> 외부 결제 API 실패 응답 매핑 타입
+ */
+public abstract class AbstractExternalPaymentApiService<PreparationResponse, ApprovalResponse, Error> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper()
             .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     /**
-     * @param <T> 외부 결제 준비 API 요청 HTTP 바디 타입
-     * @param <U> 외부 결제 준비 API 응답 매핑 타입
-     * @param <V> 외부 결제 준비 API 실패 응답 매핑 타입
+     * @param <RequestBody> 외부 결제 준비 API 요청 HTTP 바디 타입
      *
      * @param preparationRequestBody 외부 결제 준비 API 요청 HTTP 바디
-     * @param preparationResponseTypeReference 외부 결제 준비 API 응답 매핑 타입 레퍼런스
-     * @param externalErrorTypeReference 외부 결제 준비 API 실패 응답 매핑 타입 레퍼런스
      *
      * @return 외부 결제 준비 API 요청 결과
      */
-    protected <T, U, V> PreparationResult<U, V> sendExternalPaymentPreparationRequest(T preparationRequestBody,
-                                                                                      TypeReference<U> preparationResponseTypeReference,
-                                                                                      TypeReference<V> externalErrorTypeReference) {
+    protected <RequestBody> PreparationResult<PreparationResponse, Error> sendExternalPaymentPreparationRequest(RequestBody preparationRequestBody) {
         var externalApiClient = getExternalApiRestClient();
 
         return externalApiClient
@@ -43,28 +43,22 @@ public abstract class AbstractExternalPaymentApiService {
                 .exchange((request, response) -> {
                     HttpStatusCode externalResponseCode = response.getStatusCode();
                     if (externalResponseCode.isError()) {
-                        return PreparationResult.error(externalResponseCode, extractExternalFailureCause(response, externalErrorTypeReference));
+                        return PreparationResult.error(externalResponseCode, extractExternalFailureCause(response, getExternalErrorMappingTypeReference()));
                     }
 
-                    return PreparationResult.success(externalResponseCode, convertToResponse(response, preparationResponseTypeReference));
+                    return PreparationResult.success(externalResponseCode, convertToResponse(response, getPreprationResponseMappingTypeReference()));
                 });
     }
 
     /**
      *
      * @param <T> 외부 결제 승인 API 요청 HTTP 바디 타입
-     * @param <U> 외부 결제 승인 API 응답 매핑 타입
-     * @param <V> 외부 결제 승인 API 실패 응답 매핑 타입
      *
      * @param approvalRequestBody 외부 결제 승인 API 요청 HTTP 바디
-     * @param approvalResponseTypeReference 외부 결제 승인 API 응답 매핑 타입 레퍼런스
-     * @param externalErrorTypeReference 외부 결제 승인 API 실패 응답 매핑 타입 레퍼런스
      *
      * @return 외부 결제 승인 API 요청 결과
      */
-    protected <T, U, V> ApprovalResult<U, V> sendExternalPaymentApprovalRequest(T approvalRequestBody,
-                                                                                TypeReference<U> approvalResponseTypeReference,
-                                                                                TypeReference<V> externalErrorTypeReference) {
+    protected <T> ApprovalResult<ApprovalResponse, Error> sendExternalPaymentApprovalRequest(T approvalRequestBody) {
         var externalApiClient = getExternalApiRestClient();
 
         return externalApiClient
@@ -73,16 +67,22 @@ public abstract class AbstractExternalPaymentApiService {
                 .body(convertRequestBodyToJson(approvalRequestBody))
                 .exchange((request, response) -> {
                     if (response.getStatusCode().isError()) {
-                        return new ApprovalResult<>(null, false, response.getStatusCode(), extractExternalFailureCause(response, externalErrorTypeReference));
+                        return new ApprovalResult<>(null, false, response.getStatusCode(), extractExternalFailureCause(response, getExternalErrorMappingTypeReference()));
                     }
 
-                    return new ApprovalResult<>(convertToResponse(response, approvalResponseTypeReference), true, response.getStatusCode(), null);
+                    return new ApprovalResult<>(convertToResponse(response, getApprovalResponseMappingTypeReference()), true, response.getStatusCode(), null);
                 });
     }
 
     abstract protected RestClient getExternalApiRestClient();
 
     abstract protected URI getExternalPaymentRequestUri(final PaymentPhase paymentPhase);
+
+    abstract protected TypeReference<PreparationResponse> getPreprationResponseMappingTypeReference();
+
+    abstract protected TypeReference<ApprovalResponse> getApprovalResponseMappingTypeReference();
+
+    abstract protected TypeReference<Error> getExternalErrorMappingTypeReference();
 
     protected enum PaymentPhase {
         PREPARATION,
@@ -99,7 +99,7 @@ public abstract class AbstractExternalPaymentApiService {
         }
 
         private static <PreparationResponse, ExternalError> PreparationResult<PreparationResponse, ExternalError> success(HttpStatusCode externalHttpStatusCode, PreparationResponse preparationResponse) {
-            return new PreparationResult<>(preparationResponse, false, externalHttpStatusCode, null);
+            return new PreparationResult<>(preparationResponse, true, externalHttpStatusCode, null);
         }
     }
 
