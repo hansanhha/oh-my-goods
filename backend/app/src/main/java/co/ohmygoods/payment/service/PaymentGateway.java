@@ -20,7 +20,7 @@ public class PaymentGateway {
     public PreparePaymentResponse preparePayment(PreparePaymentRequest request) {
         LocalDateTime attemptAt = LocalDateTime.now();
 
-        PaymentService paymentService = findSupportPaymentService(request.vendorName());
+        PaymentService paymentService = findSupportPaymentService(request.externalPaymentVendor());
         PaymentService.ReadyResponse response = paymentService.ready(request.userAgent(),
                 request.shopId(), request.buyerEmail(), request.orderId(), request.totalPrice());
 
@@ -32,7 +32,7 @@ public class PaymentGateway {
     public ApprovePaymentResponse approvePayment(ApprovePaymentRequest request) {
         LocalDateTime attemptAt = LocalDateTime.now();
 
-        PaymentService paymentService = findSupportPaymentService(request.vendorName());
+        PaymentService paymentService = findSupportPaymentService(request.externalPaymentVendor());
         PaymentService.ApproveResponse response = paymentService.approve(request.orderNumber(), request.properties());
 
         return response.isApproved()
@@ -40,24 +40,22 @@ public class PaymentGateway {
                 : ApprovePaymentResponse.fail(request, response, attemptAt);
     }
 
-    public void cancelPayment(String vendorName, String transactionId) {
-        PaymentService paymentService = findSupportPaymentService(vendorName);
+    public void cancelPayment(ExternalPaymentVendor externalPaymentVendor, String transactionId) {
+        PaymentService paymentService = findSupportPaymentService(externalPaymentVendor);
         paymentService.cancel(transactionId);
 
     }
 
-    public void failPayment(String vendorName, String transactionId) {
-        PaymentService paymentService = findSupportPaymentService(vendorName);
+    public void failPayment(ExternalPaymentVendor externalPaymentVendor, String transactionId) {
+        PaymentService paymentService = findSupportPaymentService(externalPaymentVendor);
         paymentService.fail(transactionId);
     }
 
-    private PaymentService findSupportPaymentService(String vendorName) {
-        ExternalPaymentVendor externalPaymentVendor = ExternalPaymentVendor.valueOf(vendorName.toUpperCase());
-
+    private PaymentService findSupportPaymentService(ExternalPaymentVendor externalPaymentVendor) {
         return paymentServices
                 .stream()
                 .filter(service -> service.canPay(externalPaymentVendor))
                 .findFirst()
-                .orElseThrow(() -> PaymentException.notSupportPaymentVendor(vendorName));
+                .orElseThrow(() -> PaymentException.notSupportPaymentVendor(externalPaymentVendor.name()));
     }
 }

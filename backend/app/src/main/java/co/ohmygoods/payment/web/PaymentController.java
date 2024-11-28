@@ -1,11 +1,15 @@
 package co.ohmygoods.payment.web;
 
+import co.ohmygoods.payment.dto.ApprovePaymentRequest;
 import co.ohmygoods.payment.service.PaymentGateway;
+import co.ohmygoods.payment.vo.ExternalPaymentVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -15,8 +19,9 @@ public class PaymentController {
     private final PaymentGateway paymentGateway;
 
     @PostMapping("/kakao/approve")
-    public void processKakaopayApproval(@RequestParam("pg_token") String pgToken) {
-//        paymentGateway.approvePayment(PaymentVendor.KAKAOPAY, );
+    public void processKakaopayApproval(@RequestParam("orderNumber") String orderNumber,
+                                        @RequestParam("pg_token") String pgToken) {
+        paymentGateway.approvePayment(new ApprovePaymentRequest(ExternalPaymentVendor.KAKAOPAY, orderNumber, Map.of("pg_token", pgToken)));
     }
 
     @PostMapping("/kakao/cancel")
