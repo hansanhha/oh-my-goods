@@ -34,11 +34,11 @@ public interface PaymentService {
                          String nextUrl,
                          ExternalPaymentError externalPaymentError) {
 
-        static ReadyResponse ready(String transactionId, Long orderId, String buyerEmail, String nextUrl, LocalDateTime readyAt) {
+        static ReadyResponse success(String transactionId, Long orderId, String buyerEmail, String nextUrl, LocalDateTime readyAt) {
             return new ReadyResponse(transactionId, orderId, buyerEmail, true, readyAt, nextUrl, null);
         }
 
-        static ReadyResponse readyFailed(String externalServiceErrorCode, String externalServiceErrorMsg) {
+        static ReadyResponse fail(String externalServiceErrorCode, String externalServiceErrorMsg) {
             return new ReadyResponse(null, null, null, false, null, null, new ExternalPaymentError(externalServiceErrorCode, externalServiceErrorMsg));
         }
     }

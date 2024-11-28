@@ -82,14 +82,14 @@ public class KakaopayService
             handlePaymentFailure(payment, externalError);
 
             return externalError != null
-                    ? ReadyResponse.readyFailed(externalError.errorCode(), externalError.errorMessage())
-                    : ReadyResponse.readyFailed(null, "unknown error");
+                    ? ReadyResponse.fail(externalError.errorCode(), externalError.errorMessage())
+                    : ReadyResponse.fail(null, "unknown error");
         }
 
         KakaopayPreparationResponse preparationResponse = externalPreparationResult.preparationResponse();
         payment.ready(preparationResponse.tid(), LocalDateTime.ofInstant(preparationResponse.createdAt().toInstant(), ZoneId.systemDefault()));
 
-        return ReadyResponse.ready(payment.getTransactionId(), order.getId(), buyerEmail,
+        return ReadyResponse.success(payment.getTransactionId(), order.getId(), buyerEmail,
                 getNextRedirectUrlByUserAgent(userAgent, preparationResponse), LocalDateTime.ofInstant(preparationResponse.createdAt().toInstant(), ZoneId.systemDefault()));
     }
 
