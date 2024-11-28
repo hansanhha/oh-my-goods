@@ -18,7 +18,7 @@ public interface ProductRepository extends CrudRepository<Product, Long>, Paging
     @Query("SELECT p " +
             "FROM Product p " +
             "JOIN ProductSeriesMapping psm on p = psm.product AND psm.series = :series " +
-            "WHERE p.shop =: shop")
+            "WHERE p.shop = :shop")
     List<Product> findAllByShopAndSeries(Shop shop, ProductSeries series);
 
     @Query("SELECT p " +
