@@ -12,7 +12,7 @@ public interface PaymentService {
 
     ReadyResponse ready(UserAgent userAgent, Long shopId, String buyerEmail, Long orderId, int totalPrice);
 
-    ApproveResponse approve(String transactionId, Map<String, String> properties);
+    ApproveResponse approve(String orderNumber, Map<String, String> properties);
 
     void fail(String transactionId);
 

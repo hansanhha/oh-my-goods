@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 import static co.ohmygoods.payment.service.KakaopayService.*;
 
@@ -94,14 +95,14 @@ public class KakaopayService
     }
 
     @Override
-    public ApproveResponse approve(String transactionId, Map<String, String> properties) {
-        Payment payment = paymentRepository.fetchByTransactionIdWithOrderAndAccountAndProduct(transactionId).orElseThrow(() -> PaymentException.notFoundPayment(transactionId));
+    public ApproveResponse approve(String orderNumber, Map<String, String> properties) {
+        Order order = orderRepository.findByOrderNumber(orderNumber).orElseThrow(() -> PaymentException.notFoundOrder(orderNumber));
+        Payment payment = paymentRepository.fetchByOrderWithOrderAndAccountAndProduct(order).orElseThrow(() -> PaymentException.notFoundPayment(order.getId()));
 
-        Order order = payment.getOrder();
         OAuth2Account account = order.getAccount();
 
         KakaopayApprovalRequest kakaoPayApprovalRequest = new KakaopayApprovalRequest(kakaoPayProperties.getCid(),
-                transactionId, order.getOrderNumber(),
+                payment.getTransactionId(), order.getOrderNumber(),
                 account.getEmail(),
                 properties.get("pgToken"));
         ApprovalResult<KakaopayApprovalResponse, KakaopayRequestFailureCause> externalApprovalResult = sendExternalPaymentApprovalRequest(kakaoPayApprovalRequest);
@@ -225,7 +226,7 @@ public class KakaopayService
                     order.getOrderedQuantity(),
                     order.getDiscountedPrice(),
                     order.getDiscountedPrice(),
-                    kakaoPayProperties.getApprovalRedirectUrl(),
+                    kakaoPayProperties.getApprovalRedirectUrl().concat("?order_number=").concat(order.getOrderNumber()),
                     kakaoPayProperties.getCancelRedirectUrl(),
                     kakaoPayProperties.getFailRedirectUrl());
         }

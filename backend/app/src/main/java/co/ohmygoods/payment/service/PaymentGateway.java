@@ -33,7 +33,7 @@ public class PaymentGateway {
         LocalDateTime attemptAt = LocalDateTime.now();
 
         PaymentService paymentService = findSupportPaymentService(request.vendorName());
-        PaymentService.ApproveResponse response = paymentService.approve(request.transactionId(), request.properties());
+        PaymentService.ApproveResponse response = paymentService.approve(request.orderNumber(), request.properties());
 
         return response.isApproved()
                 ? ApprovePaymentResponse.success(request, response, attemptAt)
