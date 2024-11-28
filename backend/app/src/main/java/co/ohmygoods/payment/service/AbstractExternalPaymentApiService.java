@@ -43,7 +43,7 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
                 .exchange((request, response) -> {
                     HttpStatusCode externalResponseCode = response.getStatusCode();
                     if (externalResponseCode.isError()) {
-                        return PreparationResult.error(externalResponseCode, extractExternalFailureCause(response, getExternalErrorMappingTypeReference()));
+                        return PreparationResult.fail(externalResponseCode, extractExternalFailureCause(response, getExternalErrorMappingTypeReference()));
                     }
 
                     return PreparationResult.success(externalResponseCode, convertToResponse(response, getPreprationResponseMappingTypeReference()));
@@ -94,7 +94,7 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
                                                                            HttpStatusCode externalHttpStatusCode,
                                                                            ExternalError externalError) {
 
-        private static <PreparationResponse, ExternalError> PreparationResult<PreparationResponse, ExternalError> error(HttpStatusCode externalHttpStatusCode, ExternalError externalError) {
+        private static <PreparationResponse, ExternalError> PreparationResult<PreparationResponse, ExternalError> fail(HttpStatusCode externalHttpStatusCode, ExternalError externalError) {
             return new PreparationResult<>(null, false, externalHttpStatusCode, externalError);
         }
 
