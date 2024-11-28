@@ -1,7 +1,6 @@
 package co.ohmygoods.payment.web;
 
 import co.ohmygoods.payment.service.PaymentGateway;
-import co.ohmygoods.payment.vo.PaymentVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -9,7 +9,7 @@ import co.ohmygoods.payment.entity.Payment;
 import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.repository.PaymentRepository;
 import co.ohmygoods.payment.vo.PaymentStatus;
-import co.ohmygoods.payment.vo.PaymentVendor;
+import co.ohmygoods.payment.vo.ExternalPaymentVendor;
 import co.ohmygoods.product.entity.Product;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
@@ -33,7 +33,7 @@ public class KakaopayService
         extends AbstractExternalPaymentApiService<KakaopayPreparationResponse, KakaopayApprovalResponse, KakaopayRequestFailureCause>
         implements PaymentService {
 
-    private static final PaymentVendor KAKAOPAY = PaymentVendor.KAKAOPAY;
+    private static final ExternalPaymentVendor KAKAOPAY = ExternalPaymentVendor.KAKAOPAY;
 
     private final PaymentServiceConfig.KakaoPayProperties kakaoPayProperties;
     private final RestClient kakaoPayApiClient;
@@ -130,8 +130,8 @@ public class KakaopayService
     }
 
     @Override
-    public boolean canPay(PaymentVendor paymentVendor) {
-        return paymentVendor.equals(KAKAOPAY);
+    public boolean canPay(ExternalPaymentVendor externalPaymentVendor) {
+        return externalPaymentVendor.equals(KAKAOPAY);
     }
 
     @Override

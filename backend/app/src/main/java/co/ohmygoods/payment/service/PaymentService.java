@@ -2,7 +2,7 @@ package co.ohmygoods.payment.service;
 
 import co.ohmygoods.order.vo.OrderStatus;
 import co.ohmygoods.payment.vo.PaymentStatus;
-import co.ohmygoods.payment.vo.PaymentVendor;
+import co.ohmygoods.payment.vo.ExternalPaymentVendor;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ public interface PaymentService {
 
     void cancel(String transactionId);
 
-    boolean canPay(PaymentVendor paymentVendor);
+    boolean canPay(ExternalPaymentVendor externalPaymentVendor);
 
     enum UserAgent {
         DESKTOP,

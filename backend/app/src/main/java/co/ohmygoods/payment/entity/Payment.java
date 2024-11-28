@@ -6,7 +6,7 @@ import co.ohmygoods.order.entity.Order;
 import co.ohmygoods.order.vo.OrderStatus;
 import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.vo.PaymentStatus;
-import co.ohmygoods.payment.vo.PaymentVendor;
+import co.ohmygoods.payment.vo.ExternalPaymentVendor;
 import co.ohmygoods.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -43,7 +43,7 @@ public class Payment extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
-    private PaymentVendor paymentVendor;
+    private ExternalPaymentVendor externalPaymentVendor;
 
     @Column(nullable = false, updatable = false)
     private int totalPrice;
@@ -54,7 +54,7 @@ public class Payment extends BaseEntity {
 
     private LocalDateTime transactionReadyAt;
 
-    public static Payment create(Shop shop, OAuth2Account buyer, Order order, PaymentVendor vendor, int totalPrice) {
+    public static Payment create(Shop shop, OAuth2Account buyer, Order order, ExternalPaymentVendor vendor, int totalPrice) {
         if (totalPrice < 0) {
             PaymentException.throwCauseInvalidPaymentPrice(totalPrice);
         }

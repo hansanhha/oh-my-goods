@@ -2,7 +2,7 @@ package co.ohmygoods.payment.service;
 
 import co.ohmygoods.payment.dto.*;
 import co.ohmygoods.payment.exception.PaymentException;
-import co.ohmygoods.payment.vo.PaymentVendor;
+import co.ohmygoods.payment.vo.ExternalPaymentVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,11 +52,11 @@ public class PaymentGateway {
     }
 
     private PaymentService findSupportPaymentService(String vendorName) {
-        PaymentVendor paymentVendor = PaymentVendor.valueOf(vendorName.toUpperCase());
+        ExternalPaymentVendor externalPaymentVendor = ExternalPaymentVendor.valueOf(vendorName.toUpperCase());
 
         return paymentServices
                 .stream()
-                .filter(service -> service.canPay(paymentVendor))
+                .filter(service -> service.canPay(externalPaymentVendor))
                 .findFirst()
                 .orElseThrow(() -> PaymentException.notSupportPaymentVendor(vendorName));
     }
