@@ -1,13 +1,11 @@
 package co.ohmygoods.payment.web;
 
 import co.ohmygoods.payment.dto.ApprovePaymentRequest;
+import co.ohmygoods.payment.dto.ApprovePaymentResponse;
 import co.ohmygoods.payment.service.PaymentGateway;
 import co.ohmygoods.payment.vo.ExternalPaymentVendor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
