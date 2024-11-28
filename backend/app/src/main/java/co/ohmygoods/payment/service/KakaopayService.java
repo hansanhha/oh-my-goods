@@ -89,7 +89,8 @@ public class KakaopayService
         KakaopayPreparationResponse preparationResponse = externalPreparationResult.preparationResponse();
         payment.ready(preparationResponse.tid(), LocalDateTime.ofInstant(preparationResponse.createdAt().toInstant(), ZoneId.systemDefault()));
 
-        return ReadyResponse.ready(getNextRedirectUrlByUserAgent(userAgent, preparationResponse), LocalDateTime.ofInstant(preparationResponse.createdAt().toInstant(), ZoneId.systemDefault()));
+        return ReadyResponse.ready(payment.getTransactionId(), order.getId(), buyerEmail,
+                getNextRedirectUrlByUserAgent(userAgent, preparationResponse), LocalDateTime.ofInstant(preparationResponse.createdAt().toInstant(), ZoneId.systemDefault()));
     }
 
     @Override

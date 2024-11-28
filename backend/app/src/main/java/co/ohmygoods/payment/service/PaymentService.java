@@ -26,17 +26,20 @@ public interface PaymentService {
         MOBILE_APP
     }
 
-    record ReadyResponse(boolean isReady,
+    record ReadyResponse(String transactionId,
+                         Long orderId,
+                         String buyerEmail,
+                         boolean isReady,
                          LocalDateTime readyAt,
                          String nextUrl,
                          ExternalPaymentError externalPaymentError) {
 
-        static ReadyResponse ready(String nextUrl, LocalDateTime readyAt) {
-            return new ReadyResponse(true, readyAt, nextUrl, null);
+        static ReadyResponse ready(String transactionId, Long orderId, String buyerEmail, String nextUrl, LocalDateTime readyAt) {
+            return new ReadyResponse(transactionId, orderId, buyerEmail, true, readyAt, nextUrl, null);
         }
 
         static ReadyResponse readyFailed(String externalServiceErrorCode, String externalServiceErrorMsg) {
-            return new ReadyResponse(false, null, null, new ExternalPaymentError(externalServiceErrorCode, externalServiceErrorMsg));
+            return new ReadyResponse(null, null, null, false, null, null, new ExternalPaymentError(externalServiceErrorCode, externalServiceErrorMsg));
         }
     }
 
