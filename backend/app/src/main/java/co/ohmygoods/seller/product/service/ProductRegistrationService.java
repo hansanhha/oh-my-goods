@@ -1,4 +1,4 @@
-package co.ohmygoods.product.seller;
+package co.ohmygoods.seller.product.service;
 
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.auth.account.repository.AccountRepository;
@@ -9,9 +9,9 @@ import co.ohmygoods.product.exception.InvalidProductSeriesException;
 import co.ohmygoods.product.repository.ProductDetailCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.repository.ProductSeriesRepository;
-import co.ohmygoods.product.seller.dto.ProductBusinessInfo;
-import co.ohmygoods.product.seller.dto.ProductMetadataModifyInfo;
-import co.ohmygoods.product.seller.dto.ProductRegisterRequest;
+import co.ohmygoods.seller.product.dto.ProductBusinessInfo;
+import co.ohmygoods.seller.product.dto.ProductMetadataModifyInfo;
+import co.ohmygoods.seller.product.dto.ProductRegisterRequest;
 import co.ohmygoods.product.entity.*;
 import co.ohmygoods.product.exception.ProductNotFoundException;
 import co.ohmygoods.product.vo.ProductStockStatus;

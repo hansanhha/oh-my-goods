@@ -1,4 +1,4 @@
-package co.ohmygoods.product.seller;
+package co.ohmygoods.seller.product.service;
 
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.exception.ProductNotFoundException;
