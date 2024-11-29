@@ -6,7 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
- * todo delivery 패키지 구현
  * todo 웹, 에러 처리
  * todo 유닛/통합 테스트
  * todo api 문서화
