@@ -6,6 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
+ * todo seller 도메인 리팩토링
+ * todo 정산 도메인 설계 및 개발
  * todo 웹, 에러 처리
  * todo 유닛/통합 테스트
  * todo api 문서화
