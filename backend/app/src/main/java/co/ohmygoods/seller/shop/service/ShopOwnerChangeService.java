@@ -1,13 +1,14 @@
-package co.ohmygoods.shop.seller;
+package co.ohmygoods.seller.shop.service;
 
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
-import co.ohmygoods.shop.seller.dto.ShopOwnerChangeHistoryDto;
+import co.ohmygoods.seller.shop.repository.ShopOwnerChangeHistoryRepository;
+import co.ohmygoods.seller.shop.dto.ShopOwnerChangeHistoryDTO;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
 import co.ohmygoods.shop.exception.ShopOwnerChangeHistoryException;
 import co.ohmygoods.shop.exception.ShopOwnerChangeNotFoundException;
-import co.ohmygoods.shop.seller.entity.ShopOwnerChangeHistory;
-import co.ohmygoods.shop.seller.vo.ShopOwnerStatus;
+import co.ohmygoods.seller.shop.entity.ShopOwnerChangeHistory;
+import co.ohmygoods.seller.shop.vo.ShopOwnerStatus;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,11 @@ public class ShopOwnerChangeService {
     private final ShopRepository shopRepository;
     private final ShopOwnerChangeHistoryRepository shopOwnerChangeHistoryRepository;
 
-    public ShopOwnerChangeHistoryDto getHistory(Long historyId) {
+    public ShopOwnerChangeHistoryDTO getHistory(Long historyId) {
         var shopOwnerChangeHistory = shopOwnerChangeHistoryRepository.findById(historyId)
                 .orElseThrow(() -> new ShopOwnerChangeHistoryException(historyId.toString()));
 
-        return new ShopOwnerChangeHistoryDto(historyId,
+        return new ShopOwnerChangeHistoryDTO(historyId,
                 shopOwnerChangeHistory.getOriginalOwner().getEmail(),
                 shopOwnerChangeHistory.getTargetAccount().getEmail(),
                 shopOwnerChangeHistory.getStatus(),

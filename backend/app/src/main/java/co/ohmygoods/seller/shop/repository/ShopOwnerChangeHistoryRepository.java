@@ -1,6 +1,6 @@
-package co.ohmygoods.shop.seller;
+package co.ohmygoods.seller.shop.repository;
 
-import co.ohmygoods.shop.seller.entity.ShopOwnerChangeHistory;
+import co.ohmygoods.seller.shop.entity.ShopOwnerChangeHistory;
 import org.springframework.data.repository.CrudRepository;
 
 public interface ShopOwnerChangeHistoryRepository extends CrudRepository<ShopOwnerChangeHistory, Long> {

@@ -1,7 +1,8 @@
-package co.ohmygoods.shop.seller.vo;
+package co.ohmygoods.seller.shop.vo;
 
 public enum ShopOwnerStatus {
 
+    OWNER,
     OWNER_CHANGE_REQUESTED,
     OWNER_CHANGE_CANCELED,
     OWNER_CHANGE_APPROVED,

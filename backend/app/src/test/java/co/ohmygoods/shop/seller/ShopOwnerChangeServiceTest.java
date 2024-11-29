@@ -2,12 +2,14 @@ package co.ohmygoods.shop.seller;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
+import co.ohmygoods.seller.shop.repository.ShopOwnerChangeHistoryRepository;
+import co.ohmygoods.seller.shop.service.ShopOwnerChangeService;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.exception.InvalidShopOwnerException;
 import co.ohmygoods.shop.exception.UnchangeableShopOwnerException;
 import co.ohmygoods.shop.repository.ShopRepository;
-import co.ohmygoods.shop.seller.entity.ShopOwnerChangeHistory;
-import co.ohmygoods.shop.seller.vo.ShopOwnerStatus;
+import co.ohmygoods.seller.shop.entity.ShopOwnerChangeHistory;
+import co.ohmygoods.seller.shop.vo.ShopOwnerStatus;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;

@@ -1,10 +1,10 @@
-package co.ohmygoods.shop.seller.dto;
+package co.ohmygoods.seller.shop.dto;
 
-import co.ohmygoods.shop.seller.vo.ShopOwnerStatus;
+import co.ohmygoods.seller.shop.vo.ShopOwnerStatus;
 
 import java.time.LocalDateTime;
 
-public record ShopOwnerChangeHistoryDto(Long historyId,
+public record ShopOwnerChangeHistoryDTO(Long historyId,
                                         String requestAccountEmail,
                                         String targetAccountEmail,
                                         ShopOwnerStatus status,

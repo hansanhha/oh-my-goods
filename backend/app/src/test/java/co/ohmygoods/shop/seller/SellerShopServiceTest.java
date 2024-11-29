@@ -2,11 +2,12 @@ package co.ohmygoods.shop.seller;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
+import co.ohmygoods.seller.shop.service.SellerShopService;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.exception.InvalidShopNameException;
 import co.ohmygoods.shop.exception.UnchangeableShopStatusException;
 import co.ohmygoods.shop.repository.ShopRepository;
-import co.ohmygoods.shop.seller.dto.ShopCreationRequest;
+import co.ohmygoods.seller.shop.dto.CreateShopRequest;
 import co.ohmygoods.shop.vo.ShopStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -25,7 +26,7 @@ import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class ShopRegistrationServiceTest {
+class SellerShopServiceTest {
 
     @Mock
     private AccountRepository accountRepository;
@@ -34,7 +35,7 @@ class ShopRegistrationServiceTest {
     private ShopRepository shopRepository;
 
     @InjectMocks
-    private ShopRegistrationService shopRegistrationService;
+    private SellerShopService sellerShopService;
 
     @Mock
     private Shop mockShop;
@@ -42,12 +43,12 @@ class ShopRegistrationServiceTest {
     @Mock
     private OAuth2Account mockAccount;
 
-    private ShopCreationRequest shopCreationRequest;
+    private CreateShopRequest createShopRequest;
     private static final String MOCK_ACCOUNT_EMAIL = "mockAccount@test.com";
 
     @BeforeEach
     void init() {
-        shopCreationRequest = new ShopCreationRequest("testEmail", "testShop", "testShopIntroduction");
+        createShopRequest = new CreateShopRequest("testEmail", "testShop", "testShopIntroduction");
     }
 
     @Test
@@ -66,7 +67,7 @@ class ShopRegistrationServiceTest {
         when(mockShop.getId())
                 .thenReturn(shopId);
 
-        var createdShopId = shopRegistrationService.createShop(shopCreationRequest);
+        var createdShopId = sellerShopService.createShop(createShopRequest);
 
         then(shopRepository).should(times(1)).findByName(anyString());
         then(accountRepository).should(times(1)).findByEmail(anyString());
@@ -80,7 +81,7 @@ class ShopRegistrationServiceTest {
         when(shopRepository.findByName(anyString()))
                 .thenReturn(Optional.of(mockShop));
 
-        assertThatThrownBy(() -> shopRegistrationService.createShop(shopCreationRequest))
+        assertThatThrownBy(() -> sellerShopService.createShop(createShopRequest))
                 .isExactlyInstanceOf(InvalidShopNameException.class);
 
         then(shopRepository).should(times(1)).findByName(anyString());
@@ -95,7 +96,7 @@ class ShopRegistrationServiceTest {
         when(shopRepository.findById(anyLong()))
                 .thenReturn(Optional.of(mockShop));
 
-        shopRegistrationService.inactiveShop(anyLong());
+        sellerShopService.inactiveShop(anyLong());
 
         then(shopRepository).should(times(1)).findById(anyLong());
         then(mockShop).should(times(1)).changeShopStatus(expectedShopStatus);
@@ -109,7 +110,7 @@ class ShopRegistrationServiceTest {
         doThrow(new UnchangeableShopStatusException("Shop status cannot be changed"))
                 .when(mockShop).changeShopStatus(ShopStatus.INACTIVE);
 
-        assertThatThrownBy(() -> shopRegistrationService.inactiveShop(anyLong()))
+        assertThatThrownBy(() -> sellerShopService.inactiveShop(anyLong()))
                 .isExactlyInstanceOf(UnchangeableShopStatusException.class);
 
         then(shopRepository).should(times(1)).findById(anyLong());

@@ -1,10 +1,10 @@
-package co.ohmygoods.shop.seller;
+package co.ohmygoods.seller.shop.service;
 
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.shop.exception.InvalidShopNameException;
 import co.ohmygoods.shop.exception.NotFoundShopException;
-import co.ohmygoods.shop.seller.dto.ShopCreationRequest;
+import co.ohmygoods.seller.shop.dto.CreateShopRequest;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.vo.ShopStatus;
 import co.ohmygoods.shop.repository.ShopRepository;
@@ -15,12 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ShopRegistrationService {
+public class SellerShopService {
 
     private final AccountRepository accountRepository;
     private final ShopRepository shopRepository;
 
-    public Long createShop(ShopCreationRequest request) {
+    public Long createShop(CreateShopRequest request) {
         var shopName = request.shopName();
 
         if (shopName == null || shopName.isBlank()) {
