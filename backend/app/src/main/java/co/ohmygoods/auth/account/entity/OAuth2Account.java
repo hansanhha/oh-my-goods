@@ -40,5 +40,13 @@ public class OAuth2Account extends BaseEntity {
     private OAuth2Vendor oauth2Vendor;
 
     private String oauth2MemberId;
+
+    public boolean canIssueGeneralCoupon() {
+        return role.hasIssueGeneralCouponAuthority();
+    }
+
+    public boolean canIssueShopCoupon() {
+        return role.hasIssueShopCouponAuthority();
+    }
 }
 
