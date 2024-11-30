@@ -57,10 +57,8 @@ public class Coupon extends BaseEntity {
     @Column(nullable = false)
     private CouponDiscountType discountType;
 
-    @Column(nullable = false)
     private int maxIssuableCount;
 
-    @Column(nullable = false)
     private int maxUsageCountPerAccount;
 
     @Column(nullable = false)
@@ -91,11 +89,11 @@ public class Coupon extends BaseEntity {
         private CouponStatus status;
         private CouponIssuanceTarget issuanceTarget;
         private CouponDiscountType discountType;
+        private Integer discountValue;
+        private Integer maxDiscountPrice;
         private Integer maxIssuableCount;
         private Integer maxUsageCountPerAccount;
         private Integer issuedCount;
-        private Integer discountValue;
-        private Integer maxDiscountPrice;
         private LocalDateTime validFrom;
         private LocalDateTime validUntil;
 
@@ -118,7 +116,7 @@ public class Coupon extends BaseEntity {
             return this;
         }
 
-        public CouponBuilder limitedType(CouponLimitConditionType limitConditionType) {
+        public CouponBuilder limitedConditionType(CouponLimitConditionType limitConditionType) {
             this.limitConditionType = limitConditionType;
             return this;
         }
@@ -181,7 +179,7 @@ public class Coupon extends BaseEntity {
             this.status = CouponStatus.ISSUED;
             this.issuedCount = 0;
 
-            validateCouponInfo();
+            validateRequiredField();
             validateLimitCondition();
             validateIssueAuthority(issuer, type);
             validateDiscountValue(discountType, discountValue);
@@ -191,9 +189,9 @@ public class Coupon extends BaseEntity {
                     maxUsageCountPerAccount, issuedCount, discountValue, maxDiscountPrice, validFrom, validUntil);
         }
 
-        private void validateCouponInfo() {
-            if (issuer == null || name == null || couponCode == null || type == null || usageProductScope == null ||
-                    status == null || issuanceTarget == null || maxIssuableCount == null || maxUsageCountPerAccount == null ||
+        private void validateRequiredField() {
+            if (issuer == null || name == null || couponCode == null || type == null ||
+                    usageProductScope == null || status == null || issuanceTarget == null ||
                     issuedCount == null || discountType == null || validFrom == null || validUntil == null) {
                 CouponException.throwInvalidCouponInfo();
             }

@@ -20,4 +20,16 @@ public class CouponException extends RuntimeException {
     public static void throwInvalidCouponInfo() {
         throw new CouponException();
     }
+
+    public static CouponException notFoundIssuer() {
+        return new CouponException();
+    }
+
+    public static CouponException notFoundShop() {
+        return new CouponException();
+    }
+
+    public static void throwBadLimitCondition() {
+        throw new CouponException();
+    }
 }

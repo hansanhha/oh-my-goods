@@ -20,4 +20,11 @@ public class CouponShopMapping extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "apply_target_shop_id")
     private Shop applyTargetShop;
+
+    public static CouponShopMapping toEntity(Coupon coupon, Shop shop) {
+        CouponShopMapping couponShopMapping = new CouponShopMapping();
+        couponShopMapping.coupon = coupon;
+        couponShopMapping.applyTargetShop = shop;
+        return couponShopMapping;
+    }
 }
