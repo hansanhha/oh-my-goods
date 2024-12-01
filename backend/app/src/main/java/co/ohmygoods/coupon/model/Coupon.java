@@ -181,7 +181,7 @@ public class Coupon extends BaseEntity {
 
             validateRequiredField();
             validateLimitCondition();
-            validateIssueAuthority(issuer, type);
+            validateCouponIssuanceAuthority(issuer, type);
             validateDiscountValue(discountType, discountValue);
 
             return new Coupon(0L, issuer, name, couponCode, type, limitConditionType,
@@ -227,7 +227,7 @@ public class Coupon extends BaseEntity {
             }
         }
 
-        private static void validateIssueAuthority(OAuth2Account account, CouponType couponType) {
+        private static void validateCouponIssuanceAuthority(OAuth2Account account, CouponType couponType) {
             switch (couponType) {
                 case GENERAL_COUPON -> {
                     if (!account.canIssueGeneralCoupon()) {
