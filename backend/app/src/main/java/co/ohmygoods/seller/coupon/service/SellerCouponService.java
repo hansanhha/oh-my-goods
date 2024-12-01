@@ -8,13 +8,16 @@ import co.ohmygoods.coupon.repository.CouponAccountMappingRepository;
 import co.ohmygoods.coupon.repository.CouponProductMappingRepository;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.repository.CouponShopMappingRepository;
-import co.ohmygoods.seller.coupon.dto.IssueShopCouponResponse;
 import co.ohmygoods.seller.coupon.dto.IssueShopCouponRequest;
+import co.ohmygoods.seller.coupon.dto.IssueShopCouponResponse;
+import co.ohmygoods.seller.coupon.dto.ShopCouponIssueHistory;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -67,6 +70,16 @@ public class SellerCouponService {
         CouponShopMapping savedCouponShopMapping = couponShopMappingRepository.save(couponShopMapping);
 
         return IssueShopCouponResponse.from(savedCoupon, savedCouponShopMapping);
+    }
+
+    public List<ShopCouponIssueHistory> getShopCouponIssueHistory(Long shopId) {
+        Shop shop = shopRepository.findById(shopId).orElseThrow(CouponException::notFoundShop);
+        List<Coupon> coupons = couponRepository.fetchAllByShop(shop);
+
+        return coupons
+                .stream()
+                .map(ShopCouponIssueHistory::from)
+                .toList();
     }
 
     private CouponLimitConditionType convertToCouponLimitConditionType(boolean limitedMaxIssueCount, boolean limitedUsageCountPerAccount) {
