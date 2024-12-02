@@ -9,7 +9,7 @@ import co.ohmygoods.coupon.model.entity.CouponShopMapping;
 import co.ohmygoods.coupon.model.vo.CouponDiscountType;
 import co.ohmygoods.coupon.model.vo.CouponIssuanceTarget;
 import co.ohmygoods.coupon.model.vo.CouponLimitConditionType;
-import co.ohmygoods.coupon.repository.CouponUsageHistoryRepository;
+import co.ohmygoods.coupon.repository.CouponAccountHistoryRepository;
 import co.ohmygoods.coupon.repository.CouponProductMappingRepository;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.repository.CouponShopMappingRepository;
@@ -33,7 +33,7 @@ public class SellerCouponService {
     private final AccountRepository accountRepository;
     private final CouponRepository couponRepository;
     private final ProductRepository productRepository;
-    private final CouponUsageHistoryRepository couponAccountMappingRepository;
+    private final CouponAccountHistoryRepository couponAccountMappingRepository;
     private final CouponProductMappingRepository couponProductMappingRepository;
     private final CouponShopMappingRepository couponShopMappingRepository;
     private final ShopRepository shopRepository;
