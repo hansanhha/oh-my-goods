@@ -8,6 +8,8 @@ import co.ohmygoods.coupon.repository.CouponAccountMappingRepository;
 import co.ohmygoods.coupon.repository.CouponProductMappingRepository;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.repository.CouponShopMappingRepository;
+import co.ohmygoods.product.entity.Product;
+import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.seller.coupon.dto.IssueShopCouponRequest;
 import co.ohmygoods.seller.coupon.dto.IssueShopCouponResponse;
 import co.ohmygoods.seller.coupon.dto.ShopCouponIssueHistory;
@@ -26,6 +28,7 @@ public class SellerCouponService {
 
     private final AccountRepository accountRepository;
     private final CouponRepository couponRepository;
+    private final ProductRepository productRepository;
     private final CouponAccountMappingRepository couponAccountMappingRepository;
     private final CouponProductMappingRepository couponProductMappingRepository;
     private final CouponShopMappingRepository couponShopMappingRepository;
@@ -40,14 +43,18 @@ public class SellerCouponService {
         - 쿠폰 할인 타입 및 할인 값 설정: 정액, 정률 선택 및 할인 값
         - 최대 할인 금액 설정
      */
-    public IssueShopCouponResponse issueCoupon(IssueShopCouponRequest request) {
+    public IssueShopCouponResponse issueShopCoupon(IssueShopCouponRequest request) {
         OAuth2Account issuer = accountRepository.findByEmail(request.issuerEmail()).orElseThrow(CouponException::notFoundIssuer);
         Shop shop = shopRepository.findById(request.shopId()).orElseThrow(CouponException::notFoundShop);
+
+        shop.validateShopManager(issuer);
 
         CouponLimitConditionType limitConditionType = convertToCouponLimitConditionType(request.isLimitedMaxIssueCount(), request.isLimitedUsageCountPerAccount());
 
         CouponDiscountType discountType = request.isFixedDiscount()
                 ? CouponDiscountType.FIXED : CouponDiscountType.PERCENTAGE;
+
+        boolean applicableSpecificProducts = request.isApplicableSpecificProducts();
 
         Coupon coupon = Coupon.builder()
                 .issuer(issuer)
@@ -62,12 +69,21 @@ public class SellerCouponService {
                 .maxUsageCountPerAccount(request.usageCountPerAccount())
                 .validFrom(request.startDate())
                 .validUntil(request.endDate())
-                .buildShopCoupon(request.isApplicableSpecificProducts());
+                .buildShopCoupon(applicableSpecificProducts);
 
         Coupon savedCoupon = couponRepository.save(coupon);
 
         CouponShopMapping couponShopMapping = CouponShopMapping.toEntity(savedCoupon, shop);
         CouponShopMapping savedCouponShopMapping = couponShopMappingRepository.save(couponShopMapping);
+
+        if (applicableSpecificProducts) {
+            List<Product> shopCouponApplicableProducts = productRepository.findAllByShopAndId(shop, request.applicableProductIds());
+            List<CouponProductMapping> couponProductMappings = shopCouponApplicableProducts
+                    .stream()
+                    .map(product -> CouponProductMapping.toEntity(savedCoupon, product))
+                    .toList();
+            couponProductMappingRepository.saveAll(couponProductMappings);
+        }
 
         return IssueShopCouponResponse.from(savedCoupon, savedCouponShopMapping);
     }

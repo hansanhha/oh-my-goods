@@ -165,10 +165,10 @@ public class Coupon extends BaseEntity {
             return buildCoupon(CouponType.GENERAL_COUPON, detailType);
         }
 
-        public Coupon buildShopCoupon(boolean isApplicableAllProducts) {
-            CouponUsageProductScope couponUsageProductScope = isApplicableAllProducts
-                    ? CouponUsageProductScope.SHOP_ALL_PRODUCTS
-                    : CouponUsageProductScope.SHOP_SPECIFIC_PRODUCTS;
+        public Coupon buildShopCoupon(boolean isApplicableSpecificProducts) {
+            CouponUsageProductScope couponUsageProductScope = isApplicableSpecificProducts
+                    ? CouponUsageProductScope.SHOP_SPECIFIC_PRODUCTS
+                    : CouponUsageProductScope.SHOP_ALL_PRODUCTS;
 
             return buildCoupon(CouponType.SHOP_COUPON, couponUsageProductScope);
         }

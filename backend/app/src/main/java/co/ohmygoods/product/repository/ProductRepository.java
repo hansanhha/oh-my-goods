@@ -36,4 +36,10 @@ public interface ProductRepository extends CrudRepository<Product, Long>, Paging
             "JOIN ProductDetailCategoryMapping pcm ON p= pcm.product AND pcm.detailCategory = :detailCategory " +
             "WHERE p.shop = :shop")
     Page<Product> findAllByShopAndDetailCategory(Shop shop, ProductDetailCategory detailCategory, Pageable pageable);
+
+    @Query("SELECT p " +
+            "FROM Product p " +
+            "JOIN Shop s ON p.shop = :shop " +
+            "WHERE p.id IN :ids")
+    List<Product> findAllByShopAndId(Shop shop, List<Long> ids);
 }
