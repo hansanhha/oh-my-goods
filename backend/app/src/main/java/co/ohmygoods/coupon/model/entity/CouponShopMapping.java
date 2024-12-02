@@ -1,4 +1,4 @@
-package co.ohmygoods.coupon.model;
+package co.ohmygoods.coupon.model.entity;
 
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.shop.entity.Shop;

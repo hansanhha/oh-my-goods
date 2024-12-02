@@ -1,4 +1,4 @@
-package co.ohmygoods.coupon.model;
+package co.ohmygoods.coupon.model.vo;
 
 /**
  * UNLIMITED: 최대 발급 개수 및 계정 당 최대 사용 개수 제한 X

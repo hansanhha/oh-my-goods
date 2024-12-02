@@ -1,6 +1,6 @@
 package co.ohmygoods.coupon.repository;
 
-import co.ohmygoods.coupon.model.Coupon;
+import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.shop.entity.Shop;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

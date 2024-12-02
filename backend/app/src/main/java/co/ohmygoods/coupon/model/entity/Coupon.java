@@ -1,7 +1,8 @@
-package co.ohmygoods.coupon.model;
+package co.ohmygoods.coupon.model.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.coupon.exception.CouponException;
+import co.ohmygoods.coupon.model.vo.*;
 import co.ohmygoods.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

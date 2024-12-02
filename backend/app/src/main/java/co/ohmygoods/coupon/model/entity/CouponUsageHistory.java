@@ -1,4 +1,4 @@
-package co.ohmygoods.coupon.model;
+package co.ohmygoods.coupon.model.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.BaseEntity;
@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class CouponAccountMapping extends BaseEntity {
+public class CouponUsageHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,6 +18,6 @@ public class CouponAccountMapping extends BaseEntity {
     private Coupon coupon;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "issue_target_account_id")
-    private OAuth2Account issueTargetAccount;
+    @JoinColumn(name = "account_id")
+    private OAuth2Account account;
 }

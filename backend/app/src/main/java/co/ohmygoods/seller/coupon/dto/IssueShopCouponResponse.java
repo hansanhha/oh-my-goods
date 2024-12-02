@@ -1,7 +1,6 @@
 package co.ohmygoods.seller.coupon.dto;
 
-import co.ohmygoods.coupon.model.Coupon;
-import co.ohmygoods.coupon.model.CouponShopMapping;
+import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.shop.entity.Shop;
 
 import java.time.LocalDateTime;
