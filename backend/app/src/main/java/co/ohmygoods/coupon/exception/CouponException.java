@@ -40,4 +40,16 @@ public class CouponException extends RuntimeException {
     public static void throwBadLimitCondition() {
         throw new CouponException();
     }
+
+    public static void throwExceedMaxIssuedCountPerAccount() {
+        throw new CouponException();
+    }
+
+    public static void throwExhausted() {
+        throw new CouponException();
+    }
+
+    public static void throwAlreadyUsedCoupon() {
+        throw new CouponException();
+    }
 }
