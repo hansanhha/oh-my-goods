@@ -44,7 +44,7 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CouponUsageProductScope usageProductScope;
+    private CouponApplicableProductScope usageProductScope;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -86,7 +86,7 @@ public class Coupon extends BaseEntity {
         private String couponCode;
         private CouponType type;
         private CouponLimitConditionType limitConditionType;
-        private CouponUsageProductScope usageProductScope;
+        private CouponApplicableProductScope usageProductScope;
         private CouponStatus status;
         private CouponIssuanceTarget issuanceTarget;
         private CouponDiscountType discountType;
@@ -162,21 +162,21 @@ public class Coupon extends BaseEntity {
             return this;
         }
 
-        public Coupon buildGeneralCoupon(CouponUsageProductScope detailType) {
+        public Coupon buildGeneralCoupon(CouponApplicableProductScope detailType) {
             return buildCoupon(CouponType.GENERAL_COUPON, detailType);
         }
 
         public Coupon buildShopCoupon(boolean isApplicableSpecificProducts) {
-            CouponUsageProductScope couponUsageProductScope = isApplicableSpecificProducts
-                    ? CouponUsageProductScope.SHOP_SPECIFIC_PRODUCTS
-                    : CouponUsageProductScope.SHOP_ALL_PRODUCTS;
+            CouponApplicableProductScope couponApplicableProductScope = isApplicableSpecificProducts
+                    ? CouponApplicableProductScope.SHOP_SPECIFIC_PRODUCTS
+                    : CouponApplicableProductScope.SHOP_ALL_PRODUCTS;
 
-            return buildCoupon(CouponType.SHOP_COUPON, couponUsageProductScope);
+            return buildCoupon(CouponType.SHOP_COUPON, couponApplicableProductScope);
         }
 
-        private Coupon buildCoupon(CouponType type, CouponUsageProductScope couponUsageProductScope) {
+        private Coupon buildCoupon(CouponType type, CouponApplicableProductScope couponApplicableProductScope) {
             this.type = type;
-            this.usageProductScope = couponUsageProductScope;
+            this.usageProductScope = couponApplicableProductScope;
             this.status = CouponStatus.ISSUED;
             this.issuedCount = 0;
 
@@ -186,7 +186,7 @@ public class Coupon extends BaseEntity {
             validateDiscountValue(discountType, discountValue);
 
             return new Coupon(0L, issuer, name, couponCode, type, limitConditionType,
-                    couponUsageProductScope, status, issuanceTarget, discountType, maxIssuableCount,
+                    couponApplicableProductScope, status, issuanceTarget, discountType, maxIssuableCount,
                     maxUsageCountPerAccount, issuedCount, discountValue, maxDiscountPrice, validFrom, validUntil);
         }
 

@@ -1,6 +1,6 @@
 package co.ohmygoods.coupon.model.vo;
 
-public enum CouponUsageProductScope {
+public enum CouponApplicableProductScope {
 
     ALL_PRODUCTS,
     SPECIFIC_PRODUCTS,
