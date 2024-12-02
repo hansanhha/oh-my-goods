@@ -231,12 +231,12 @@ public class Coupon extends BaseEntity {
             switch (couponType) {
                 case GENERAL_COUPON -> {
                     if (!account.canIssueGeneralCoupon()) {
-                        CouponException.throwNoAuthorityIssuanceCoupon();
+                        CouponException.throwInvalidCouponAuthority();
                     }
                 }
                 case SHOP_COUPON -> {
                     if (!account.canIssueShopCoupon()) {
-                        CouponException.throwNoAuthorityIssuanceCoupon();
+                        CouponException.throwInvalidCouponAuthority();
                     }
                 }
                 default -> {}
@@ -244,7 +244,11 @@ public class Coupon extends BaseEntity {
         }
     }
 
-    public void destroy() {
+    public void destroy(OAuth2Account account) {
+        if (!account.canDestroyShopCoupon()) {
+            CouponException.throwInvalidCouponAuthority();
+        }
+
         if (status.equals(CouponStatus.DESTROYED) || status.equals(CouponStatus.SOLDOUT)) {
             return;
         }

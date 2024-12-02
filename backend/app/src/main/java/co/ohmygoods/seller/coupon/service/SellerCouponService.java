@@ -82,6 +82,15 @@ public class SellerCouponService {
                 .toList();
     }
 
+    public void destroyIssuingShopCoupon(Long shopId, Long couponId, String accountEmail) {
+        OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::notFoundAccount);
+        Shop shop = shopRepository.findById(shopId).orElseThrow(CouponException::notFoundShop);
+        Coupon coupon = couponRepository.findByShopAndCouponId(shop, couponId).orElseThrow(CouponException::notFoundCoupon);
+
+        shop.validateShopManager(account);
+        coupon.destroy(account);
+    }
+
     private CouponLimitConditionType convertToCouponLimitConditionType(boolean limitedMaxIssueCount, boolean limitedUsageCountPerAccount) {
         if (limitedMaxIssueCount && limitedUsageCountPerAccount) {
             return CouponLimitConditionType.FULL_LIMITED;

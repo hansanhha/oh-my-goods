@@ -3,7 +3,6 @@ package co.ohmygoods.auth.account.entity;
 import co.ohmygoods.auth.account.vo.Role;
 import co.ohmygoods.auth.oauth2.vo.OAuth2Vendor;
 import co.ohmygoods.global.entity.BaseEntity;
-import co.ohmygoods.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -47,6 +46,10 @@ public class OAuth2Account extends BaseEntity {
 
     public boolean canIssueShopCoupon() {
         return role.hasIssueShopCouponAuthority();
+    }
+
+    public boolean canDestroyShopCoupon() {
+        return role.hasDestroyShopCouponAuthority();
     }
 }
 

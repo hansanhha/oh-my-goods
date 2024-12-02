@@ -9,7 +9,7 @@ public class CouponException extends RuntimeException {
         super(message);
     }
 
-    public static void throwNoAuthorityIssuanceCoupon() {
+    public static void throwInvalidCouponAuthority() {
         throw new CouponException();
     }
 
@@ -26,6 +26,14 @@ public class CouponException extends RuntimeException {
     }
 
     public static CouponException notFoundShop() {
+        return new CouponException();
+    }
+
+    public static CouponException notFoundCoupon() {
+        return new CouponException();
+    }
+
+    public static CouponException notFoundAccount() {
         return new CouponException();
     }
 

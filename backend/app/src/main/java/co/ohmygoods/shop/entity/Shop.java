@@ -60,4 +60,7 @@ public class Shop extends BaseEntity {
             throw InvalidShopOwnerException.isNotOwner(account.getEmail(), name);
         }
     }
+
+    public void validateShopManager(OAuth2Account account) {
+    }
 }

@@ -40,6 +40,14 @@ public enum Role {
         return this.getAuthorities().contains(Authority.ISSUE_SHOP_COUPON);
     }
 
+    public boolean hasDestroyShopCouponAuthority() {
+        return this.getAuthorities().contains(Authority.DESTROY_SHOP_COUPON);
+    }
+
+    public boolean hasDestroyGeneralCouponAuthority() {
+        return this.getAuthorities().contains(Authority.DESTROY_GENERAL_COUPON);
+    }
+
     @Getter
     public enum Authority {
         PURCHASE_PRODUCT,
@@ -50,6 +58,9 @@ public enum Role {
 
         ISSUE_GENERAL_COUPON,
         ISSUE_SHOP_COUPON,
+
+        DESTROY_SHOP_COUPON,
+        DESTROY_GENERAL_COUPON,
 
         MANAGE_ACTIVITY_STATUS_USERS,
         MANAGE_ACTIVITY_STATUS_BUSINESS,
