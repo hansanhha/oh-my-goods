@@ -15,8 +15,8 @@ import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.repository.CouponShopMappingRepository;
 import co.ohmygoods.product.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
-import co.ohmygoods.seller.coupon.dto.IssueShopCouponRequest;
-import co.ohmygoods.seller.coupon.dto.IssueShopCouponResponse;
+import co.ohmygoods.seller.coupon.dto.CreateShopCouponRequest;
+import co.ohmygoods.seller.coupon.dto.ShopCouponResponse;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class SellerCouponService {
         - 쿠폰 할인 타입 및 할인 값 설정: 정액, 정률 선택 및 할인 값
         - 최대 할인 금액 설정
      */
-    public IssueShopCouponResponse issueShopCoupon(IssueShopCouponRequest request) {
+    public ShopCouponResponse createShopCoupon(CreateShopCouponRequest request) {
         OAuth2Account issuer = accountRepository.findByEmail(request.issuerEmail()).orElseThrow(CouponException::notFoundIssuer);
         Shop shop = shopRepository.findById(request.shopId()).orElseThrow(CouponException::notFoundShop);
 
@@ -89,16 +89,16 @@ public class SellerCouponService {
             couponProductMappingRepository.saveAll(couponProductMappings);
         }
 
-        return IssueShopCouponResponse.from(savedCoupon, shop);
+        return ShopCouponResponse.from(savedCoupon, shop);
     }
 
-    public List<IssueShopCouponResponse> getShopCouponIssueHistory(Long shopId) {
+    public List<ShopCouponResponse> getShopCouponCreationHistory(Long shopId) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(CouponException::notFoundShop);
         List<Coupon> coupons = couponRepository.fetchAllByShop(shop);
 
         return coupons
                 .stream()
-                .map(coupon -> IssueShopCouponResponse.from(coupon, shop))
+                .map(coupon -> ShopCouponResponse.from(coupon, shop))
                 .toList();
     }
 
