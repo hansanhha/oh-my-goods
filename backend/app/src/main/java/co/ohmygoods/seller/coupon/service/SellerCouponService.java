@@ -12,7 +12,6 @@ import co.ohmygoods.product.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.seller.coupon.dto.IssueShopCouponRequest;
 import co.ohmygoods.seller.coupon.dto.IssueShopCouponResponse;
-import co.ohmygoods.seller.coupon.dto.ShopCouponIssueHistory;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
@@ -85,16 +84,16 @@ public class SellerCouponService {
             couponProductMappingRepository.saveAll(couponProductMappings);
         }
 
-        return IssueShopCouponResponse.from(savedCoupon, savedCouponShopMapping);
+        return IssueShopCouponResponse.from(savedCoupon, shop);
     }
 
-    public List<ShopCouponIssueHistory> getShopCouponIssueHistory(Long shopId) {
+    public List<IssueShopCouponResponse> getShopCouponIssueHistory(Long shopId) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(CouponException::notFoundShop);
         List<Coupon> coupons = couponRepository.fetchAllByShop(shop);
 
         return coupons
                 .stream()
-                .map(ShopCouponIssueHistory::from)
+                .map(coupon -> IssueShopCouponResponse.from(coupon, shop))
                 .toList();
     }
 
