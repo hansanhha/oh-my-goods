@@ -8,6 +8,8 @@ import co.ohmygoods.shop.vo.ShopStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.util.Objects;
+
 @Entity
 @Getter
 public class Shop extends BaseEntity {
@@ -62,5 +64,18 @@ public class Shop extends BaseEntity {
     }
 
     public void validateShopManager(OAuth2Account account) {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Shop shop = (Shop) o;
+        return Objects.equals(id, shop.id) && Objects.equals(name, shop.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
     }
 }

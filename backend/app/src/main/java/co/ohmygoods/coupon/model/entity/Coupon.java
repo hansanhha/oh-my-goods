@@ -10,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Entity
@@ -44,7 +46,7 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CouponApplicableProductScope usageProductScope;
+    private CouponApplicableProductScope applicableProductScope;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -78,6 +80,57 @@ public class Coupon extends BaseEntity {
 
     public static CouponBuilder builder() {
         return new CouponBuilder();
+    }
+
+    public void issue() {
+        issuedCount++;
+
+        if ((limitConditionType.equals(CouponLimitConditionType.FULL_LIMITED)
+                || limitConditionType.equals(CouponLimitConditionType.MAX_ISSUABLE_LIMITED))
+                && maxIssuableCount < issuedCount) {
+            CouponException.throwExhausted();
+        }
+    }
+
+    public void destroy(OAuth2Account account) {
+        if (!account.canDestroyShopCoupon()) {
+            CouponException.throwInvalidCouponAuthority();
+        }
+
+        if (status.equals(CouponStatus.DESTROYED) || status.equals(CouponStatus.SOLDOUT)) {
+            return;
+        }
+
+        status = CouponStatus.DESTROYED;
+    }
+
+    public String getDiscountValueAsString() {
+        if (discountType.equals(CouponDiscountType.PERCENTAGE)) {
+            return String.valueOf(discountValue).concat("%");
+        }
+
+        return String.valueOf(discountValue);
+    }
+
+    public int calculate(int productOriginalPrice) {
+        double subtractedPrice = discountType.equals(CouponDiscountType.FIXED)
+                ? productOriginalPrice - discountValue
+                : productOriginalPrice - (productOriginalPrice * getPercentageValue(discountValue));
+
+        return finalCalculate(subtractedPrice, maxDiscountPrice);
+    }
+
+    private int finalCalculate(double simpleCalculatedPrice, int couponMaxDiscountPrice) {
+        BigDecimal couponAppliedPrice = BigDecimal.valueOf(simpleCalculatedPrice).setScale(0, RoundingMode.HALF_UP);
+        return Math.min(couponAppliedPrice.intValue(), couponMaxDiscountPrice);
+    }
+
+    private double getPercentageValue(int discountValue) {
+        if (discountValue ==  100) {
+            return 1d;
+        }
+
+        return (double) discountValue / 100;
     }
 
     public static class CouponBuilder {
@@ -245,15 +298,4 @@ public class Coupon extends BaseEntity {
         }
     }
 
-    public void destroy(OAuth2Account account) {
-        if (!account.canDestroyShopCoupon()) {
-            CouponException.throwInvalidCouponAuthority();
-        }
-
-        if (status.equals(CouponStatus.DESTROYED) || status.equals(CouponStatus.SOLDOUT)) {
-            return;
-        }
-
-        status = CouponStatus.DESTROYED;
-    }
 }

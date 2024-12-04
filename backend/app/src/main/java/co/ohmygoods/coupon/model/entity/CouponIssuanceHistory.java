@@ -29,4 +29,17 @@ public class CouponIssuanceHistory extends BaseEntity {
     private CouponUsageStatus couponUsageStatus;
 
     private LocalDateTime usedAt;
+
+    public static CouponIssuanceHistory issued(Coupon coupon, OAuth2Account account) {
+        CouponIssuanceHistory couponIssuanceHistory = new CouponIssuanceHistory();
+        couponIssuanceHistory.coupon = coupon;
+        couponIssuanceHistory.account = account;
+        couponIssuanceHistory.couponUsageStatus = CouponUsageStatus.ISSUED;
+        return couponIssuanceHistory;
+    }
+
+    public void used() {
+        couponUsageStatus = CouponUsageStatus.USED;
+        usedAt = LocalDateTime.now();
+    }
 }

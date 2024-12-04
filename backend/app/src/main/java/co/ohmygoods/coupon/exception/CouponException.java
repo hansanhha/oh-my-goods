@@ -52,4 +52,12 @@ public class CouponException extends RuntimeException {
     public static void throwAlreadyUsedCoupon() {
         throw new CouponException();
     }
+
+    public static CouponException notFoundCouponIssuanceHistory() {
+        return new CouponException();
+    }
+
+    public static CouponException notFoundProduct() {
+        return new CouponException();
+    }
 }
