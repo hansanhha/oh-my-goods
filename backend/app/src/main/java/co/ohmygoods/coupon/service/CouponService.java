@@ -41,14 +41,7 @@ public class CouponService {
     private final ProductRepository productRepository;
     private final CouponShopMappingRepository couponShopMappingRepository;
 
-    /*
-    todo coupon
-     - 쿠폰 발급 api: 상품 상세 페이지 또는 쿠폰 발급 페이지
-     - 쿠폰 사용 api: 결제 진행 시 쿠폰 적용 금액 계산 및 쿠폰 사용 처리
-     - 발급된 사용 가능한 쿠폰 목록 조회 api
-     - 특정 상품에 적용할 수 있는 쿠폰 조회 api
-     */
-
+    // 쿠폰 발급 및 발급 이력 저장
     public void issueCoupon(Long couponId, String accountEmail) {
         Coupon coupon = couponRepository.findById(couponId).orElseThrow(CouponException::notFoundCoupon);
         OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::notFoundAccount);
@@ -62,6 +55,7 @@ public class CouponService {
         couponIssuanceHistoryRepository.save(couponIssuanceHistory);
     }
 
+    // 쿠폰 적용 및 최대 할인 금액 계산
     public int applyCoupon(Long couponIssuanceHistoryId, int targetProductOriginalPrice) {
         CouponIssuanceHistory couponIssuanceHistory = couponIssuanceHistoryRepository.fetchById(couponIssuanceHistoryId)
                 .orElseThrow(CouponException::notFoundCouponIssuanceHistory);
@@ -76,6 +70,14 @@ public class CouponService {
         return discountedPrice;
     }
 
+    /**
+     *
+     * @param accountEmail 쿠폰 발급 조회 계정 이메일
+     * @param pageableNullable 쿠폰 목록 조회용 pageable (nullable)
+     * @return 발급된 쿠폰 목록
+     *
+     * 사용자에게 발급된 쿠폰 목록
+     */
     public Slice<ApplicableIssuedCouponResponse> getAllApplicableIssuedCoupons(String accountEmail, Pageable pageableNullable) {
         Pageable pageable = getNullProcessingPageable(pageableNullable);
 
@@ -102,7 +104,7 @@ public class CouponService {
      * - 상점 전체 상품 적용 쿠폰(상점 판매자 발급)
      * - 상점 일부 상품 적용 쿠폰(상점 판매자 발급)
      *
-     * 대상 상품에 적용할 수 있는 쿠폰을 쿠폰 종류와 적용 대상 여부를 기반으로 필터링함
+     * 쿠폰 종류와 적용 대상 여부를 기반으로 대상 상품에 적용할 수 있는 쿠폰을 필터링
      */
     public Slice<ApplicableIssuedCouponResponse> getIssuedCouponsApplicableToProduct(String accountEmail, Long productId, Pageable pageableNullable) {
         Pageable pageable = getNullProcessingPageable(pageableNullable);
