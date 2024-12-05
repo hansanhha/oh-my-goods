@@ -43,6 +43,10 @@ public class Review extends LikeBaseEntity {
         return new Review(0L, order, reviewer, content, starRating);
     }
 
+    public boolean isNotReviewer(OAuth2Account account) {
+        return !reviewer.getEmail().equals(account.getEmail());
+    }
+
     public void update(String content) {
         this.content = content;
     }

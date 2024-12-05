@@ -20,6 +20,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
  * todo docker
  * todo aws
  * todo ci,cd
+ * todo cars 패턴 적용
+ * todo ddd 및 port/adapter 패턴 적용(새 브랜치)
  * todo 프론트
  */
 @SpringBootApplication

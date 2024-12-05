@@ -120,4 +120,8 @@ public class Order extends BaseEntity {
         product.increase(orderedQuantity);
         status = cause;
     }
+
+    public boolean isOrderer(OAuth2Account account) {
+        return this.account.getEmail().equals(account.getEmail());
+    }
 }
