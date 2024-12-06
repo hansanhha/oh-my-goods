@@ -17,11 +17,17 @@ public class ReviewImage extends BaseEntity {
     private Review review;
 
     @Column(nullable = false)
-    private String originalName;
+    private String fileName;
+
+    @Column(nullable = false)
+    private String originalFileName;
 
     @Column(nullable = false)
     private String path;
 
     @Column(nullable = false)
-    private int size;
+    private Long size;
+
+    @Column(nullable = false)
+    private String fileType;
 }

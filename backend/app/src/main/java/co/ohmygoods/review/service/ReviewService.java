@@ -7,7 +7,9 @@ import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.review.exception.ReviewException;
 import co.ohmygoods.review.model.entity.Review;
 import co.ohmygoods.review.model.entity.ReviewComment;
+import co.ohmygoods.review.model.entity.ReviewImage;
 import co.ohmygoods.review.repository.ReviewCommentRepository;
+import co.ohmygoods.review.repository.ReviewImageRepository;
 import co.ohmygoods.review.repository.ReviewRepository;
 import co.ohmygoods.review.service.dto.ReviewCommentResponse;
 import co.ohmygoods.review.service.dto.ReviewResponse;
@@ -27,7 +29,27 @@ public class ReviewService {
     private final AccountRepository accountRepository;
     private final OrderRepository orderRepository;
     private final ReviewRepository reviewRepository;
+    private final ReviewImageRepository reviewImageRepository;
     private final ReviewCommentRepository reviewCommentRepository;
+
+    public List<ReviewResponse> getMyReviews(String accountEmail, Pageable pageable) {
+        OAuth2Account account = accountRepository.findByEmail(accountEmail)
+                .orElseThrow(ReviewException::notFoundAccount);
+
+        reviewRepository.findAllByAccount(account, pageable);
+    }
+
+    public List<ReviewResponse> getReviews(Long productId, Pageable pageable) {
+
+    }
+
+    public List<ReviewCommentResponse> getReviewComments(Long reviewId, Pageable pageable) {
+
+    }
+
+    public List<ReviewCommentResponse> getReviewReplyComments(Long reviewCommentId, Pageable pageable) {
+
+    }
 
     public void writeReview(WriteReviewRequest request) {
         OAuth2Account account = accountRepository.findByEmail(request.accountEmail())

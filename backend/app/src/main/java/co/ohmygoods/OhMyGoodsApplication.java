@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 /**
  * todo seller 도메인 리팩토링
  * todo coupon 도메인 개발
+ * todo file 도메인 개발
  * todo review 도메인 개발
  * todo community 도메인 개발
  * todo auth 권한 기능 수정
