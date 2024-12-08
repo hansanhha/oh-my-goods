@@ -1,4 +1,4 @@
-package co.ohmygoods.file.service.vo;
+package co.ohmygoods.file.model.vo;
 
 public enum FileType {
 

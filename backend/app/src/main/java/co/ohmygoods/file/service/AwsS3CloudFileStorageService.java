@@ -3,14 +3,13 @@ package co.ohmygoods.file.service;
 import co.ohmygoods.file.config.AwsS3CloudFileStorageProperties;
 import co.ohmygoods.file.service.dto.UploadFileRequest;
 import co.ohmygoods.file.service.dto.UploadFileResponse;
-import co.ohmygoods.file.service.vo.CloudStorageProvider;
-import co.ohmygoods.file.service.vo.StorageStrategy;
+import co.ohmygoods.file.model.vo.CloudStorageProvider;
+import co.ohmygoods.file.model.vo.StorageStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;

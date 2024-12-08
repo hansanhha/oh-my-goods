@@ -1,10 +1,9 @@
 package co.ohmygoods.file.service;
 
-import org.springframework.web.multipart.MultipartFile;
 import co.ohmygoods.file.service.dto.UploadFileRequest;
 import co.ohmygoods.file.service.dto.UploadFileResponse;
-import co.ohmygoods.file.service.vo.CloudStorageProvider;
-import co.ohmygoods.file.service.vo.StorageStrategy;
+import co.ohmygoods.file.model.vo.CloudStorageProvider;
+import co.ohmygoods.file.model.vo.StorageStrategy;
 
 import java.io.InputStream;
 import java.net.URI;

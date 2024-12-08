@@ -1,12 +1,12 @@
 package co.ohmygoods.file.service;
 
-import co.ohmygoods.file.entity.File;
+import co.ohmygoods.file.model.entity.File;
 import co.ohmygoods.file.repository.FileRepository;
 import co.ohmygoods.file.service.dto.UploadFileRequest;
 import co.ohmygoods.file.service.dto.UploadFileResponse;
-import co.ohmygoods.file.service.vo.CloudStorageProvider;
-import co.ohmygoods.file.service.vo.DomainType;
-import co.ohmygoods.file.service.vo.StorageStrategy;
+import co.ohmygoods.file.model.vo.CloudStorageProvider;
+import co.ohmygoods.file.model.vo.DomainType;
+import co.ohmygoods.file.model.vo.StorageStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

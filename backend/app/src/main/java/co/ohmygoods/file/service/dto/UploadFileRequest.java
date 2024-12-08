@@ -1,8 +1,8 @@
 package co.ohmygoods.file.service.dto;
 
-import co.ohmygoods.file.service.vo.CloudStorageProvider;
-import co.ohmygoods.file.service.vo.DomainType;
-import co.ohmygoods.file.service.vo.StorageStrategy;
+import co.ohmygoods.file.model.vo.CloudStorageProvider;
+import co.ohmygoods.file.model.vo.DomainType;
+import co.ohmygoods.file.model.vo.StorageStrategy;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
