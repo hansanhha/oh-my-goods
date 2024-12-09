@@ -94,6 +94,8 @@ public class FileService {
 
             findSupportFileStorageService(first.getStorageStrategy(), first.getCloudStorageProvider())
                     .ifPresent(service -> service.deleteAll(getStoragePath(files)));
+
+            fileRepository.deleteAll(files);
         }
     }
 
