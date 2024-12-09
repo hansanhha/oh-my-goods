@@ -66,6 +66,11 @@ public class SimpleLocalFileStorageService implements FileStorageService {
 
     @Override
     public void delete(String path) {
+        File file = new File(path);
+
+        if (!isInvalidFile(file)) {
+            file.delete();
+        }
     }
 
     @Override
