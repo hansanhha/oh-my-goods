@@ -2,10 +2,10 @@ package co.ohmygoods.file.service;
 
 import co.ohmygoods.file.config.LocalFileStorageProperties;
 import co.ohmygoods.file.exception.FileException;
-import co.ohmygoods.file.service.dto.UploadFileRequest;
-import co.ohmygoods.file.service.dto.UploadFileResponse;
 import co.ohmygoods.file.model.vo.CloudStorageProvider;
 import co.ohmygoods.file.model.vo.StorageStrategy;
+import co.ohmygoods.file.service.dto.UploadFileRequest;
+import co.ohmygoods.file.service.dto.UploadFileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,10 +31,18 @@ public class SimpleLocalFileStorageService implements FileStorageService {
     public List<UploadFileResponse> upload(UploadFileRequest request) {
         Path directoryPath = createDirectoryPath(request.uploaderEmail());
 
+        if (request.domainIdFileMap() == null || request.domainIdFileMap().isEmpty()) {
+            return Collections.emptyList();
+        }
+
         return request
-                .files()
+                .domainIdFileMap()
+                .entrySet()
                 .stream()
-                .map(file -> {
+                .map((entry) -> {
+                    String domainId = entry.getKey();
+                    MultipartFile file = entry.getValue();
+
                     String fileName = resolveFileName(file);
                     Path filePath = directoryPath.resolve(fileName);
 
@@ -43,7 +52,7 @@ public class SimpleLocalFileStorageService implements FileStorageService {
                         throw new FileException();
                     }
 
-                    return new UploadFileResponse(fileName, file.getContentType(), filePath.toString());
+                    return new UploadFileResponse(domainId, fileName, file.getContentType(), filePath.toString());
                 })
                 .toList();
     }

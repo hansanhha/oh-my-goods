@@ -30,16 +30,24 @@ public class FileService {
         return findSupportFileStorageService(request.storageStrategy(), request.cloudStorageProvider())
                 .map(FileStorageService::getCloudStorageAccessURL)
                 .map(cloudStorageAccessURL -> {
-                    File file = File.builder()
-                            .uploaderEmail(request.uploaderEmail())
-                            .domainType(request.targetDomain())
-                            .domainId(request.domainId())
-                            .storageStrategy(request.storageStrategy())
-                            .cloudStorageProvider(request.cloudStorageProvider())
-                            .storagePath(cloudStorageAccessURL.toString())
-                            .build();
 
-                    fileRepository.save(file);
+                    if (request.domainIds() != null && !request.domainIds().isEmpty()) {
+                        List<File> files = request.domainIds()
+                                .stream()
+                                .map(domainId -> {
+                                    return File.builder()
+                                            .uploaderEmail(request.uploaderEmail())
+                                            .domainType(request.targetDomain())
+                                            .domainId(domainId)
+                                            .storageStrategy(request.storageStrategy())
+                                            .cloudStorageProvider(request.cloudStorageProvider())
+                                            .storagePath(cloudStorageAccessURL.toString())
+                                            .build();
+                                })
+                                .toList();
+
+                        fileRepository.saveAll(files);
+                    }
                     return cloudStorageAccessURL;
                 })
                 .orElseGet(Optional::empty);
@@ -55,7 +63,7 @@ public class FileService {
                                 return File.builder()
                                         .uploaderEmail(request.uploaderEmail())
                                         .domainType(request.targetDomain())
-                                        .domainId(request.domainId())
+                                        .domainId(response.uploadedDomainId())
                                         .storageStrategy(request.storageStrategy())
                                         .cloudStorageProvider(request.cloudStorageProvider())
                                         .fileName(response.uploadedFileName())
