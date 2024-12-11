@@ -25,13 +25,13 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@SpringBootTest(classes = {SimpleLocalFileStorageService.class})
+@SpringBootTest(classes = {LocalFileStorageService.class})
 @EnableConfigurationProperties(LocalFileStorageProperties.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class SimpleLocalFileStorageServiceTest {
+class LocalFileStorageServiceTest {
 
     @Autowired
-    private SimpleLocalFileStorageService fileStorageService;
+    private LocalFileStorageService fileStorageService;
 
     @Test
     void 단일_이미지_파일_저장() throws IOException {
@@ -57,7 +57,7 @@ class SimpleLocalFileStorageServiceTest {
 
         List<UploadFileResponse> uploadResponse = fileStorageService.upload(uploadFileRequest);
 
-        Collection<Optional<InputStream>> downloadedAll = fileStorageService.downloadAll(uploadResponse.stream()
+        Collection<InputStream> downloadedAll = fileStorageService.downloadAll(uploadResponse.stream()
                 .map(UploadFileResponse::uploadedFilePath).toList());
 
         assertThat(downloadedAll.size()).isEqualTo(uploadFileRequest.domainIdFileMap().size());
@@ -72,14 +72,14 @@ class SimpleLocalFileStorageServiceTest {
         fileStorageService.deleteAll(uploadResponse.stream()
                 .map(UploadFileResponse::uploadedFilePath).toList());
 
-        Collection<Optional<InputStream>> downloadedAll = fileStorageService.downloadAll(uploadResponse.stream()
+        Collection<InputStream> downloadedAll = fileStorageService.downloadAll(uploadResponse.stream()
                 .map(UploadFileResponse::uploadedFilePath).toList());
 
-        assertThat(downloadedAll.stream().filter(Optional::isPresent).count()).isZero();
+        assertThat(downloadedAll.size()).isZero();
     }
 
     private UploadFileRequest createSingleFileUploadRequest() throws IOException {
-        ClassLoader classLoader = SimpleLocalFileStorageServiceTest.class.getClassLoader();
+        ClassLoader classLoader = LocalFileStorageServiceTest.class.getClassLoader();
         File imageFile = new File(classLoader.getResource("images/testImg1.jpg").getFile());
         MockMultipartFile mockMultipartFile = new MockMultipartFile("testFile", imageFile.getName(),
                 MediaType.IMAGE_JPEG_VALUE, Files.toByteArray(imageFile));
@@ -90,7 +90,7 @@ class SimpleLocalFileStorageServiceTest {
     }
 
     private UploadFileRequest createMultipleFileUploadRequest() throws IOException {
-        ClassLoader classLoader = SimpleLocalFileStorageServiceTest.class.getClassLoader();
+        ClassLoader classLoader = LocalFileStorageServiceTest.class.getClassLoader();
         File imageFile = new File(classLoader.getResource("images/testImg1.jpg").getFile());
         File imageFile2 = new File(classLoader.getResource("images/testImg2.jpg").getFile());
         File imageFile3 = new File(classLoader.getResource("images/testImg3.jpg").getFile());

@@ -32,24 +32,24 @@ public class ReviewService {
     private final ReviewImageRepository reviewImageRepository;
     private final ReviewCommentRepository reviewCommentRepository;
 
-    public List<ReviewResponse> getMyReviews(String accountEmail, Pageable pageable) {
-        OAuth2Account account = accountRepository.findByEmail(accountEmail)
-                .orElseThrow(ReviewException::notFoundAccount);
-
-        reviewRepository.findAllByAccount(account, pageable);
-    }
-
-    public List<ReviewResponse> getReviews(Long productId, Pageable pageable) {
-
-    }
-
-    public List<ReviewCommentResponse> getReviewComments(Long reviewId, Pageable pageable) {
-
-    }
-
-    public List<ReviewCommentResponse> getReviewReplyComments(Long reviewCommentId, Pageable pageable) {
-
-    }
+//    public List<ReviewResponse> getMyReviews(String accountEmail, Pageable pageable) {
+//        OAuth2Account account = accountRepository.findByEmail(accountEmail)
+//                .orElseThrow(ReviewException::notFoundAccount);
+//
+//        reviewRepository.findAllByAccount(account, pageable);
+//    }
+//
+//    public List<ReviewResponse> getReviews(Long productId, Pageable pageable) {
+//
+//    }
+//
+//    public List<ReviewCommentResponse> getReviewComments(Long reviewId, Pageable pageable) {
+//
+//    }
+//
+//    public List<ReviewCommentResponse> getReviewReplyComments(Long reviewCommentId, Pageable pageable) {
+//
+//    }
 
     public void writeReview(WriteReviewRequest request) {
         OAuth2Account account = accountRepository.findByEmail(request.accountEmail())

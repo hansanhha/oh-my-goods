@@ -8,22 +8,18 @@ import co.ohmygoods.file.service.dto.UploadFileRequest;
 import co.ohmygoods.file.service.dto.UploadFileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class SimpleLocalFileStorageService implements FileStorageService {
+public class LocalFileStorageService extends AbstractStorageService {
 
     private final LocalFileStorageProperties properties;
 
@@ -58,17 +54,17 @@ public class SimpleLocalFileStorageService implements FileStorageService {
     }
 
     @Override
-    public Optional<InputStream> download(String path) {
+    public InputStream download(String path) {
         File file = new File(path);
 
         if (isInvalidFile(file)) {
-            return Optional.empty();
+            throw new FileException();
         }
 
         try {
-            return Optional.of(new FileInputStream(file));
+            return new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            return Optional.empty();
+            throw new FileException();
         }
 
     }
@@ -92,8 +88,7 @@ public class SimpleLocalFileStorageService implements FileStorageService {
     }
 
     private Path createDirectoryPath(String uploaderEmail) {
-        String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-        String targetDirectory = properties.getBaseDirectory() + File.separator + currentDate + File.separator + uploaderEmail;
+        String targetDirectory = super.createDirectoryPath(properties.getBaseDirectory(), uploaderEmail);
 
         Path directoryPath = Paths.get(targetDirectory);
 
@@ -109,14 +104,4 @@ public class SimpleLocalFileStorageService implements FileStorageService {
         return directoryPath;
     }
 
-    private String resolveFileName(MultipartFile file) {
-        StringBuilder fileName = new StringBuilder(String.valueOf(System.currentTimeMillis()));
-        String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
-
-        if (StringUtils.hasText(extension)) {
-            fileName.append(".").append(extension);
-        }
-
-        return fileName.toString();
-    }
 }
