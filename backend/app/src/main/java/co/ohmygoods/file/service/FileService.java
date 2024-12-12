@@ -1,5 +1,6 @@
 package co.ohmygoods.file.service;
 
+import co.ohmygoods.file.exception.FileException;
 import co.ohmygoods.file.model.entity.File;
 import co.ohmygoods.file.model.vo.CloudStorageProvider;
 import co.ohmygoods.file.model.vo.DomainType;
@@ -33,7 +34,7 @@ public class FileService {
     private final List<StorageService> storageServices;
 
     public Optional<URI> getCloudStorageAccessURL(UploadFileRequest request) {
-        return findSupportFileStorageService(request.storageStrategy(), request.cloudStorageProvider())
+        return findSupportStorageService(request.storageStrategy(), request.cloudStorageProvider())
                 .map(StorageService::getCloudStorageAccessURL)
                 .map(cloudStorageAccessURL -> {
 
@@ -59,27 +60,32 @@ public class FileService {
                 .orElseGet(Optional::empty);
     }
 
-    public void upload(UploadFileRequest request) {
-        findSupportFileStorageService(request.storageStrategy(), request.cloudStorageProvider())
-                .ifPresent(service -> {
-                    Collection<UploadFileResponse> uploadResponse = service.upload(request);
+    public List<UploadFileResponse> upload(UploadFileRequest request) {
+        Optional<StorageService> supportStorageService = findSupportStorageService(request.storageStrategy(), request.cloudStorageProvider());
 
-                    List<File> files = uploadResponse.stream()
-                            .map(response -> {
-                                return File.builder()
-                                        .uploaderEmail(request.uploaderEmail())
-                                        .domainType(request.targetDomain())
-                                        .domainId(response.uploadedDomainId())
-                                        .storageStrategy(request.storageStrategy())
-                                        .cloudStorageProvider(request.cloudStorageProvider())
-                                        .fileName(response.uploadedFileName())
-                                        .contentType(response.uploadedFileContentType())
-                                        .storagePath(response.uploadedFilePath())
-                                        .build();
-                            }).toList();
+        if (supportStorageService.isEmpty()) {
+            throw new FileException();
+        }
 
-                    fileRepository.saveAll(files);
-                });
+        List<UploadFileResponse> uploadResponse = supportStorageService.get().upload(request);
+
+        List<File> files = uploadResponse.stream()
+                .map(response -> {
+                    return File.builder()
+                            .uploaderEmail(request.uploaderEmail())
+                            .domainType(request.targetDomain())
+                            .domainId(response.uploadedDomainId())
+                            .storageStrategy(request.storageStrategy())
+                            .cloudStorageProvider(request.cloudStorageProvider())
+                            .fileName(response.uploadedFileName())
+                            .contentType(response.uploadedFileContentType())
+                            .storagePath(response.uploadedFilePath())
+                            .build();
+                }).toList();
+
+        fileRepository.saveAll(files);
+
+        return uploadResponse;
     }
 
     public List<URL> getUrls(DomainType domainType, Collection<String> domainIds) {
@@ -87,7 +93,7 @@ public class FileService {
 
         return files.isEmpty()
                 ? Collections.emptyList()
-                : findSupportFileStorageService(files.getFirst().getStorageStrategy(), files.getFirst().getCloudStorageProvider())
+                : findSupportStorageService(files.getFirst().getStorageStrategy(), files.getFirst().getCloudStorageProvider())
                         .map(service -> service.getFileAccessUrls(getStoragePath(files)))
                         .orElseGet(Collections::emptyList);
     }
@@ -97,7 +103,7 @@ public class FileService {
 
         return files.isEmpty()
                 ? Collections.emptyList()
-                : findSupportFileStorageService(files.getFirst().getStorageStrategy(), files.getFirst().getCloudStorageProvider())
+                : findSupportStorageService(files.getFirst().getStorageStrategy(), files.getFirst().getCloudStorageProvider())
                         .map(service -> service.downloadAll(getStoragePath(files)))
                         .orElseGet(Collections::emptyList);
     }
@@ -108,7 +114,7 @@ public class FileService {
         if (!files.isEmpty()) {
             File first = files.getFirst();
 
-            findSupportFileStorageService(first.getStorageStrategy(), first.getCloudStorageProvider())
+            findSupportStorageService(first.getStorageStrategy(), first.getCloudStorageProvider())
                     .ifPresent(service -> service.deleteAll(getStoragePath(files)));
 
             fileRepository.deleteAll(files);
@@ -119,7 +125,7 @@ public class FileService {
         return files.stream().map(File::getStoragePath).toList();
     }
 
-    private Optional<StorageService> findSupportFileStorageService(StorageStrategy storageStrategy, CloudStorageProvider cloudStorageProvider) {
+    private Optional<StorageService> findSupportStorageService(StorageStrategy storageStrategy, CloudStorageProvider cloudStorageProvider) {
         return storageServices.stream()
                 .filter(service -> service.canSupport(storageStrategy, cloudStorageProvider))
                 .findFirst();

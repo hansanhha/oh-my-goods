@@ -23,7 +23,7 @@ public interface StorageService {
      * @param request 파일 저장 dto
      * @return 파일 저장 경로(path)
      */
-    Collection<UploadFileResponse> upload(UploadFileRequest request);
+    List<UploadFileResponse> upload(UploadFileRequest request);
 
     void delete(String path);
 
