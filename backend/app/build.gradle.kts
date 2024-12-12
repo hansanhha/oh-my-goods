@@ -22,6 +22,11 @@ dependencies {
     implementation(libs.spring.security)
     implementation(libs.spring.oauth2.client)
 
+    implementation(platform(libs.awssdk.bom))
+    implementation(libs.awssdk.sso)
+    implementation(libs.awssdk.ssooidc)
+    implementation(libs.awssdk.s3)
+
     implementation(libs.guava)
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
