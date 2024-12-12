@@ -2,34 +2,33 @@ package co.ohmygoods.review.service;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
+import co.ohmygoods.file.model.vo.StorageStrategy;
+import co.ohmygoods.file.service.FileService;
 import co.ohmygoods.order.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.review.exception.ReviewException;
 import co.ohmygoods.review.model.entity.Review;
 import co.ohmygoods.review.model.entity.ReviewComment;
-import co.ohmygoods.review.model.entity.ReviewImage;
 import co.ohmygoods.review.repository.ReviewCommentRepository;
-import co.ohmygoods.review.repository.ReviewImageRepository;
+import co.ohmygoods.review.repository.ReviewImageInfoRepository;
 import co.ohmygoods.review.repository.ReviewRepository;
-import co.ohmygoods.review.service.dto.ReviewCommentResponse;
-import co.ohmygoods.review.service.dto.ReviewResponse;
+import co.ohmygoods.review.service.dto.UpdateReviewRequest;
 import co.ohmygoods.review.service.dto.WriteReviewRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ReviewService {
 
+    private final FileService fileService;
+    private final ReviewImageService reviewImageService;
     private final AccountRepository accountRepository;
     private final OrderRepository orderRepository;
     private final ReviewRepository reviewRepository;
-    private final ReviewImageRepository reviewImageRepository;
+    private final ReviewImageInfoRepository reviewImageInfoRepository;
     private final ReviewCommentRepository reviewCommentRepository;
 
 //    public List<ReviewResponse> getMyReviews(String accountEmail, Pageable pageable) {
@@ -70,22 +69,39 @@ public class ReviewService {
             throw ReviewException.invalidReviewAuthority();
         }
 
-        Review review = Review.write(order, account, request.reviewContent(), request.reviewStarRating());
-        reviewRepository.save(review);
+        Review savedReview = Review.write(order, account, request.reviewContent(), request.reviewStarRating());
+
+        // 리뷰 이미지 업로드
+        if (!request.reviewImages().isEmpty()) {
+            reviewImageService.upload(savedReview.getId(), account.getEmail(), request.storageStrategy(), request.reviewImages());
+        }
+
+        reviewRepository.save(savedReview);
     }
 
-    public void modifyReview(Long reviewId, String reviewerEmail, String modifyReviewContent) {
-        Review review = reviewRepository.findById(reviewId)
+    public void updateReview(UpdateReviewRequest request) {
+        Review review = reviewRepository.findById(request.updateReviewId())
                 .orElseThrow(ReviewException::notFoundReview);
 
-        OAuth2Account account = accountRepository.findByEmail(reviewerEmail)
+        OAuth2Account account = accountRepository.findByEmail(request.reviewerEmail())
                 .orElseThrow(ReviewException::notFoundAccount);
 
         if (!review.isNotReviewer(account)) {
             throw ReviewException.invalidReviewAuthority();
         }
 
-        review.update(modifyReviewContent);
+        review.update(request.updateReviewContent());
+
+        if (request.isUpdatedReviewImages()) {
+
+            // 기존 리뷰 이미지 삭제
+            reviewImageService.delete(review.getId());
+
+            // 새 리뷰 이미지 업로드
+            if (!request.updateReviewImages().isEmpty()) {
+                reviewImageService.upload(review.getId(), account.getEmail(), StorageStrategy.CLOUD_STORAGE_API, request.updateReviewImages());
+            }
+        }
     }
 
     public void deleteReview(Long reviewId, String reviewerEmail) {
@@ -100,6 +116,7 @@ public class ReviewService {
         }
 
         reviewRepository.delete(review);
+        reviewImageService.delete(reviewId);
     }
 
     public void writeReviewComment(Long reviewId, String accountEmail, String reviewCommentContent) {
