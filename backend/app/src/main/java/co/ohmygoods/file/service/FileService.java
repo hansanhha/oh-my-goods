@@ -88,7 +88,7 @@ public class FileService {
         return files.isEmpty()
                 ? Collections.emptyList()
                 : findSupportFileStorageService(files.getFirst().getStorageStrategy(), files.getFirst().getCloudStorageProvider())
-                        .map(service -> service.getUrlAll(getStoragePath(files)))
+                        .map(service -> service.getFileAccessUrls(getStoragePath(files)))
                         .orElseGet(Collections::emptyList);
     }
 

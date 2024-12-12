@@ -25,30 +25,30 @@ public interface StorageService {
      */
     Collection<UploadFileResponse> upload(UploadFileRequest request);
 
-    default URL getUrl(String path) {
+    void delete(String path);
+
+    default void deleteAll(List<String> paths) {
+        paths.forEach(this::delete);
+    }
+
+    default URL getFileAccessUrl(String path) {
         throw new UnsupportedOperationException();
+    }
+
+    default List<URL> getFileAccessUrls(List<String> paths) {
+        return paths.stream().map(this::getFileAccessUrl).toList();
     }
 
     default InputStream download(String path) {
         throw new UnsupportedOperationException();
     }
 
-    void delete(String path);
-
-    default Optional<URI> getCloudStorageAccessURL() {
-        return Optional.empty();
-    }
-
-    default List<URL> getUrlAll(List<String> paths) {
-        return paths.stream().map(this::getUrl).toList();
-    }
-
     default List<InputStream> downloadAll(List<String> paths) {
         return paths.stream().map(this::download).toList();
     }
 
-    default void deleteAll(List<String> paths) {
-        paths.forEach(this::delete);
+    default Optional<URI> getCloudStorageAccessURL() {
+        return Optional.empty();
     }
 
     boolean canSupport(StorageStrategy storageStrategy, CloudStorageProvider cloudStorageProvider);
