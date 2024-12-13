@@ -1,6 +1,6 @@
 package co.ohmygoods.payment.repository;
 
-import co.ohmygoods.order.entity.Order;
+import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.payment.entity.Payment;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

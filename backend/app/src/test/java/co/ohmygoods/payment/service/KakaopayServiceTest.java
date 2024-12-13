@@ -2,8 +2,8 @@ package co.ohmygoods.payment.service;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.order.entity.Address;
-import co.ohmygoods.order.entity.Order;
+import co.ohmygoods.order.model.entity.Address;
+import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.repository.PaymentRepository;
@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.Optional;

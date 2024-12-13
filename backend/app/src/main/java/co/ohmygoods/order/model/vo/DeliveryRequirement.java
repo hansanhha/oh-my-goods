@@ -1,7 +1,6 @@
-package co.ohmygoods.order.vo;
+package co.ohmygoods.order.model.vo;
 
 import jakarta.persistence.AttributeConverter;
-import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;

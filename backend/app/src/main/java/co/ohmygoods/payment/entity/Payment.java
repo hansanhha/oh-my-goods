@@ -2,8 +2,8 @@ package co.ohmygoods.payment.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.BaseEntity;
-import co.ohmygoods.order.entity.Order;
-import co.ohmygoods.order.vo.OrderStatus;
+import co.ohmygoods.order.model.entity.Order;
+import co.ohmygoods.order.model.vo.OrderStatus;
 import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.vo.PaymentStatus;
 import co.ohmygoods.payment.vo.ExternalPaymentVendor;

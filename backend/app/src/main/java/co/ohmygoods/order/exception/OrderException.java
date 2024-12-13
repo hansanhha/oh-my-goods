@@ -1,6 +1,6 @@
 package co.ohmygoods.order.exception;
 
-import co.ohmygoods.order.vo.OrderStatus;
+import co.ohmygoods.order.model.vo.OrderStatus;
 
 public class OrderException extends RuntimeException {
     public OrderException(String message) {

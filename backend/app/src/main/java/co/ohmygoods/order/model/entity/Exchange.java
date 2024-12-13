@@ -1,10 +1,11 @@
-package co.ohmygoods.order.entity;
+package co.ohmygoods.order.model.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.BaseEntity;
-import co.ohmygoods.order.exception.RefundException;
-import co.ohmygoods.order.vo.OrderStatus;
-import co.ohmygoods.order.vo.RefundStatus;
+import co.ohmygoods.order.exception.ExchangeException;
+import co.ohmygoods.order.model.vo.ExchangeStatus;
+import co.ohmygoods.order.model.vo.OrderStatus;
+import co.ohmygoods.product.entity.Product;
 import co.ohmygoods.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -19,15 +20,15 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Refund extends BaseEntity {
+public class Exchange extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "refund_target_order_id")
-    private Order refundTargetOrder;
+    @JoinColumn(name = "exchange_target_order_id")
+    private Order exchangeTargetOrder;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id")
@@ -37,21 +38,23 @@ public class Refund extends BaseEntity {
     @JoinColumn(name = "manager_id")
     private OAuth2Account manager;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exchange_product_id")
+    private Product exchangeProduct;
+
     @Enumerated(EnumType.STRING)
-    private RefundStatus status;
+    private ExchangeStatus status;
 
     @Column(nullable = false)
     private String requestReason;
 
     private String requestResponse;
 
-    private int refundPrice;
-
     private LocalDateTime respondedAt;
 
     public void updateRequestReason(String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
-            RefundException.throwCauseEmptyText();
+            ExchangeException.throwCauseEmptyText();
         }
 
         this.requestReason = requestReason;
@@ -59,43 +62,43 @@ public class Refund extends BaseEntity {
 
     public void updateRequestResponse(String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
-            RefundException.throwCauseEmptyText();
+            ExchangeException.throwCauseEmptyText();
         }
 
         this.requestResponse = requestResponse;
     }
 
-    public static Refund requestByBuyer(Shop shop, Order requestOrder, String requestReason) {
+    public static Exchange requestByBuyer(Shop shop, Order requestOrder, String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
-            RefundException.throwCauseEmptyText();
+            ExchangeException.throwCauseEmptyText();
         }
 
-        return new Refund(0L, requestOrder, shop, null,
-                RefundStatus.REQUESTED_REFUNDING, requestReason, null, 0, null);
+        return new Exchange(0L, requestOrder, shop, null, null,
+                ExchangeStatus.REQUESTED_EXCHANGING, requestReason, null, null);
     }
 
-    public void approveByShopManager(OAuth2Account manager, String requestResponse, int refundedPrice) {
+    public void approveByShopManager(OAuth2Account manager, Product exchangeProduct, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
-            RefundException.throwCauseEmptyText();
+            ExchangeException.throwCauseEmptyText();
         }
 
         this.manager = manager;
+        this.exchangeProduct = exchangeProduct;
         this.requestResponse = requestResponse;
-        this.refundPrice = refundedPrice;
         respondedAt = LocalDateTime.now();
-        status = RefundStatus.APPROVED_REFUNDING;
-        refundTargetOrder.updateOrderStatus(OrderStatus.APPROVED_REFUNDING);
+        status = ExchangeStatus.EXCHANGED;
+        exchangeTargetOrder.updateOrderStatus(OrderStatus.EXCHANGED);
     }
 
     public void rejectByShopManager(OAuth2Account manager, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
-            RefundException.throwCauseEmptyText();
+            ExchangeException.throwCauseEmptyText();
         }
 
         this.manager = manager;
         this.requestResponse = requestResponse;
         respondedAt = LocalDateTime.now();
-        status = RefundStatus.REJECTED_REFUNDING;
-        refundTargetOrder.updateOrderStatus(OrderStatus.REJECTED_REFUNDING);
+        status = ExchangeStatus.REJECTED_EXCHANGING;
+        exchangeTargetOrder.updateOrderStatus(OrderStatus.REJECTED_EXCHANGING);
     }
 }

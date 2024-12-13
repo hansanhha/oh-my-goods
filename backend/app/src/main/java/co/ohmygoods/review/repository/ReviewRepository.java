@@ -1,6 +1,6 @@
 package co.ohmygoods.review.repository;
 
-import co.ohmygoods.order.entity.Order;
+import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.review.model.entity.Review;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

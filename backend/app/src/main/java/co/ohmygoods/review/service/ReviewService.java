@@ -4,7 +4,7 @@ import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.file.model.vo.StorageStrategy;
 import co.ohmygoods.file.service.FileService;
-import co.ohmygoods.order.entity.Order;
+import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.review.exception.ReviewException;
 import co.ohmygoods.review.model.entity.Review;

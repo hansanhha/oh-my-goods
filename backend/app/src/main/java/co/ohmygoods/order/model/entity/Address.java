@@ -1,9 +1,9 @@
-package co.ohmygoods.order.entity;
+package co.ohmygoods.order.model.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.AddressException;
-import co.ohmygoods.order.vo.DeliveryRequirement;
+import co.ohmygoods.order.model.vo.DeliveryRequirement;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.util.StringUtils;

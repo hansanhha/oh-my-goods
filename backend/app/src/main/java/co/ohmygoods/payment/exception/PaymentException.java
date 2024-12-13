@@ -1,6 +1,6 @@
 package co.ohmygoods.payment.exception;
 
-import co.ohmygoods.order.vo.OrderStatus;
+import co.ohmygoods.order.model.vo.OrderStatus;
 
 public class PaymentException extends RuntimeException {
     public PaymentException() {

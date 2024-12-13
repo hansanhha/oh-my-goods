@@ -2,7 +2,7 @@ package co.ohmygoods.payment.service;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.order.entity.Order;
+import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.entity.Payment;
@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 
 import static co.ohmygoods.payment.service.KakaopayService.*;
 
@@ -96,7 +95,7 @@ public class KakaopayService
 
     @Override
     public ApproveResponse approve(String orderNumber, Map<String, String> properties) {
-        Order order = orderRepository.findByOrderNumber(orderNumber).orElseThrow(() -> PaymentException.notFoundOrder(orderNumber));
+        Order order = orderRepository.fetchProductByOrderNumber(orderNumber).orElseThrow(() -> PaymentException.notFoundOrder(orderNumber));
         Payment payment = paymentRepository.fetchByOrderWithOrderAndAccountAndProduct(order).orElseThrow(() -> PaymentException.notFoundPayment(order.getId()));
 
         OAuth2Account account = order.getAccount();

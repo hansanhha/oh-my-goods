@@ -2,7 +2,7 @@ package co.ohmygoods.review.model.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.LikeBaseEntity;
-import co.ohmygoods.order.entity.Order;
+import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

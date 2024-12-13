@@ -1,6 +1,6 @@
 package co.ohmygoods.payment.dto;
 
-import co.ohmygoods.order.vo.OrderStatus;
+import co.ohmygoods.order.model.vo.OrderStatus;
 import co.ohmygoods.payment.service.PaymentService;
 import co.ohmygoods.payment.vo.PaymentStatus;
 

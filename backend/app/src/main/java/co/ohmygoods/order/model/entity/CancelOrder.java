@@ -1,10 +1,10 @@
-package co.ohmygoods.order.entity;
+package co.ohmygoods.order.model.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.CancelOrderException;
-import co.ohmygoods.order.vo.CancelOrderStatus;
-import co.ohmygoods.order.vo.OrderStatus;
+import co.ohmygoods.order.model.vo.CancelOrderStatus;
+import co.ohmygoods.order.model.vo.OrderStatus;
 import co.ohmygoods.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

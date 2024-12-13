@@ -1,6 +1,6 @@
 package co.ohmygoods.payment.service;
 
-import co.ohmygoods.order.vo.OrderStatus;
+import co.ohmygoods.order.model.vo.OrderStatus;
 import co.ohmygoods.payment.vo.PaymentStatus;
 import co.ohmygoods.payment.vo.ExternalPaymentVendor;
 import lombok.Builder;
