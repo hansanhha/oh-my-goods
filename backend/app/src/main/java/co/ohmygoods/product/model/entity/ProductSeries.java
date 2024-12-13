@@ -1,6 +1,5 @@
-package co.ohmygoods.product.entity;
+package co.ohmygoods.product.model.entity;
 
-import co.ohmygoods.product.dto.ProductSeriesDto;
 import co.ohmygoods.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.Getter;

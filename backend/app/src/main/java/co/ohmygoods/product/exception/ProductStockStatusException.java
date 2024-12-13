@@ -1,6 +1,6 @@
 package co.ohmygoods.product.exception;
 
-import co.ohmygoods.product.vo.ProductStockStatus;
+import co.ohmygoods.product.model.vo.ProductStockStatus;
 
 public class ProductStockStatusException extends RuntimeException {
 

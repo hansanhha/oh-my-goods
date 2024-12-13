@@ -1,4 +1,4 @@
-package co.ohmygoods.product.entity;
+package co.ohmygoods.product.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

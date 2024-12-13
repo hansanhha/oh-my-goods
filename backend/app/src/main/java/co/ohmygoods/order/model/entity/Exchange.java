@@ -5,7 +5,7 @@ import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.ExchangeException;
 import co.ohmygoods.order.model.vo.ExchangeStatus;
 import co.ohmygoods.order.model.vo.OrderStatus;
-import co.ohmygoods.product.entity.Product;
+import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

@@ -1,6 +1,6 @@
-package co.ohmygoods.product.entity;
+package co.ohmygoods.product.model.entity;
 
-import co.ohmygoods.product.vo.ProductTopCategory;
+import co.ohmygoods.product.model.vo.ProductTopCategory;
 import co.ohmygoods.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -3,7 +3,7 @@ package co.ohmygoods.cart.entity;
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.cart.exception.CartException;
 import co.ohmygoods.global.entity.BaseEntity;
-import co.ohmygoods.product.entity.Product;
+import co.ohmygoods.product.model.entity.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 

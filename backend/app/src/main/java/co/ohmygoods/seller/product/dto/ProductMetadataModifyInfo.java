@@ -1,7 +1,7 @@
 package co.ohmygoods.seller.product.dto;
 
-import co.ohmygoods.product.vo.ProductTopCategory;
-import co.ohmygoods.product.vo.ProductType;
+import co.ohmygoods.product.model.vo.ProductTopCategory;
+import co.ohmygoods.product.model.vo.ProductType;
 import lombok.Builder;
 
 import java.util.List;

@@ -1,15 +1,15 @@
 package co.ohmygoods.product.service;
 
-import co.ohmygoods.product.dto.ProductDetailCategoryDto;
-import co.ohmygoods.product.dto.ProductSeriesDto;
-import co.ohmygoods.product.dto.ProductsByCategoryResponse;
-import co.ohmygoods.product.dto.ProductsBySeriesResponse;
+import co.ohmygoods.product.service.dto.ProductDetailCategoryDto;
+import co.ohmygoods.product.service.dto.ProductSeriesDto;
+import co.ohmygoods.product.service.dto.ProductsByCategoryResponse;
+import co.ohmygoods.product.service.dto.ProductsBySeriesResponse;
 import co.ohmygoods.product.exception.DetailCategoryNotFoundException;
 import co.ohmygoods.product.exception.ProductSeriesNotFoundException;
 import co.ohmygoods.product.repository.ProductDetailCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.repository.ProductSeriesRepository;
-import co.ohmygoods.product.vo.ProductTopCategory;
+import co.ohmygoods.product.model.vo.ProductTopCategory;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;

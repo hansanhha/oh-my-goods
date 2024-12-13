@@ -2,7 +2,7 @@ package co.ohmygoods.seller.product.service;
 
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.exception.ProductNotFoundException;
-import co.ohmygoods.product.vo.ProductStockStatus;
+import co.ohmygoods.product.model.vo.ProductStockStatus;
 import co.ohmygoods.shop.repository.ShopRepository;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;

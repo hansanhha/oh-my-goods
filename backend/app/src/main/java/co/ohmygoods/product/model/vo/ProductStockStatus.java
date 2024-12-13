@@ -1,4 +1,4 @@
-package co.ohmygoods.product.vo;
+package co.ohmygoods.product.model.vo;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

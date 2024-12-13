@@ -1,13 +1,13 @@
-package co.ohmygoods.product.entity;
+package co.ohmygoods.product.model.entity;
 
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.product.exception.InvalidProductUpdateParameterException;
 import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.exception.ProductShopCheckException;
 import co.ohmygoods.product.exception.ProductStockStatusException;
-import co.ohmygoods.product.vo.ProductTopCategory;
-import co.ohmygoods.product.vo.ProductStockStatus;
-import co.ohmygoods.product.vo.ProductType;
+import co.ohmygoods.product.model.vo.ProductTopCategory;
+import co.ohmygoods.product.model.vo.ProductStockStatus;
+import co.ohmygoods.product.model.vo.ProductType;
 import co.ohmygoods.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.*;

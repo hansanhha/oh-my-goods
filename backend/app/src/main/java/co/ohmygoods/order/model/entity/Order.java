@@ -4,7 +4,7 @@ import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.OrderStatus;
-import co.ohmygoods.product.entity.Product;
+import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.exception.ProductStockStatusException;
 import jakarta.persistence.*;

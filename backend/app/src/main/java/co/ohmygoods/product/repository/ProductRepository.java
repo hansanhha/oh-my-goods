@@ -1,9 +1,9 @@
 package co.ohmygoods.product.repository;
 
-import co.ohmygoods.product.entity.Product;
-import co.ohmygoods.product.entity.ProductDetailCategory;
-import co.ohmygoods.product.entity.ProductSeries;
-import co.ohmygoods.product.vo.ProductTopCategory;
+import co.ohmygoods.product.model.entity.Product;
+import co.ohmygoods.product.model.entity.ProductDetailCategory;
+import co.ohmygoods.product.model.entity.ProductSeries;
+import co.ohmygoods.product.model.vo.ProductTopCategory;
 import co.ohmygoods.shop.entity.Shop;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

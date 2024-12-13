@@ -1,4 +1,4 @@
-package co.ohmygoods.product.dto;
+package co.ohmygoods.product.service.dto;
 
 public record ProductSeriesDto(Long seriesId,
                                String seriesName) {

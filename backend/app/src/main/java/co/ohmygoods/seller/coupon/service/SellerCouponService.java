@@ -13,7 +13,7 @@ import co.ohmygoods.coupon.repository.CouponIssuanceHistoryRepository;
 import co.ohmygoods.coupon.repository.CouponProductMappingRepository;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.repository.CouponShopMappingRepository;
-import co.ohmygoods.product.entity.Product;
+import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.seller.coupon.dto.CreateShopCouponRequest;
 import co.ohmygoods.seller.coupon.dto.ShopCouponResponse;

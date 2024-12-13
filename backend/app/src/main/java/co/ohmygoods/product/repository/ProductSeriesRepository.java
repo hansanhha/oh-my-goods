@@ -1,6 +1,6 @@
 package co.ohmygoods.product.repository;
 
-import co.ohmygoods.product.entity.ProductSeries;
+import co.ohmygoods.product.model.entity.ProductSeries;
 import co.ohmygoods.shop.entity.Shop;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

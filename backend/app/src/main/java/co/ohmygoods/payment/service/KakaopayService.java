@@ -10,7 +10,7 @@ import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.repository.PaymentRepository;
 import co.ohmygoods.payment.vo.PaymentStatus;
 import co.ohmygoods.payment.vo.ExternalPaymentVendor;
-import co.ohmygoods.product.entity.Product;
+import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
 import com.fasterxml.jackson.core.type.TypeReference;

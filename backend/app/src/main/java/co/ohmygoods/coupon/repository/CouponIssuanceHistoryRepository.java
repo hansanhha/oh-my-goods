@@ -3,7 +3,6 @@ package co.ohmygoods.coupon.repository;
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.coupon.model.entity.CouponIssuanceHistory;
-import co.ohmygoods.product.entity.Product;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.Query;

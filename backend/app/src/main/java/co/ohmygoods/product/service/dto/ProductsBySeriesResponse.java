@@ -1,6 +1,6 @@
-package co.ohmygoods.product.dto;
+package co.ohmygoods.product.service.dto;
 
-import co.ohmygoods.product.entity.Product;
+import co.ohmygoods.product.model.entity.Product;
 import org.springframework.data.domain.Page;
 
 public record ProductsBySeriesResponse(Long shopId,
