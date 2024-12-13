@@ -5,7 +5,7 @@ import co.ohmygoods.product.exception.InvalidProductUpdateParameterException;
 import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.exception.ProductShopCheckException;
 import co.ohmygoods.product.exception.ProductStockStatusException;
-import co.ohmygoods.product.model.vo.ProductTopCategory;
+import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
 import co.ohmygoods.product.model.vo.ProductType;
 import co.ohmygoods.shop.entity.Shop;
@@ -40,7 +40,10 @@ public class Product extends BaseEntity {
     private ProductType type;
 
     @Enumerated(EnumType.STRING)
-    private ProductTopCategory topCategory;
+    private ProductMainCategory mainCategory;
+
+    @Column(nullable = false)
+    private String subCategory;
 
     @Enumerated(EnumType.STRING)
     private ProductStockStatus stockStatus;
@@ -51,7 +54,7 @@ public class Product extends BaseEntity {
 
     @Setter
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductDetailCategoryMapping> detailCategoryMappings;
+    private List<ProductCustomCategoryMapping> detailCategoryMappings;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -84,14 +87,14 @@ public class Product extends BaseEntity {
     public void updateMetadata(String name,
                                String description,
                                ProductType type,
-                               ProductTopCategory category,
-                               List<ProductDetailCategoryMapping> productDetailCategoryMappings,
+                               ProductMainCategory category,
+                               List<ProductCustomCategoryMapping> productCustomCategoryMappings,
                                List<ProductSeriesMapping> productSeriesMappings) {
         this.name = name;
         this.description = description;
         this.type = type;
-        this.topCategory = category;
-        this.detailCategoryMappings = productDetailCategoryMappings;
+        this.mainCategory = category;
+        this.detailCategoryMappings = productCustomCategoryMappings;
         this.seriesMappings = productSeriesMappings;
     }
 

@@ -2,17 +2,17 @@ package co.ohmygoods.product.seller;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.product.exception.InvalidProductDetailCategoryException;
+import co.ohmygoods.product.exception.InvalidProductCustomCategoryException;
 import co.ohmygoods.product.exception.InvalidProductSeriesException;
 import co.ohmygoods.product.model.entity.*;
-import co.ohmygoods.product.repository.ProductDetailCategoryRepository;
+import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.repository.ProductSeriesRepository;
 import co.ohmygoods.seller.product.service.ProductRegistrationService;
-import co.ohmygoods.seller.product.dto.ProductMetadataModifyInfo;
-import co.ohmygoods.seller.product.dto.ProductRegisterRequest;
+import co.ohmygoods.seller.product.service.dto.ProductMetadataModifyInfo;
+import co.ohmygoods.seller.product.service.dto.ProductRegisterRequest;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
-import co.ohmygoods.product.model.vo.ProductTopCategory;
+import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductType;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.exception.InvalidShopOwnerException;
@@ -50,7 +50,7 @@ class ProductRegistrationServiceTest {
     private ProductRepository mockProductRepository;
 
     @Mock
-    private ProductDetailCategoryRepository mockProductDetailCategoryRepository;
+    private ProductCustomCategoryRepository mockProductCustomCategoryRepository;
 
     @Mock
     private ProductSeriesRepository mockProductSeriesRepository;
@@ -65,13 +65,13 @@ class ProductRegistrationServiceTest {
     ArgumentCaptor<Product> productArgumentCaptor;
 
     @Captor
-    ArgumentCaptor<List<ProductDetailCategoryMapping>> detailCategoryMappingsCaptor;
+    ArgumentCaptor<List<ProductCustomCategoryMapping>> detailCategoryMappingsCaptor;
 
     @Captor
     ArgumentCaptor<List<ProductSeriesMapping>> seriesMappingsCaptor;
 
     @Mock
-    private ProductDetailCategory mockProductDetailCategory;
+    private ProductCustomCategory mockProductCustomCategory;
 
     @Mock
     private ProductSeries mockProductSeries;
@@ -87,24 +87,24 @@ class ProductRegistrationServiceTest {
 
     @Test
     void 상품_상세_카테고리_등록() {
-        var topCategory = ProductTopCategory.GAME;
+        var topCategory = ProductMainCategory.GAME;
         var detailCategoryName = "newCategory";
 
         given(mockShopRepository.findById(anyLong())).willReturn(Optional.of(mockShop));
         given(mockAccountRepository.findByEmail(anyString())).willReturn(Optional.of(mockAccount));
-        given(mockProductDetailCategoryRepository.findByCategoryName(anyString())).willReturn(Optional.empty());
-        given(mockProductDetailCategoryRepository.save(any(ProductDetailCategory.class))).willReturn(mockProductDetailCategory);
-        given(mockProductDetailCategory.getId()).willReturn(1L);
-        given(mockProductDetailCategory.getCategoryName()).willReturn(detailCategoryName);
+        given(mockProductCustomCategoryRepository.findByCategoryName(anyString())).willReturn(Optional.empty());
+        given(mockProductCustomCategoryRepository.save(any(ProductCustomCategory.class))).willReturn(mockProductCustomCategory);
+        given(mockProductCustomCategory.getId()).willReturn(1L);
+        given(mockProductCustomCategory.getCustomCategoryName()).willReturn(detailCategoryName);
 
-        var response = productRegistrationService.registerProductDetailCategory(SHOP_ID, ACCOUNT_EMAIL, topCategory, detailCategoryName);
+        var response = productRegistrationService.registerProductCustomCategory(SHOP_ID, ACCOUNT_EMAIL, topCategory, detailCategoryName);
 
         then(mockShopRepository).should(times(1)).findById(anyLong());
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
-        then(mockProductDetailCategoryRepository).should(times(1)).findByCategoryName(anyString());
-        then(mockProductDetailCategoryRepository).should(times(1)).save(any(ProductDetailCategory.class));
+        then(mockProductCustomCategoryRepository).should(times(1)).findByCategoryName(anyString());
+        then(mockProductCustomCategoryRepository).should(times(1)).save(any(ProductCustomCategory.class));
 
-        assertThat(response.categoryName()).isEqualTo(detailCategoryName);
+        assertThat(response.customCategoryName()).isEqualTo(detailCategoryName);
         assertThat(response.topCategoryName()).isEqualTo(topCategory.name());
     }
 
@@ -131,20 +131,20 @@ class ProductRegistrationServiceTest {
 
     @Test
     void 중복된_상세_카테고리_이름은_등록할수없음() {
-        var topCategory = ProductTopCategory.GAME;
+        var topCategory = ProductMainCategory.GAME;
         var duplicateDetailCategoryName = "duplicate";
 
         given(mockShopRepository.findById(anyLong())).willReturn(Optional.of(mockShop));
         given(mockAccountRepository.findByEmail(anyString())).willReturn(Optional.of(mockAccount));
-        given(mockProductDetailCategoryRepository.findByCategoryName(anyString())).willReturn(Optional.of(mockProductDetailCategory));
+        given(mockProductCustomCategoryRepository.findByCategoryName(anyString())).willReturn(Optional.of(mockProductCustomCategory));
 
-        assertThatThrownBy(() -> productRegistrationService.registerProductDetailCategory(SHOP_ID, ACCOUNT_EMAIL, topCategory, duplicateDetailCategoryName))
-                .isExactlyInstanceOf(InvalidProductDetailCategoryException.class);
+        assertThatThrownBy(() -> productRegistrationService.registerProductCustomCategory(SHOP_ID, ACCOUNT_EMAIL, topCategory, duplicateDetailCategoryName))
+                .isExactlyInstanceOf(InvalidProductCustomCategoryException.class);
 
         then(mockShopRepository).should(times(1)).findById(anyLong());
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
-        then(mockProductDetailCategoryRepository).should(times(1)).findByCategoryName(anyString());
-        then(mockProductDetailCategoryRepository).shouldHaveNoMoreInteractions();
+        then(mockProductCustomCategoryRepository).should(times(1)).findByCategoryName(anyString());
+        then(mockProductCustomCategoryRepository).shouldHaveNoMoreInteractions();
     }
 
     @Test
@@ -169,7 +169,7 @@ class ProductRegistrationServiceTest {
         var tempProductId = 1L;
         var name = "test product";
         var description = "test description";
-        var topCategory = ProductTopCategory.GAME;
+        var topCategory = ProductMainCategory.GAME;
         var price = 10000;
         var quantity = 100;
         var stockStatus = ProductStockStatus.ON_SALES;
@@ -197,7 +197,7 @@ class ProductRegistrationServiceTest {
         then(mockShopRepository).should(times(1)).findById(anyLong());
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
         then(mockProductRepository).should(times(1)).save(any(Product.class));
-        then(mockProductDetailCategoryRepository).shouldHaveNoInteractions();
+        then(mockProductCustomCategoryRepository).shouldHaveNoInteractions();
         then(mockProductSeriesRepository).shouldHaveNoInteractions();
 
         var product = productArgumentCaptor.getValue();
@@ -221,7 +221,7 @@ class ProductRegistrationServiceTest {
         var tempProductId = 1L;
         var name = "test product";
         var description = "test description";
-        var topCategory = ProductTopCategory.GAME;
+        var topCategory = ProductMainCategory.GAME;
         var price = 10000;
         var quantity = 100;
         var stockStatus = ProductStockStatus.TO_BE_SOLD;
@@ -231,7 +231,7 @@ class ProductRegistrationServiceTest {
         var seriesIds = List.of(1L);
 
         var mockProductDetailCategories = detailCategoryIds.stream()
-                .map(d -> mock(ProductDetailCategory.class))
+                .map(d -> mock(ProductCustomCategory.class))
                 .toList();
         var mockProductSeries = detailCategoryIds.stream()
                 .map(d -> mock(ProductSeries.class))
@@ -255,7 +255,7 @@ class ProductRegistrationServiceTest {
         given(mockAccountRepository.findByEmail(anyString())).willReturn(Optional.of(mockAccount));
         given(mockProductRepository.save(any(Product.class))).willReturn(mockProduct);
         given(mockProduct.getId()).willReturn(tempProductId);
-        given(mockProductDetailCategoryRepository.findAllByIdAndShop(anyIterable(), any(Shop.class))).willReturn(mockProductDetailCategories);
+        given(mockProductCustomCategoryRepository.findAllByIdAndShop(anyIterable(), any(Shop.class))).willReturn(mockProductDetailCategories);
         given(mockProductSeriesRepository.findAllByIdAndShop(anyIterable(), any(Shop.class))).willReturn(mockProductSeries);
 
         var response = productRegistrationService.registerProduct(productRegisterRequest);
@@ -263,7 +263,7 @@ class ProductRegistrationServiceTest {
         then(mockShopRepository).should(times(1)).findById(anyLong());
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
         then(mockProductRepository).should(times(1)).save(any(Product.class));
-        then(mockProductDetailCategoryRepository).should(times(1)).findAllByIdAndShop(anyIterable(), any(Shop.class));
+        then(mockProductCustomCategoryRepository).should(times(1)).findAllByIdAndShop(anyIterable(), any(Shop.class));
         then(mockProductSeriesRepository).should(times(1)).findAllByIdAndShop(anyIterable(), any(Shop.class));
 
         verify(mockProductRepository).save(productArgumentCaptor.capture());
@@ -294,7 +294,7 @@ class ProductRegistrationServiceTest {
         var tempProductId = 1L;
         var name = "test product";
         var description = "test description";
-        var topCategory = ProductTopCategory.GAME;
+        var topCategory = ProductMainCategory.GAME;
         var price = 10000;
         var quantity = 100;
         var stockStatus = ProductStockStatus.TO_BE_SOLD;
@@ -330,7 +330,7 @@ class ProductRegistrationServiceTest {
         then(mockShopRepository).should(times(1)).findById(anyLong());
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
         then(mockProductRepository).should(times(1)).save(any(Product.class));
-        then(mockProductDetailCategoryRepository).shouldHaveNoInteractions();
+        then(mockProductCustomCategoryRepository).shouldHaveNoInteractions();
         then(mockProductSeriesRepository).shouldHaveNoInteractions();
 
         var product = productArgumentCaptor.getValue();
@@ -368,7 +368,7 @@ class ProductRegistrationServiceTest {
         then(mockShopRepository).should(times(1)).findById(anyLong());
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
         then(mockProductRepository).shouldHaveNoInteractions();
-        then(mockProductDetailCategoryRepository).shouldHaveNoInteractions();
+        then(mockProductCustomCategoryRepository).shouldHaveNoInteractions();
         then(mockProductSeriesRepository).shouldHaveNoInteractions();
     }
 
@@ -382,7 +382,7 @@ class ProductRegistrationServiceTest {
         var modifyProductId = 1L;
         var modifyName = "test modify product";
         var modifyDescription = "test modify description";
-        var modifyTopCategory = ProductTopCategory.IDOL;
+        var modifyTopCategory = ProductMainCategory.IDOL;
         var modifyType = ProductType.ANALOGUE_EXCLUSIVE;
 
         var productMetadataModifyInfo = ProductMetadataModifyInfo.builder()
@@ -404,7 +404,7 @@ class ProductRegistrationServiceTest {
         then(mockShopRepository).should(times(1)).findById(anyLong());
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
         then(mockProductRepository).should(times(1)).findById(anyLong());
-        then(mockProductDetailCategoryRepository).shouldHaveNoInteractions();
+        then(mockProductCustomCategoryRepository).shouldHaveNoInteractions();
         then(mockProductSeriesRepository).shouldHaveNoInteractions();
         then(mockProduct).should(times(1)).updateMetadata(modifyName, modifyDescription, modifyType, modifyTopCategory, null, null);
     }

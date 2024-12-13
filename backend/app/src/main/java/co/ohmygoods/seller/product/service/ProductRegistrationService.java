@@ -3,19 +3,18 @@ package co.ohmygoods.seller.product.service;
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.product.model.entity.*;
-import co.ohmygoods.product.service.dto.ProductDetailCategoryDto;
-import co.ohmygoods.product.service.dto.ProductSeriesDto;
-import co.ohmygoods.product.exception.InvalidProductDetailCategoryException;
+import co.ohmygoods.product.service.dto.ProductCustomCategoryResponse;
+import co.ohmygoods.product.service.dto.ProductSeriesResponse;
+import co.ohmygoods.product.exception.InvalidProductCustomCategoryException;
 import co.ohmygoods.product.exception.InvalidProductSeriesException;
-import co.ohmygoods.product.repository.ProductDetailCategoryRepository;
+import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.repository.ProductSeriesRepository;
-import co.ohmygoods.seller.product.dto.ProductBusinessInfo;
-import co.ohmygoods.seller.product.dto.ProductMetadataModifyInfo;
-import co.ohmygoods.seller.product.dto.ProductRegisterRequest;
+import co.ohmygoods.seller.product.service.dto.ProductBusinessInfo;
+import co.ohmygoods.seller.product.service.dto.ProductMetadataModifyInfo;
+import co.ohmygoods.seller.product.service.dto.ProductRegisterRequest;
 import co.ohmygoods.product.exception.ProductNotFoundException;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
-import co.ohmygoods.product.model.vo.ProductTopCategory;
 import co.ohmygoods.shop.repository.ShopRepository;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +33,7 @@ public class ProductRegistrationService {
     private final AccountRepository accountRepository;
     private final ShopRepository shopRepository;
     private final ProductRepository productRepository;
-    private final ProductDetailCategoryRepository productDetailCategoryRepository;
+    private final ProductCustomCategoryRepository productCustomCategoryRepository;
     private final ProductSeriesRepository productSeriesRepository;
 
     public List<ProductBusinessInfo> getRegisteredProducts(Long shopId) {
@@ -53,17 +52,17 @@ public class ProductRegistrationService {
                     .toList();
             var detailCategories = product.getDetailCategoryMappings()
                     .stream()
-                    .map(detailCategoryMapping -> detailCategoryMapping.getDetailCategory().getCategoryName())
+                    .map(detailCategoryMapping -> detailCategoryMapping.getCustomCategory().getCustomCategoryName())
                     .toList();
 
             return ProductBusinessInfo.builder()
                     .shopId(shopId)
                     .productId(product.getId())
                     .description(product.getDescription())
-                    .category(product.getTopCategory())
+                    .category(product.getMainCategory())
                     .stockStatus(product.getStockStatus())
                     .series(series)
-                    .detailCategory(detailCategories)
+                    .customCategories(detailCategories)
                     .quantity(product.getRemainingQuantity())
                     .purchaseLimit(product.getPurchaseMaximumQuantity())
                     .price(product.getOriginalPrice())
@@ -74,7 +73,7 @@ public class ProductRegistrationService {
         }).toList();
     }
 
-    public ProductDetailCategoryDto registerProductDetailCategory(Long shopId, String email, ProductTopCategory topCategory, String categoryName) {
+    public ProductCustomCategoryResponse registerProductCustomCategory(Long shopId, String email, String customCategoryName) {
         var shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
 
@@ -83,19 +82,19 @@ public class ProductRegistrationService {
 
         shop.ownerCheck(account);
 
-        var optionalProductDetailCategory = productDetailCategoryRepository.findByCategoryName(categoryName);
+        var optionalProductDetailCategory = productCustomCategoryRepository.findByCategoryName(customCategoryName);
 
         if (optionalProductDetailCategory.isPresent()) {
-            throw InvalidProductDetailCategoryException.duplicateName(categoryName);
+            throw InvalidProductCustomCategoryException.duplicateName(customCategoryName);
         }
 
-        var productDetailCategory = ProductDetailCategory.toEntity(shop, topCategory, categoryName);
-        var saved = productDetailCategoryRepository.save(productDetailCategory);
+        var productCustomCategory = ProductCustomCategory.toEntity(shop, customCategoryName);
+        var saved = productCustomCategoryRepository.save(productCustomCategory);
 
-        return new ProductDetailCategoryDto(topCategory.name(), saved.getId(), saved.getCategoryName());
+        return new ProductCustomCategoryResponse(saved.getId(), saved.getCustomCategoryName());
     }
 
-    public ProductSeriesDto registerProductSeries(Long shopId, String email, String seriesName) {
+    public ProductSeriesResponse registerProductSeries(Long shopId, String email, String seriesName) {
         var shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
 
@@ -113,7 +112,7 @@ public class ProductRegistrationService {
         var productSeries = ProductSeries.toEntity(shop, seriesName);
         var saved = productSeriesRepository.save(productSeries);
 
-        return new ProductSeriesDto(saved.getId(), saved.getSeriesName());
+        return new ProductSeriesResponse(saved.getId(), saved.getSeriesName());
     }
 
     public Long registerProduct(ProductRegisterRequest info) {
@@ -132,7 +131,7 @@ public class ProductRegistrationService {
                 .shop(shop)
                 .name(info.name())
                 .type(info.type())
-                .topCategory(info.category())
+                .mainCategory(info.category())
                 .stockStatus(info.status())
                 .originalPrice(info.price())
                 .remainingQuantity(Math.max(info.quantity(), 0))
@@ -146,17 +145,17 @@ public class ProductRegistrationService {
 
         var savedProduct = productRepository.save(product);
 
-        var detailCategoryIds = info.detailCategoryIds();
+        var customCategoryIds = info.customCategoryIds();
         var seriesIds = info.seriesIds();
 
-        if (detailCategoryIds != null && !detailCategoryIds.isEmpty()) {
-            var productDetailCategories = productDetailCategoryRepository.findAllByIdAndShop(detailCategoryIds, shop);
-            var productDetailCategoryMappings = productDetailCategories
+        if (customCategoryIds != null && !customCategoryIds.isEmpty()) {
+            var productCustomCategories = productCustomCategoryRepository.findAllByIdAndShop(customCategoryIds, shop);
+            var productCustomCategoryMappings = productCustomCategories
                     .stream()
-                    .map(detailCategory -> ProductDetailCategoryMapping.toEntity(savedProduct, detailCategory))
+                    .map(customCategory -> ProductCustomCategoryMapping.toEntity(savedProduct, customCategory))
                     .toList();
 
-            savedProduct.setDetailCategoryMappings(productDetailCategoryMappings);
+            savedProduct.setDetailCategoryMappings(productCustomCategoryMappings);
         }
 
         if (seriesIds != null && !seriesIds.isEmpty()) {
@@ -186,16 +185,16 @@ public class ProductRegistrationService {
         shop.ownerCheck(account);
         product.shopCheck(shop);
 
-        var detailCategoryIds = info.modifyDetailCategoryIds();
+        var customCategoryIds = info.modifyCustomCategoryIds();
         var seriesIds = info.modifySeriesIds();
-        List<ProductDetailCategoryMapping> modifyProductDetailCategoryMappings = null;
+        List<ProductCustomCategoryMapping> modifyProductCustomCategoryMappings = null;
         List<ProductSeriesMapping> modifyProductSeriesMappings = null;
 
-        if (detailCategoryIds != null && !detailCategoryIds.isEmpty()) {
-            var productDetailCategories = (List<ProductDetailCategory>) productDetailCategoryRepository.findAllById(detailCategoryIds);
-            modifyProductDetailCategoryMappings = productDetailCategories
+        if (customCategoryIds != null && !customCategoryIds.isEmpty()) {
+            var productCustomCategories = (List<ProductCustomCategory>) productCustomCategoryRepository.findAllById(customCategoryIds);
+            modifyProductCustomCategoryMappings = productCustomCategories
                     .stream()
-                    .map(detailCategory -> ProductDetailCategoryMapping.toEntity(product, detailCategory))
+                    .map(customCategory -> ProductCustomCategoryMapping.toEntity(product, customCategory))
                     .toList();
         }
 
@@ -211,7 +210,7 @@ public class ProductRegistrationService {
                 info.modifyDescription(),
                 info.modifyType(),
                 info.modifyTopCategory(),
-                modifyProductDetailCategoryMappings,
+                modifyProductCustomCategoryMappings,
                 modifyProductSeriesMappings);
     }
 

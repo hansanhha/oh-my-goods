@@ -1,6 +1,6 @@
-package co.ohmygoods.seller.product.dto;
+package co.ohmygoods.seller.product.service.dto;
 
-import co.ohmygoods.product.model.vo.ProductTopCategory;
+import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
 import co.ohmygoods.product.model.vo.ProductType;
 import lombok.Builder;
@@ -14,10 +14,10 @@ public record ProductBusinessInfo(Long shopId,
                                   String name,
                                   String description,
                                   ProductType type,
-                                  ProductTopCategory category,
+                                  ProductMainCategory category,
                                   ProductStockStatus stockStatus,
                                   List<String> series,
-                                  List<String> detailCategory,
+                                  List<String> customCategories,
                                   int quantity,
                                   int purchaseLimit,
                                   int price,

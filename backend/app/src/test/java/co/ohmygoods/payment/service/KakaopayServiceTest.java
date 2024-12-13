@@ -9,7 +9,7 @@ import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.repository.PaymentRepository;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
-import co.ohmygoods.product.model.vo.ProductTopCategory;
+import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductType;
 import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
@@ -77,7 +77,7 @@ class KakaopayServiceTest {
                 .shop(mockShop)
                 .name(PRODUCT_NAME)
                 .type(ProductType.ANALOGUE_LIMITATION_EXCLUSIVE)
-                .topCategory(ProductTopCategory.MOVIE)
+                .topCategory(ProductMainCategory.MOVIE)
                 .stockStatus(ProductStockStatus.ON_SALES)
                 .remainingQuantity(REMAINING_QUANTITY)
                 .purchaseMaximumQuantity(5)

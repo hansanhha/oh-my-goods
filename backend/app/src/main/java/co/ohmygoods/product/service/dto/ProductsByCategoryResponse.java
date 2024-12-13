@@ -1,12 +1,11 @@
 package co.ohmygoods.product.service.dto;
 
-import co.ohmygoods.product.model.entity.Product;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 
 public record ProductsByCategoryResponse(Long shopId,
                                          String topCategory,
-                                         List<ProductDetailCategoryDto> detailCategories,
-                                         Page<Product> products) {
+                                         List<ProductCustomCategoryResponse> detailCategories,
+                                         Slice<ProductResponse> products) {
 }

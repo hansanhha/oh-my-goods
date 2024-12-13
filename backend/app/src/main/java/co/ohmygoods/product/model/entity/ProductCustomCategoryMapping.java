@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class ProductDetailCategoryMapping {
+public class ProductCustomCategoryMapping {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,13 +17,13 @@ public class ProductDetailCategoryMapping {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_detail_category_id")
-    private ProductDetailCategory detailCategory;
+    @JoinColumn(name = "product_custom_category_id")
+    private ProductCustomCategory customCategory;
 
-    public static ProductDetailCategoryMapping toEntity(Product product, ProductDetailCategory detailCategory) {
-        var productDetailCategoryMapping = new ProductDetailCategoryMapping();
+    public static ProductCustomCategoryMapping toEntity(Product product, ProductCustomCategory customCategory) {
+        var productDetailCategoryMapping = new ProductCustomCategoryMapping();
         productDetailCategoryMapping.product = product;
-        productDetailCategoryMapping.detailCategory = detailCategory;
+        productDetailCategoryMapping.customCategory = customCategory;
         return productDetailCategoryMapping;
     }
 }

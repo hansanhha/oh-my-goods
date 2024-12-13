@@ -1,6 +1,6 @@
-package co.ohmygoods.seller.product.dto;
+package co.ohmygoods.seller.product.service.dto;
 
-import co.ohmygoods.product.model.vo.ProductTopCategory;
+import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductType;
 import lombok.Builder;
 
@@ -13,7 +13,7 @@ public record ProductMetadataModifyInfo(String accountEmail,
                                         String modifyName,
                                         String modifyDescription,
                                         ProductType modifyType,
-                                        ProductTopCategory modifyTopCategory,
-                                        List<Long> modifyDetailCategoryIds,
+                                        ProductMainCategory modifyTopCategory,
+                                        List<Long> modifyCustomCategoryIds,
                                         List<Long> modifySeriesIds) {
 }
