@@ -3,6 +3,7 @@ package co.ohmygoods.review.model.entity;
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.LikeBaseEntity;
 import co.ohmygoods.order.entity.Order;
+import co.ohmygoods.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,10 @@ public class Review extends LikeBaseEntity {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewer_id")
     private OAuth2Account reviewer;
@@ -33,14 +38,14 @@ public class Review extends LikeBaseEntity {
     @Column(nullable = false)
     private int starRating;
 
-    public static Review write(Order order, OAuth2Account reviewer, String content, int starRating) {
+    public static Review write(Order order, Product product, OAuth2Account reviewer, String content, int starRating) {
         if (starRating <= 0) {
             starRating = 1;
         } else if (starRating > 5) {
             starRating = 5;
         }
 
-        return new Review(0L, order, reviewer, content, starRating);
+        return new Review(0L, order, product, reviewer, content, starRating);
     }
 
     public boolean isNotReviewer(OAuth2Account account) {

@@ -12,11 +12,17 @@ import co.ohmygoods.review.model.entity.ReviewComment;
 import co.ohmygoods.review.repository.ReviewCommentRepository;
 import co.ohmygoods.review.repository.ReviewImageInfoRepository;
 import co.ohmygoods.review.repository.ReviewRepository;
+import co.ohmygoods.review.service.dto.ReviewCommentResponse;
+import co.ohmygoods.review.service.dto.ReviewResponse;
 import co.ohmygoods.review.service.dto.UpdateReviewRequest;
 import co.ohmygoods.review.service.dto.WriteReviewRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -31,30 +37,36 @@ public class ReviewService {
     private final ReviewImageInfoRepository reviewImageInfoRepository;
     private final ReviewCommentRepository reviewCommentRepository;
 
-//    public List<ReviewResponse> getMyReviews(String accountEmail, Pageable pageable) {
-//        OAuth2Account account = accountRepository.findByEmail(accountEmail)
-//                .orElseThrow(ReviewException::notFoundAccount);
-//
-//        reviewRepository.findAllByAccount(account, pageable);
-//    }
-//
-//    public List<ReviewResponse> getReviews(Long productId, Pageable pageable) {
-//
-//    }
-//
-//    public List<ReviewCommentResponse> getReviewComments(Long reviewId, Pageable pageable) {
-//
-//    }
-//
-//    public List<ReviewCommentResponse> getReviewReplyComments(Long reviewCommentId, Pageable pageable) {
-//
-//    }
+    public List<ReviewResponse> getReviews(Long productId, Pageable pageable) {
+        Slice<Review> reviews = reviewRepository.fetchReviewerAllByProductId(productId, pageable);
+
+        return reviews.stream()
+                .map(review -> ReviewResponse.from(productId, review))
+                .toList();
+    }
+
+    public List<ReviewCommentResponse> getReviewComments(Long reviewId, Pageable pageable) {
+        Slice<ReviewComment> reviewComments = reviewCommentRepository.fetchWriterAllByReviewId(reviewId, pageable);
+
+        return reviewComments.stream()
+                .map(reviewComment -> ReviewCommentResponse.from(reviewId, 0L, reviewComment))
+                .toList();
+    }
+
+    public List<ReviewCommentResponse> getReviewReplyComments(Long reviewId, Long reviewCommentId, Pageable pageable) {
+        Slice<ReviewComment> reviewComments =
+                reviewCommentRepository.fetchWriterAllByReviewIdAndReviewCommentId(reviewId, reviewCommentId, pageable);
+
+        return reviewComments.stream()
+                .map(reviewComment -> ReviewCommentResponse.from(reviewId, reviewCommentId, reviewComment))
+                .toList();
+    }
 
     public void writeReview(WriteReviewRequest request) {
         OAuth2Account account = accountRepository.findByEmail(request.accountEmail())
                 .orElseThrow(ReviewException::notFoundAccount);
 
-        Order order = orderRepository.findByOrderNumber(request.reviewOrderNumber())
+        Order order = orderRepository.fetchProductByOrderNumber(request.reviewOrderNumber())
                 .orElseThrow(ReviewException::notFoundOrder);
 
         /*
@@ -69,7 +81,7 @@ public class ReviewService {
             throw ReviewException.invalidReviewAuthority();
         }
 
-        Review savedReview = Review.write(order, account, request.reviewContent(), request.reviewStarRating());
+        Review savedReview = Review.write(order, order.getProduct(), account, request.reviewContent(), request.reviewStarRating());
 
         // 리뷰 이미지 업로드
         if (!request.reviewImages().isEmpty()) {
