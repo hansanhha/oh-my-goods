@@ -20,7 +20,7 @@ public class ProductCustomCategoryMapping {
     @JoinColumn(name = "product_custom_category_id")
     private ProductCustomCategory customCategory;
 
-    public static ProductCustomCategoryMapping toEntity(Product product, ProductCustomCategory customCategory) {
+    public static ProductCustomCategoryMapping create(Product product, ProductCustomCategory customCategory) {
         var productDetailCategoryMapping = new ProductCustomCategoryMapping();
         productDetailCategoryMapping.product = product;
         productDetailCategoryMapping.customCategory = customCategory;

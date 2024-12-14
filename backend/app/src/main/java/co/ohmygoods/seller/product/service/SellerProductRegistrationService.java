@@ -178,7 +178,7 @@ public class SellerProductRegistrationService {
                 .productPurchaseLimit(product.getPurchaseMaximumQuantity())
                 .productPrice(product.getOriginalPrice())
                 .productDiscountRate(product.getDiscountRate())
-                .productDiscountEndDate(product.getDiscountStartDate())
+                .productDiscountStartDate(product.getDiscountStartDate())
                 .productDiscountEndDate(product.getDiscountEndDate())
                 .productRegisteredAt(product.getCreatedAt())
                 .productLastModifiedAt(product.getLastModifiedAt())

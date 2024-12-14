@@ -13,6 +13,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -48,13 +49,8 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductStockStatus stockStatus;
 
-    @Setter
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductSeriesMapping> seriesMappings;
-
-    @Setter
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductCustomCategoryMapping> detailCategoryMappings;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductCustomCategoryMapping> customCategoriesMappings = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -84,18 +80,20 @@ public class Product extends BaseEntity {
         }
     }
 
+    public void addCustomCategories(List<ProductCustomCategoryMapping> customCategoriesMappings) {
+        this.customCategoriesMappings.addAll(customCategoriesMappings);
+    }
+
     public void updateMetadata(String name,
                                String description,
                                ProductType type,
                                ProductMainCategory category,
-                               List<ProductCustomCategoryMapping> productCustomCategoryMappings,
-                               List<ProductSeriesMapping> productSeriesMappings) {
+                               List<ProductCustomCategoryMapping> productCustomCategoryMappings) {
         this.name = name;
         this.description = description;
         this.type = type;
         this.mainCategory = category;
-        this.detailCategoryMappings = productCustomCategoryMappings;
-        this.seriesMappings = productSeriesMappings;
+        this.customCategoriesMappings = productCustomCategoryMappings;
     }
 
     public void updateRemainingQuantity(int remainingQuantity) {
@@ -140,21 +138,20 @@ public class Product extends BaseEntity {
         this.discountEndDate = discountEndDate;
     }
 
-    public boolean isInvalidRequestQuantity(int quantity) {
+    public boolean isValidRequestQuantity(int quantity) {
         return purchaseMaximumQuantity > quantity && remainingQuantity > quantity;
     }
 
-    public boolean isOnSold() {
-        return stockStatus.equals(ProductStockStatus.ON_SALES);
+    public void validateSaleStatus() {
+        if (stockStatus.equals(ProductStockStatus.ON_SALES))
+            ProductStockStatusException.throwInvalidStatus(stockStatus);
     }
 
     public void decrease(int quantity) {
-        if (!isInvalidRequestQuantity(quantity)) {
-            ProductException.throwCauseInvalidDecreaseQuantity(purchaseMaximumQuantity, remainingQuantity, quantity);
-        }
+        validateSaleStatus();
 
-        if (!stockStatus.equals(ProductStockStatus.ON_SALES)) {
-            ProductStockStatusException.throwInvalidStatus(stockStatus);
+        if (!isValidRequestQuantity(quantity)) {
+            ProductException.throwCauseInvalidDecreaseQuantity(purchaseMaximumQuantity, remainingQuantity, quantity);
         }
 
         remainingQuantity -= quantity;

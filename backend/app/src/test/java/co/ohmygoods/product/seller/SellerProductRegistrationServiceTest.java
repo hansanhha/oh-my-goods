@@ -102,23 +102,6 @@ class SellerProductRegistrationServiceTest {
     }
 
     @Test
-    void 상품_시리즈_등록() {
-        var seriesName = "newSeries";
-
-        given(mockShopRepository.findById(anyLong())).willReturn(Optional.of(mockShop));
-        given(mockAccountRepository.findByEmail(anyString())).willReturn(Optional.of(mockAccount));
-        given(mockProductSeriesRepository.findBySeriesName(anyString())).willReturn(Optional.empty());
-
-        var response = sellerProductRegistrationService.registerProductSeries(SHOP_ID, ACCOUNT_EMAIL, seriesName);
-
-        then(mockShopRepository).should(times(1)).findById(anyLong());
-        then(mockAccountRepository).should(times(1)).findByEmail(anyString());
-        then(mockProductSeriesRepository).should(times(1)).findBySeriesName(anyString());
-
-        assertThat(response.seriesName()).isEqualTo(seriesName);
-    }
-
-    @Test
     void 중복된_상세_카테고리_이름은_등록할수없음() {
         var topCategory = ProductMainCategory.GAME;
         var duplicateDetailCategoryName = "duplicate";
@@ -136,24 +119,9 @@ class SellerProductRegistrationServiceTest {
         then(mockProductCustomCategoryRepository).shouldHaveNoMoreInteractions();
     }
 
-    @Test
-    void 중복된_시리즈_이름은_등록할수없음() {
-        var duplicateSeriesName = "duplicate";
-
-        given(mockShopRepository.findById(anyLong())).willReturn(Optional.of(mockShop));
-        given(mockAccountRepository.findByEmail(anyString())).willReturn(Optional.of(mockAccount));
-
-        assertThatThrownBy(() -> sellerProductRegistrationService.registerProductSeries(SHOP_ID, ACCOUNT_EMAIL, duplicateSeriesName))
-                .isExactlyInstanceOf(InvalidProductSeriesException.class);
-
-        then(mockShopRepository).should(times(1)).findById(anyLong());
-        then(mockAccountRepository).should(times(1)).findByEmail(anyString());
-        then(mockProductSeriesRepository).should(times(1)).findBySeriesName(anyString());
-        then(mockProductSeriesRepository).shouldHaveNoMoreInteractions();
-    }
 
     @Test
-    void 상세_카테고리와_시리즈_할인_없이_즉시_판매_상품_등록() {
+    void 상세_카테고리_할인_없이_즉시_판매_상품_등록() {
         var tempProductId = 1L;
         var name = "test product";
         var description = "test description";
@@ -215,7 +183,6 @@ class SellerProductRegistrationServiceTest {
         var type = ProductType.ANALOGUE;
         var isImmediateSale = false;
         var customCategoryIds = List.of(1L, 2L, 3L);
-        var seriesIds = List.of(1L);
 
         var mockProductDetailCategories = customCategoryIds.stream()
                 .map(d -> mock(ProductCustomCategory.class))
@@ -232,7 +199,6 @@ class SellerProductRegistrationServiceTest {
                 .status(stockStatus)
                 .type(type)
                 .customCategoryIds(customCategoryIds)
-                .seriesIds(seriesIds)
                 .build();
 
         given(mockShopRepository.findById(anyLong())).willReturn(Optional.of(mockShop));
@@ -360,7 +326,7 @@ class SellerProductRegistrationServiceTest {
         var modifyProductId = 1L;
         var modifyName = "test modify product";
         var modifyDescription = "test modify description";
-        var modifyTopCategory = ProductMainCategory.IDOL;
+        var modifyMainCategory = ProductMainCategory.IDOL;
         var modifyType = ProductType.ANALOGUE_EXCLUSIVE;
 
         var productMetadataModifyInfo = UpdateProductMetadataRequest.builder()
@@ -369,7 +335,7 @@ class SellerProductRegistrationServiceTest {
                 .accountEmail(ACCOUNT_EMAIL)
                 .modifyName(modifyName)
                 .modifyDescription(modifyDescription)
-                .modifyTopCategory(modifyTopCategory)
+                .modifyTopCategory(modifyMainCategory)
                 .modifyType(modifyType)
                 .build();
 
@@ -384,7 +350,7 @@ class SellerProductRegistrationServiceTest {
         then(mockProductRepository).should(times(1)).findById(anyLong());
         then(mockProductCustomCategoryRepository).shouldHaveNoInteractions();
         then(mockProductSeriesRepository).shouldHaveNoInteractions();
-        then(mockProduct).should(times(1)).updateMetadata(modifyName, modifyDescription, modifyType, modifyTopCategory, null, null);
+        then(mockProduct).should(times(1)).updateMetadata(modifyName, modifyDescription, modifyType, modifyMainCategory, null);
     }
 
     @Test

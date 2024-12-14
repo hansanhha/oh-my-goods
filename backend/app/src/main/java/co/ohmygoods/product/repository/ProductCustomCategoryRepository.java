@@ -15,10 +15,10 @@ public interface ProductCustomCategoryRepository extends CrudRepository<ProductC
     @Query("SELECT pdc " +
             "FROM ProductCustomCategory pdc " +
             "JOIN pdc.shop on pdc.shop = :shop " +
-            "WHERE pdc.topCategory = :topCategoryName")
-    List<ProductCustomCategory> findAllByShopAndTopCategoryName(Shop shop, String topCategoryName);
+            "WHERE pdc.customCategoryName = :customCategoryName")
+    List<ProductCustomCategory> findAllByShopAndCustomCategoryName(Shop shop, String customCategoryName);
 
-    Optional<ProductCustomCategory> findByCategoryName(String categoryName);
+    Optional<ProductCustomCategory> findByCustomCategoryName(String customCategoryName);
 
     @Query("SELECT pdc " +
             "FROM ProductCustomCategory pdc " +
