@@ -94,34 +94,8 @@ public class Order extends BaseEntity {
         return !orderStatus.equals(OrderStatus.ORDERED) && !orderStatus.equals(OrderStatus.PACKAGING);
     }
 
-    public void ordered() {
-        status = OrderStatus.ORDERED;
-    }
-
     public boolean isReady() {
         return status.equals(OrderStatus.ORDER_READY);
-    }
-
-    public void ready() {
-        try {
-            status = OrderStatus.ORDER_READY;
-        } catch (ProductException e) {
-            status = OrderStatus.ORDER_FAILED_LACK_QUANTITY;
-            OrderException.throwCauseInvalidPurchaseQuantity(orderedQuantity);
-        } catch (ProductStockStatusException e) {
-            status = OrderStatus.ORDER_FAILED_INVALID_PRODUCT_STOCK_STATUS;
-            OrderException.throwCauseInvalidProductStockStatus(product.getStockStatus().getMessage());
-        }
-    }
-
-    public void cancel() {
-        product.increase(orderedQuantity);
-        status = OrderStatus.CANCELED_ORDER;
-    }
-
-    public void fail(OrderStatus cause) {
-        product.increase(orderedQuantity);
-        status = cause;
     }
 
     public boolean isOrderer(OAuth2Account account) {
