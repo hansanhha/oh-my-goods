@@ -24,6 +24,7 @@ public enum OrderStatus {
     INVALID_ADDRESS("유효하지 않는 배송지"),
     FAILED_OTHER("기타"),
 
+    ORDER_START("주문 시작"),
     ORDER_READY("주문 준비"),
     ORDERED("주문 완료"),
     ORDER_FAILED_LACK_QUANTITY("주문 실패(수량 부족)"),

@@ -1,13 +1,10 @@
 package co.ohmygoods.order.model.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
-import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.OrderStatus;
 import co.ohmygoods.product.model.entity.Product;
-import co.ohmygoods.product.exception.ProductException;
-import co.ohmygoods.product.exception.ProductStockStatusException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,7 +31,7 @@ public class Order extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
-    private Address deliveryAddress;
+    private DeliveryAddress deliveryAddress;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private CouponUsage couponUsage;
@@ -48,13 +45,22 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private int originalPrice;
 
-    @Column(nullable = false)
-    private int discountedPrice;
+    @Column(nullable = false, updatable = false)
+    private int couponDiscountedPrice;
+
+    @Column(nullable = false, updatable = false)
+    private int productDiscountedPrice;
+
+    @Column(nullable = false, updatable = false)
+    private int totalDiscountedPrice;
+
+    @Column(nullable = false, updatable = false)
+    private int purchasePrice;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private OrderStatus status = OrderStatus.PAYING;
+    private OrderStatus status = OrderStatus.ORDER_START;
 
     private LocalDateTime deliveredAt;
 
@@ -82,7 +88,7 @@ public class Order extends BaseEntity {
         this.orderedQuantity = quantity;
     }
 
-    public void updateDeliveryAddress(Address deliveryAddress) {
+    public void updateDeliveryAddress(DeliveryAddress deliveryAddress) {
         if (isCannotUpdateOrder(status)) {
             OrderException.throwCauseInvalidOrderStatus(status);
         }

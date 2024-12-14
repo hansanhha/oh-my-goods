@@ -44,9 +44,7 @@ public class CartService {
         var account = accountRepository.findByEmail(request.email())
                 .orElseThrow(() -> new AccountNotFoundException(request.email()));
 
-        if (!product.isOnSold()) {
-            throw CartException.invalidProductStatus(product.getId());
-        }
+        product.validateSaleStatus();
 
         var cartCount = cartRepository.countAllByAccount(account);
 
@@ -64,7 +62,7 @@ public class CartService {
 
         var product = cart.getProduct();
 
-        if (product.isInvalidRequestQuantity(request.updateQuantity())) {
+        if (product.isValidRequestQuantity(request.updateQuantity())) {
             throw CartException.exceedProductMaximumQuantity(product.getId(), product.getPurchaseMaximumQuantity());
         }
 

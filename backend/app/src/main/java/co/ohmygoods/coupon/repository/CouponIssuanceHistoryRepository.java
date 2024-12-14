@@ -15,8 +15,12 @@ public interface CouponIssuanceHistoryRepository extends CrudRepository<CouponIs
 
     List<CouponIssuanceHistory> findAllByCouponAndAccount(Coupon coupon, OAuth2Account account);
 
-    @Query("SELECT cih FROM CouponIssuanceHistory cih JOIN FETCH Coupon c WHERE cih.id = :id")
-    Optional<CouponIssuanceHistory> fetchById(Long id);
+    @Query("SELECT cih " +
+            "FROM CouponIssuanceHistory cih " +
+            "JOIN FETCH cih.account a ON a = :account " +
+            "JOIN FETCH cih.coupon c ON c = :coupon " +
+            "WHERE cih.couponUsageStatus = 'ISSUED' ")
+    Optional<CouponIssuanceHistory> fetchFirstByAccountAndCouponAndCouponUsageStatusIssued(OAuth2Account account, Coupon coupon);
 
     @Query("SELECT cih " +
             "FROM CouponIssuanceHistory  cih " +

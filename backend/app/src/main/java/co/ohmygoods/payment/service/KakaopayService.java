@@ -194,7 +194,7 @@ public class KakaopayService
                 .productId(product.getId())
                 .productName(product.getName())
                 .orderedQuantity(order.getOrderedQuantity())
-                .totalPrice(order.getDiscountedPrice())
+                .totalPrice(order.getTotalDiscountedPrice())
                 .vendorName(KAKAOPAY.name())
                 .orderStatus(order.getStatus())
                 .paymentStatus(payment.getStatus())
@@ -223,8 +223,8 @@ public class KakaopayService
                     account.getEmail(),
                     product.getName(),
                     order.getOrderedQuantity(),
-                    order.getDiscountedPrice(),
-                    order.getDiscountedPrice(),
+                    order.getTotalDiscountedPrice(),
+                    order.getTotalDiscountedPrice(),
                     kakaoPayProperties.getApprovalRedirectUrl().concat("?order_number=").concat(order.getOrderNumber()),
                     kakaoPayProperties.getCancelRedirectUrl(),
                     kakaoPayProperties.getFailRedirectUrl());

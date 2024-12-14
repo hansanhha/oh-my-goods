@@ -2,7 +2,7 @@ package co.ohmygoods.payment.service;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.order.model.entity.Address;
+import co.ohmygoods.order.model.entity.DeliveryAddress;
 import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.config.PaymentServiceConfig;
@@ -58,7 +58,7 @@ class KakaopayServiceTest {
     private OAuth2Account mockAccount;
 
     @Mock
-    private Address mockAddress;
+    private DeliveryAddress mockDeliveryAddress;
 
     private static final String ACCOUNT_EMAIL = "testAccount@email.com";
 
@@ -77,7 +77,7 @@ class KakaopayServiceTest {
                 .shop(mockShop)
                 .name(PRODUCT_NAME)
                 .type(ProductType.ANALOGUE_LIMITATION_EXCLUSIVE)
-                .topCategory(ProductMainCategory.MOVIE)
+                .mainCategory(ProductMainCategory.MOVIE)
                 .stockStatus(ProductStockStatus.ON_SALES)
                 .remainingQuantity(REMAINING_QUANTITY)
                 .purchaseMaximumQuantity(5)
@@ -87,7 +87,7 @@ class KakaopayServiceTest {
         newOrder = Order.builder()
                 .account(mockAccount)
                 .product(product)
-                .deliveryAddress(mockAddress)
+                .deliveryAddress(mockDeliveryAddress)
                 .orderedQuantity(ORDERED_QUANTITY)
                 .orderNumber(ORDER_NUMBER)
                 .originalPrice(10000)
@@ -112,7 +112,7 @@ class KakaopayServiceTest {
                 .thenReturn(Optional.of(newOrder));
 
         PaymentService.ReadyResponse ready = kakaopayService.ready(PaymentService.UserAgent.DESKTOP,
-                1L, mockAccount.getEmail(), 1L, newOrder.getDiscountedPrice());
+                1L, mockAccount.getEmail(), 1L, newOrder.getTotalDiscountedPrice());
 
         System.out.println(ready);
     }
