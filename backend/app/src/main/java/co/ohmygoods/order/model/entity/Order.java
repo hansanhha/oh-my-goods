@@ -1,6 +1,7 @@
 package co.ohmygoods.order.model.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.OrderStatus;
@@ -35,6 +36,9 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "address_id")
     private Address deliveryAddress;
 
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private CouponUsage couponUsage;
+
     @Column(nullable = false)
     private int orderedQuantity;
 
@@ -67,7 +71,7 @@ public class Order extends BaseEntity {
     }
 
     public void updatePurchaseQuantity(int quantity) {
-        if (quantity <= 0 || getProduct().isInvalidRequestQuantity(quantity)) {
+        if (quantity <= 0 || getProduct().isValidRequestQuantity(quantity)) {
             OrderException.throwCauseInvalidPurchaseQuantity(quantity);
         }
 
@@ -100,7 +104,6 @@ public class Order extends BaseEntity {
 
     public void ready() {
         try {
-            product.decrease(orderedQuantity);
             status = OrderStatus.ORDER_READY;
         } catch (ProductException e) {
             status = OrderStatus.ORDER_FAILED_LACK_QUANTITY;
