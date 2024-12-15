@@ -22,16 +22,16 @@ public record ApprovePaymentResponse(boolean isApproveSuccess,
                                      LocalDateTime approvedAt,
                                      String failCauseMsg) {
 
-    public static ApprovePaymentResponse success(ApprovePaymentRequest request, PaymentService.ApproveResponse response, LocalDateTime attemptedAt) {
-        return new ApprovePaymentResponse(true, request.orderNumber(), response.paymentId(),
-                response.orderId(), response.buyerEmail(), response.productId(), response.productName(),
+    public static ApprovePaymentResponse success(ApprovePaymentRequest request, PaymentService.PaymentApproveResponse response, LocalDateTime attemptedAt) {
+        return new ApprovePaymentResponse(true, request.orderTransactionId(), response.paymentId(),
+                response.orderId(), response.accountEmail(), response.productId(), response.productName(),
                 response.orderedQuantity(), response.totalPrice(), response.vendorName(), response.orderStatus(),
                 response.paymentStatus(), attemptedAt, response.approvedAt(), null);
     }
 
-    public static ApprovePaymentResponse fail(ApprovePaymentRequest request, PaymentService.ApproveResponse response, LocalDateTime attemptedAt) {
-        return new ApprovePaymentResponse(false, request.orderNumber(), response.paymentId(),
-                response.orderId(), response.buyerEmail(), response.productId(), response.productName(),
+    public static ApprovePaymentResponse fail(ApprovePaymentRequest request, PaymentService.PaymentApproveResponse response, LocalDateTime attemptedAt) {
+        return new ApprovePaymentResponse(false, request.orderTransactionId(), response.paymentId(),
+                response.orderId(), response.accountEmail(), response.productId(), response.productName(),
                 response.orderedQuantity(), response.totalPrice(), response.vendorName(), response.orderStatus(),
                 response.paymentStatus(), attemptedAt, null, response.externalPaymentError().errorMsg());
     }

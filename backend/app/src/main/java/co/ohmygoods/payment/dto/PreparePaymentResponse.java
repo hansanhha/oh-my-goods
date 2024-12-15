@@ -16,15 +16,15 @@ public record PreparePaymentResponse(boolean isPrepareSuccess,
                                      LocalDateTime attemptedAt,
                                      LocalDateTime preparedAt) {
 
-    public static PreparePaymentResponse success(PreparePaymentRequest request, PaymentService.ReadyResponse response, LocalDateTime attemptedAt) {
+    public static PreparePaymentResponse success(PreparePaymentRequest request, PaymentService.PaymentReadyResponse response, LocalDateTime attemptedAt) {
         return new PreparePaymentResponse(true, request.userAgent(), request.shopId(),
-                request.buyerEmail(), request.orderId(), request.totalPrice(), request.externalPaymentVendor().name(),
+                request.accountEmail(), request.orderId(), request.totalPrice(), request.externalPaymentVendor().name(),
                 response.nextUrl(), null, attemptedAt, response.readyAt());
     }
 
-    public static PreparePaymentResponse fail(PreparePaymentRequest request, PaymentService.ReadyResponse response, LocalDateTime attemptedAt) {
+    public static PreparePaymentResponse fail(PreparePaymentRequest request, PaymentService.PaymentReadyResponse response, LocalDateTime attemptedAt) {
         return new PreparePaymentResponse(true, request.userAgent(), request.shopId(),
-                request.buyerEmail(), request.orderId(), request.totalPrice(), request.externalPaymentVendor().name(),
+                request.accountEmail(), request.orderId(), request.totalPrice(), request.externalPaymentVendor().name(),
                 null, response.externalPaymentError().errorMsg(), attemptedAt, null);
     }
 }

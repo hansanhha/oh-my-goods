@@ -1,8 +1,8 @@
 package co.ohmygoods.payment.service;
 
 import co.ohmygoods.order.model.vo.OrderStatus;
-import co.ohmygoods.payment.vo.PaymentStatus;
 import co.ohmygoods.payment.vo.ExternalPaymentVendor;
+import co.ohmygoods.payment.vo.PaymentStatus;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -10,9 +10,9 @@ import java.util.Map;
 
 public interface PaymentService {
 
-    ReadyResponse ready(UserAgent userAgent, Long shopId, String buyerEmail, Long orderId, int totalPrice);
+    PaymentReadyResponse ready(UserAgent userAgent, String accountEmail, Long orderId, String paymentName);
 
-    ApproveResponse approve(String orderNumber, Map<String, String> properties);
+    PaymentApproveResponse approve(String orderNumber, Map<String, String> properties);
 
     void fail(String transactionId);
 
@@ -26,37 +26,44 @@ public interface PaymentService {
         MOBILE_APP
     }
 
-    record ReadyResponse(String transactionId,
-                         Long orderId,
-                         String buyerEmail,
-                         boolean isReady,
-                         LocalDateTime readyAt,
-                         String nextUrl,
-                         ExternalPaymentError externalPaymentError) {
+    record PaymentReadyResponse(String transactionId,
+                                Long orderId,
+                                String buyerEmail,
+                                boolean isReady,
+                                LocalDateTime readyAt,
+                                String nextUrl,
+                                ExternalPaymentError externalPaymentError) {
 
-        static ReadyResponse success(String transactionId, Long orderId, String buyerEmail, String nextUrl, LocalDateTime readyAt) {
-            return new ReadyResponse(transactionId, orderId, buyerEmail, true, readyAt, nextUrl, null);
+        static PaymentReadyResponse success(String transactionId, Long orderId, String buyerEmail, String nextUrl, LocalDateTime readyAt) {
+            return new PaymentReadyResponse(transactionId, orderId, buyerEmail, true, readyAt, nextUrl, null);
         }
 
-        static ReadyResponse fail(String externalServiceErrorCode, String externalServiceErrorMsg) {
-            return new ReadyResponse(null, null, null, false, null, null, new ExternalPaymentError(externalServiceErrorCode, externalServiceErrorMsg));
+        static PaymentReadyResponse fail(String externalServiceErrorCode, String externalServiceErrorMsg) {
+            return new PaymentReadyResponse(null, null, null, false, null, null, new ExternalPaymentError(externalServiceErrorCode, externalServiceErrorMsg));
         }
     }
 
-    @Builder
-    record ApproveResponse(boolean isApproved,
-                           Long paymentId,
-                           Long orderId,
-                           String buyerEmail,
-                           Long productId,
-                           String productName,
-                           int orderedQuantity,
-                           int totalPrice,
-                           String vendorName,
-                           OrderStatus orderStatus,
-                           PaymentStatus paymentStatus,
-                           LocalDateTime approvedAt,
-                           ExternalPaymentError externalPaymentError) {
+    record PaymentApproveResponse(boolean isApproved,
+                                  Long paymentId,
+                                  Long orderId,
+                                  String accountEmail,
+                                  int paymentAmount,
+                                  String vendorName,
+                                  PaymentStatus paymentStatus,
+                                  ExternalPaymentError externalPaymentError,
+                                  LocalDateTime approvedAt) {
+
+        public static PaymentApproveResponse fail(Long paymentId, Long orderId, String accountEmail, int paymentAmount,
+                                                  String vendorName, PaymentStatus paymentStatus, ExternalPaymentError externalPaymentError) {
+
+            return new PaymentApproveResponse(false, paymentId, orderId, accountEmail, paymentAmount, vendorName, paymentStatus, externalPaymentError, null);
+        }
+
+        public static PaymentApproveResponse success(Long paymentId, Long orderId, String accountEmail, int paymentAmount,
+                                                     String vendorName, PaymentStatus paymentStatus, LocalDateTime approvedAt) {
+            return new PaymentApproveResponse(true, paymentId, orderId, accountEmail, paymentAmount, vendorName, paymentStatus, null, approvedAt);
+        }
+
     }
 
     record ExternalPaymentError(String errorCode,

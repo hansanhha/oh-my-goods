@@ -27,7 +27,7 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "account_id")
     private OAuth2Account account;
 
-    private UUID transactionId;
+    private String transactionId;
 
     private OrderStatus entireOrderStatus;
 
@@ -40,7 +40,7 @@ public class Order extends BaseEntity {
 
     private int discountPrice;
 
-    public static Order start(OAuth2Account account, UUID transactionId, List<OrderItem> orderItems, int totalPrice, int discountPrice) {
+    public static Order start(OAuth2Account account, String transactionId, List<OrderItem> orderItems, int totalPrice, int discountPrice) {
         List<OrderItem> orderItems_ = Objects.requireNonNullElseGet(orderItems, Collections::emptyList);
         int totalPrice_ = Math.max(totalPrice, 0);
         int discountPrice_ = Math.max(discountPrice, 0);

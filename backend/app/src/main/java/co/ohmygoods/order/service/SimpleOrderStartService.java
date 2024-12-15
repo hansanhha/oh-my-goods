@@ -134,7 +134,7 @@ public class SimpleOrderStartService implements OrderStartService {
                         });
 
         // 주문 엔티티 생성
-        Order newOrder = Order.start(account, UUID.randomUUID(), orderItems,
+        Order newOrder = Order.start(account, UUID.randomUUID().toString(), orderItems,
                 summarizingPriceMap.get(TOTAL_PURCHASE_PRICE),
                 summarizingPriceMap.get(TOTAL_COUPON_DISCOUNT_PRICE) +
                         summarizingPriceMap.get(TOTAL_PRODUCT_DISCOUNT_PRICE));
@@ -142,7 +142,7 @@ public class SimpleOrderStartService implements OrderStartService {
         Order order = orderRepository.save(newOrder);
 
         PreparePaymentRequest preparePaymentRequest = new PreparePaymentRequest(request.orderPaymentMethod(),
-                PaymentService.UserAgent.DESKTOP, account.getEmail(), order.getId(), order.getTotalPrice());
+                PaymentService.UserAgent.DESKTOP, account.getEmail(), order.getId(), generatePaymentName(order));
 
         // 결제 준비 요청(외부 api 호출)
         PreparePaymentResponse preparePaymentResponse = paymentGateway.preparePayment(preparePaymentRequest);
@@ -161,6 +161,20 @@ public class SimpleOrderStartService implements OrderStartService {
         double discountPrice = originalPrice - (originalPrice * (double) discountRate / 100);
         BigDecimal halfUpDiscountPrice = BigDecimal.valueOf(discountPrice).setScale(0, RoundingMode.HALF_UP);
         return halfUpDiscountPrice.intValue();
+    }
+
+    private String generatePaymentName(Order order) {
+        List<OrderItem> orderItems = order.getOrderItems();
+        int orderItemSize = orderItems.size();
+
+        if (!orderItems.isEmpty()) {
+            return orderItems.getFirst().getProduct().getName()
+                    .concat("외 ")
+                    .concat(String.valueOf(orderItemSize))
+                    .concat("개 상품 결제");
+        }
+
+        return "oh-my-goods 결제";
     }
 
 }

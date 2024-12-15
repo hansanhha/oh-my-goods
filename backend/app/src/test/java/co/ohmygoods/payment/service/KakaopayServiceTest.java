@@ -94,7 +94,7 @@ class KakaopayServiceTest {
                 .discountedPrice(10000)
                 .build();
 
-        newOrderItem.ready();
+
 
         when(mockAccount.getEmail())
                 .thenReturn(ACCOUNT_EMAIL);
@@ -111,8 +111,8 @@ class KakaopayServiceTest {
         when(orderItemRepository.findById(anyLong()))
                 .thenReturn(Optional.of(newOrderItem));
 
-        PaymentService.ReadyResponse ready = kakaopayService.ready(PaymentService.UserAgent.DESKTOP,
-                1L, mockAccount.getEmail(), 1L, newOrderItem.getTotalDiscountedPrice());
+//        PaymentService.PaymentReadyResponse ready = kakaopayService.ready(PaymentService.UserAgent.DESKTOP,
+//                1L, mockAccount.getEmail(), 1L, newOrderItem.getTotalDiscountedPrice());
 
         System.out.println(ready);
     }

@@ -21,8 +21,8 @@ public class PaymentGateway {
         LocalDateTime attemptAt = LocalDateTime.now();
 
         PaymentService paymentService = findSupportPaymentService(request.externalPaymentVendor());
-        PaymentService.ReadyResponse response = paymentService.ready(request.userAgent(),
-                request.shopId(), request.buyerEmail(), request.orderId(), request.totalPrice());
+        PaymentService.PaymentReadyResponse response = paymentService.ready(request.userAgent(),
+                request.accountEmail(), request.orderId(), request.paymentName());
 
         return response.isReady()
                 ? PreparePaymentResponse.success(request, response, attemptAt)
@@ -33,7 +33,7 @@ public class PaymentGateway {
         LocalDateTime attemptAt = LocalDateTime.now();
 
         PaymentService paymentService = findSupportPaymentService(request.externalPaymentVendor());
-        PaymentService.ApproveResponse response = paymentService.approve(request.orderNumber(), request.properties());
+        PaymentService.PaymentApproveResponse response = paymentService.approve(request.orderTransactionId(), request.properties());
 
         return response.isApproved()
                 ? ApprovePaymentResponse.success(request, response, attemptAt)
