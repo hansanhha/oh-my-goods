@@ -2,8 +2,8 @@ package co.ohmygoods.payment.service;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.order.model.entity.Order;
-import co.ohmygoods.order.repository.OrderRepository;
+import co.ohmygoods.order.model.entity.OrderItem;
+import co.ohmygoods.order.repository.OrderItemRepository;
 import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.entity.Payment;
 import co.ohmygoods.payment.exception.PaymentException;
@@ -39,16 +39,16 @@ public class KakaopayService
     private final RestClient kakaoPayApiClient;
 
     private final ShopRepository shopRepository;
-    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
     private final AccountRepository accountRepository;
     private final PaymentRepository paymentRepository;
 
     public KakaopayService(PaymentServiceConfig.KakaoPayProperties kakaoPayProperties, @Qualifier("kakaopayApiRestClient") RestClient kakaoPayApiClient,
-                           ShopRepository shopRepository, OrderRepository orderRepository, AccountRepository accountRepository, PaymentRepository paymentRepository) {
+                           ShopRepository shopRepository, OrderItemRepository orderItemRepository, AccountRepository accountRepository, PaymentRepository paymentRepository) {
         this.kakaoPayProperties = kakaoPayProperties;
         this.kakaoPayApiClient = kakaoPayApiClient;
         this.shopRepository = shopRepository;
-        this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
         this.accountRepository = accountRepository;
         this.paymentRepository = paymentRepository;
     }
@@ -69,12 +69,12 @@ public class KakaopayService
     public ReadyResponse ready(UserAgent userAgent, Long shopId, String buyerEmail, Long orderId, int totalPrice) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(() -> PaymentException.notFoundShop(shopId));
         OAuth2Account buyer = accountRepository.findByEmail(buyerEmail).orElseThrow(() -> PaymentException.notFoundAccount(buyerEmail));
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> PaymentException.notFoundOrder(orderId));
+        OrderItem orderItem = orderItemRepository.findById(orderId).orElseThrow(() -> PaymentException.notFoundOrder(orderId));
 
-        Payment payment = Payment.create(shop, buyer, order, KAKAOPAY, totalPrice);
+        Payment payment = Payment.create(shop, buyer, orderItem, KAKAOPAY, totalPrice);
         paymentRepository.save(payment);
 
-        KakaopayPreparationRequest kakaoPayPreparationRequest = KakaopayPreparationRequest.create(payment, buyer, order, order.getProduct(), kakaoPayProperties);
+        KakaopayPreparationRequest kakaoPayPreparationRequest = KakaopayPreparationRequest.create(payment, buyer, orderItem, orderItem.getProduct(), kakaoPayProperties);
         PreparationResult<KakaopayPreparationResponse, KakaopayRequestFailureCause> externalPreparationResult = sendExternalPaymentPreparationRequest(kakaoPayPreparationRequest);
 
         if (!externalPreparationResult.success()) {
@@ -89,19 +89,19 @@ public class KakaopayService
         KakaopayPreparationResponse preparationResponse = externalPreparationResult.preparationResponse();
         payment.ready(preparationResponse.tid(), LocalDateTime.ofInstant(preparationResponse.createdAt().toInstant(), ZoneId.systemDefault()));
 
-        return ReadyResponse.success(payment.getTransactionId(), order.getId(), buyerEmail,
+        return ReadyResponse.success(payment.getTransactionId(), orderItem.getId(), buyerEmail,
                 getNextRedirectUrlByUserAgent(userAgent, preparationResponse), LocalDateTime.ofInstant(preparationResponse.createdAt().toInstant(), ZoneId.systemDefault()));
     }
 
     @Override
     public ApproveResponse approve(String orderNumber, Map<String, String> properties) {
-        Order order = orderRepository.fetchProductByOrderNumber(orderNumber).orElseThrow(() -> PaymentException.notFoundOrder(orderNumber));
-        Payment payment = paymentRepository.fetchByOrderWithOrderAndAccountAndProduct(order).orElseThrow(() -> PaymentException.notFoundPayment(order.getId()));
+        OrderItem orderItem = orderItemRepository.fetchProductByOrderNumber(orderNumber).orElseThrow(() -> PaymentException.notFoundOrder(orderNumber));
+        Payment payment = paymentRepository.fetchByOrderWithOrderAndAccountAndProduct(orderItem).orElseThrow(() -> PaymentException.notFoundPayment(orderItem.getId()));
 
-        OAuth2Account account = order.getAccount();
+        OAuth2Account account = orderItem.getAccount();
 
         KakaopayApprovalRequest kakaoPayApprovalRequest = new KakaopayApprovalRequest(kakaoPayProperties.getCid(),
-                payment.getTransactionId(), order.getOrderNumber(),
+                payment.getTransactionId(), orderItem.getOrderNumber(),
                 account.getEmail(),
                 properties.get("pgToken"));
         ApprovalResult<KakaopayApprovalResponse, KakaopayRequestFailureCause> externalApprovalResult = sendExternalPaymentApprovalRequest(kakaoPayApprovalRequest);
@@ -110,11 +110,11 @@ public class KakaopayService
             KakaopayRequestFailureCause externalError = externalApprovalResult.externalError();
             handlePaymentFailure(payment, externalError);
 
-            return createApproveFailResponse(payment, order, account, order.getProduct(), externalError);
+            return createApproveFailResponse(payment, orderItem, account, orderItem.getProduct(), externalError);
         }
 
         payment.succeed();
-        return createApproveSuccessResponse(payment, order, account, order.getProduct(), externalApprovalResult);
+        return createApproveSuccessResponse(payment, orderItem, account, orderItem.getProduct(), externalApprovalResult);
     }
 
     @Override
@@ -172,31 +172,31 @@ public class KakaopayService
         };
     }
 
-    private ApproveResponse createApproveFailResponse(Payment payment, Order order, OAuth2Account account,
+    private ApproveResponse createApproveFailResponse(Payment payment, OrderItem orderItem, OAuth2Account account,
                                                       Product product, KakaopayRequestFailureCause cause) {
-        return createApproveResponse(false, payment, order, account, product,
+        return createApproveResponse(false, payment, orderItem, account, product,
                 null, cause != null ? new ExternalPaymentError(cause.errorCode(), cause.errorMessage()) : null);
     }
 
-    private ApproveResponse createApproveSuccessResponse(Payment payment, Order order, OAuth2Account account,
+    private ApproveResponse createApproveSuccessResponse(Payment payment, OrderItem orderItem, OAuth2Account account,
                                                          Product product, ApprovalResult<KakaopayApprovalResponse, KakaopayRequestFailureCause> approvalResult) {
-        return createApproveResponse(true, payment, order, account, product,
+        return createApproveResponse(true, payment, orderItem, account, product,
                 LocalDateTime.from(approvalResult.approvalResponse().approvedAt().toInstant()), null);
     }
 
-    private ApproveResponse createApproveResponse(boolean isApproved, Payment payment, Order order, OAuth2Account account, Product product,
+    private ApproveResponse createApproveResponse(boolean isApproved, Payment payment, OrderItem orderItem, OAuth2Account account, Product product,
                                                   LocalDateTime approvedAt, ExternalPaymentError externalPaymentError) {
         return ApproveResponse.builder()
                 .isApproved(isApproved)
                 .paymentId(payment.getId())
-                .orderId(order.getId())
+                .orderId(orderItem.getId())
                 .buyerEmail(account.getEmail())
                 .productId(product.getId())
                 .productName(product.getName())
-                .orderedQuantity(order.getOrderedQuantity())
-                .totalPrice(order.getTotalDiscountedPrice())
+                .orderedQuantity(orderItem.getOrderQuantity())
+                .totalPrice(orderItem.getTotalDiscountedPrice())
                 .vendorName(KAKAOPAY.name())
-                .orderStatus(order.getStatus())
+                .orderStatus(orderItem.getOrderStatus())
                 .paymentStatus(payment.getStatus())
                 .approvedAt(approvedAt)
                 .externalPaymentError(externalPaymentError)
@@ -215,17 +215,17 @@ public class KakaopayService
                                       String cancelURL,
                                       String failURL) {
 
-        private static KakaopayPreparationRequest create(Payment payment, OAuth2Account account, Order order,
+        private static KakaopayPreparationRequest create(Payment payment, OAuth2Account account, OrderItem orderItem,
                                                          Product product, PaymentServiceConfig.KakaoPayProperties kakaoPayProperties) {
             return new KakaopayPreparationRequest(
                     kakaoPayProperties.getCid(),
-                    order.getOrderNumber(),
+                    orderItem.getOrderNumber(),
                     account.getEmail(),
                     product.getName(),
-                    order.getOrderedQuantity(),
-                    order.getTotalDiscountedPrice(),
-                    order.getTotalDiscountedPrice(),
-                    kakaoPayProperties.getApprovalRedirectUrl().concat("?order_number=").concat(order.getOrderNumber()),
+                    orderItem.getOrderQuantity(),
+                    orderItem.getTotalDiscountedPrice(),
+                    orderItem.getTotalDiscountedPrice(),
+                    kakaoPayProperties.getApprovalRedirectUrl().concat("?order_number=").concat(orderItem.getOrderNumber()),
                     kakaoPayProperties.getCancelRedirectUrl(),
                     kakaoPayProperties.getFailRedirectUrl());
         }

@@ -10,7 +10,7 @@ import java.util.List;
     - 결제 정보
     - 총 결제 금액
 */
-public record OrderReadyRequest(String orderAccountEmail,
+public record OrderStartRequest(String orderAccountEmail,
                                 List<OrderProductDetail> orderDetails,
                                 OrderPaymentMethod orderPaymentMethod,
                                 Long deliveryAddressId,

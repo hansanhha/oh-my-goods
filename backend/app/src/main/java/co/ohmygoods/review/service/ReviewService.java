@@ -4,8 +4,8 @@ import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.file.model.vo.StorageStrategy;
 import co.ohmygoods.file.service.FileService;
-import co.ohmygoods.order.model.entity.Order;
-import co.ohmygoods.order.repository.OrderRepository;
+import co.ohmygoods.order.model.entity.OrderItem;
+import co.ohmygoods.order.repository.OrderItemRepository;
 import co.ohmygoods.review.exception.ReviewException;
 import co.ohmygoods.review.model.entity.Review;
 import co.ohmygoods.review.model.entity.ReviewComment;
@@ -32,7 +32,7 @@ public class ReviewService {
     private final FileService fileService;
     private final ReviewImageService reviewImageService;
     private final AccountRepository accountRepository;
-    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewImageInfoRepository reviewImageInfoRepository;
     private final ReviewCommentRepository reviewCommentRepository;
@@ -66,22 +66,22 @@ public class ReviewService {
         OAuth2Account account = accountRepository.findByEmail(request.accountEmail())
                 .orElseThrow(ReviewException::notFoundAccount);
 
-        Order order = orderRepository.fetchProductByOrderNumber(request.reviewOrderNumber())
+        OrderItem orderItem = orderItemRepository.fetchProductByOrderNumber(request.reviewOrderNumber())
                 .orElseThrow(ReviewException::notFoundOrder);
 
         /*
             하나의 주문 건엔 하나의 리뷰만 남길 수 있음
             해당 주문 건에 대해 이미 작성한 리뷰가 있는 경우 예외 발생
          */
-        reviewRepository.findReviewByOrder(order).ifPresent(review -> {
+        reviewRepository.findReviewByOrder(orderItem).ifPresent(review -> {
             throw ReviewException.alreadyWriteReview();
         });
 
-        if (!order.isOrderer(account)) {
+        if (!orderItem.getOrder().isOrderer(account)) {
             throw ReviewException.invalidReviewAuthority();
         }
 
-        Review savedReview = Review.write(order, order.getProduct(), account, request.reviewContent(), request.reviewStarRating());
+        Review savedReview = Review.write(orderItem, orderItem.getProduct(), account, request.reviewContent(), request.reviewStarRating());
 
         // 리뷰 이미지 업로드
         if (!request.reviewImages().isEmpty()) {

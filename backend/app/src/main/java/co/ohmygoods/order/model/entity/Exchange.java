@@ -28,7 +28,7 @@ public class Exchange extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exchange_target_order_id")
-    private Order exchangeTargetOrder;
+    private OrderItem exchangeTargetOrderItem;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id")
@@ -68,12 +68,12 @@ public class Exchange extends BaseEntity {
         this.requestResponse = requestResponse;
     }
 
-    public static Exchange requestByBuyer(Shop shop, Order requestOrder, String requestReason) {
+    public static Exchange requestByBuyer(Shop shop, OrderItem requestOrderItem, String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
             ExchangeException.throwCauseEmptyText();
         }
 
-        return new Exchange(0L, requestOrder, shop, null, null,
+        return new Exchange(0L, requestOrderItem, shop, null, null,
                 ExchangeStatus.REQUESTED_EXCHANGING, requestReason, null, null);
     }
 
@@ -87,7 +87,7 @@ public class Exchange extends BaseEntity {
         this.requestResponse = requestResponse;
         respondedAt = LocalDateTime.now();
         status = ExchangeStatus.EXCHANGED;
-        exchangeTargetOrder.updateOrderStatus(OrderStatus.EXCHANGED);
+        exchangeTargetOrderItem.updateOrderItemStatus(OrderStatus.ORDER_ITEM_EXCHANGED);
     }
 
     public void rejectByShopManager(OAuth2Account manager, String requestResponse) {
@@ -99,6 +99,6 @@ public class Exchange extends BaseEntity {
         this.requestResponse = requestResponse;
         respondedAt = LocalDateTime.now();
         status = ExchangeStatus.REJECTED_EXCHANGING;
-        exchangeTargetOrder.updateOrderStatus(OrderStatus.REJECTED_EXCHANGING);
+        exchangeTargetOrderItem.updateOrderItemStatus(OrderStatus.ORDER_ITEM_REJECTED_EXCHANGING);
     }
 }

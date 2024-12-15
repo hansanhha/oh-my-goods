@@ -4,15 +4,20 @@ import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.OrderStatus;
-import co.ohmygoods.product.model.entity.Product;
+import co.ohmygoods.payment.vo.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Order extends BaseEntity {
@@ -25,83 +30,36 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "account_id")
     private OAuth2Account account;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
+    private OrderStatus entireOrderStatus;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id")
-    private DeliveryAddress deliveryAddress;
+    private PaymentStatus paymentStatus;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private CouponUsage couponUsage;
+    @OneToMany(mappedBy = "order")
+    private List<OrderItem> orderItems = new ArrayList<>();
 
-    @Column(nullable = false)
-    private int orderedQuantity;
+    private int totalPrice;
 
-    @Column(nullable = false, updatable = false)
-    private String orderNumber;
+    private int discountPrice;
 
-    @Column(nullable = false)
-    private int originalPrice;
+    public static Order start(OAuth2Account account, List<OrderItem> orderItems, int totalPrice, int discountPrice) {
+        List<OrderItem> orderItems_ = Objects.requireNonNullElseGet(orderItems, Collections::emptyList);
+        int totalPrice_ = Math.max(totalPrice, 0);
+        int discountPrice_ = Math.max(discountPrice, 0);
 
-    @Column(nullable = false, updatable = false)
-    private int couponDiscountedPrice;
+        return new Order(0L, account, OrderStatus.ORDER_START, null, orderItems_, totalPrice_, discountPrice_);
+    }
 
-    @Column(nullable = false, updatable = false)
-    private int productDiscountedPrice;
-
-    @Column(nullable = false, updatable = false)
-    private int totalDiscountedPrice;
-
-    @Column(nullable = false, updatable = false)
-    private int purchasePrice;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private OrderStatus status = OrderStatus.ORDER_START;
-
-    private LocalDateTime deliveredAt;
-
-    public void updateOrderStatus(OrderStatus orderStatus) {
-        if (!this.status.isUpdatableStatus()) {
+    public void updateEntireOrderStatus(OrderStatus orderStatus) {
+        if (entireOrderStatus.isNotUpdatableOrderStatus()) {
             OrderException.throwCauseCannotUpdateStatus(orderStatus);
         }
 
-        if (orderStatus.equals(OrderStatus.DELIVERED)) {
-            deliveredAt = LocalDateTime.now();
-        }
-
-        this.status = orderStatus;
+        entireOrderStatus = orderStatus;
     }
 
-    public void updatePurchaseQuantity(int quantity) {
-        if (quantity <= 0 || getProduct().isValidRequestQuantity(quantity)) {
-            OrderException.throwCauseInvalidPurchaseQuantity(quantity);
-        }
-
-        if (isCannotUpdateOrder(status)) {
-            OrderException.throwCauseInvalidOrderStatus(status);
-        }
-
-        this.orderedQuantity = quantity;
-    }
-
-    public void updateDeliveryAddress(DeliveryAddress deliveryAddress) {
-        if (isCannotUpdateOrder(status)) {
-            OrderException.throwCauseInvalidOrderStatus(status);
-        }
-
-        this.deliveryAddress = deliveryAddress;
-    }
-
-    public static boolean isCannotUpdateOrder(OrderStatus orderStatus) {
-        return !orderStatus.equals(OrderStatus.ORDERED) && !orderStatus.equals(OrderStatus.PACKAGING);
-    }
-
-    public boolean isReady() {
-        return status.equals(OrderStatus.ORDER_READY);
+    public void addOrderItem(OrderItem orderItem) {
+        this.orderItems.add(orderItem);
+        orderItem.setOrder(this);
     }
 
     public boolean isOrderer(OAuth2Account account) {

@@ -27,7 +27,7 @@ public class CancelOrder extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cancel_target_order_id")
-    private Order cancelTargetOrder;
+    private OrderItem cancelTargetOrderItem;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id")
@@ -62,21 +62,21 @@ public class CancelOrder extends BaseEntity {
         this.requestResponse = requestResponse;
     }
 
-    public static CancelOrder requestByBuyer(Shop shop, Order requestOrder, String requestReason) {
+    public static CancelOrder requestByBuyer(Shop shop, OrderItem requestOrderItem, String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
             CancelOrderException.throwCauseEmptyText();
         }
 
-        return new CancelOrder(0L, requestOrder,shop, null,
+        return new CancelOrder(0L, requestOrderItem,shop, null,
                 CancelOrderStatus.REQUESTED_CANCEL_ORDER, requestReason, null, null);
     }
 
-    public static CancelOrder forceCancelByShopManager(Shop shop, Order cancelTargetOrder, OAuth2Account manager, String requestResponse) {
+    public static CancelOrder forceCancelByShopManager(Shop shop, OrderItem cancelTargetOrderItem, OAuth2Account manager, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
             CancelOrderException.throwCauseEmptyText();
         }
 
-        return new CancelOrder(0L, cancelTargetOrder, shop, manager,
+        return new CancelOrder(0L, cancelTargetOrderItem, shop, manager,
                 CancelOrderStatus.CANCELED_ORDER, null, requestResponse, LocalDateTime.now());
     }
 
@@ -88,7 +88,7 @@ public class CancelOrder extends BaseEntity {
         this.manager = manager;
         this.requestReason = requestResponse;
         this.status = status;
-        cancelTargetOrder.updateOrderStatus(OrderStatus.valueOf(status.name()));
+        cancelTargetOrderItem.updateOrderItemStatus(OrderStatus.valueOf(status.name()));
         respondedAt = LocalDateTime.now();
     }
 
@@ -100,7 +100,7 @@ public class CancelOrder extends BaseEntity {
         this.manager = manager;
         this.requestReason = requestResponse;
         status = CancelOrderStatus.REJECTED_CANCEL_ORDER;
-        cancelTargetOrder.updateOrderStatus(OrderStatus.REJECTED_CANCEL_ORDER);
+        cancelTargetOrderItem.updateOrderItemStatus(OrderStatus.ORDER_ITEM_REJECTED_CANCEL_ORDER);
         respondedAt = LocalDateTime.now();
     }
 }

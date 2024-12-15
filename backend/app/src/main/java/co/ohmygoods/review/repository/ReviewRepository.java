@@ -1,6 +1,6 @@
 package co.ohmygoods.review.repository;
 
-import co.ohmygoods.order.model.entity.Order;
+import co.ohmygoods.order.model.entity.OrderItem;
 import co.ohmygoods.review.model.entity.Review;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface ReviewRepository extends CrudRepository<Review, Long> {
 
-    Optional<Review> findReviewByOrder(Order order);
+    Optional<Review> findReviewByOrder(OrderItem orderItem);
 
     @Query("SELECT r " +
             "FROM Review r " +

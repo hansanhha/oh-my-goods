@@ -2,18 +2,15 @@ package co.ohmygoods.order.service;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.service.CouponService;
 import co.ohmygoods.order.exception.OrderException;
-import co.ohmygoods.order.model.entity.CouponUsage;
 import co.ohmygoods.order.model.entity.DeliveryAddress;
-import co.ohmygoods.order.model.entity.Order;
+import co.ohmygoods.order.model.entity.OrderItem;
 import co.ohmygoods.order.repository.DeliveryAddressRepository;
-import co.ohmygoods.order.repository.OrderRepository;
-import co.ohmygoods.order.service.dto.OrderReadyRequest;
-import co.ohmygoods.order.service.dto.OrderReadyResponse;
-import co.ohmygoods.payment.dto.PreparePaymentRequest;
+import co.ohmygoods.order.repository.OrderItemRepository;
+import co.ohmygoods.order.service.dto.OrderStartRequest;
+import co.ohmygoods.order.service.dto.OrderStartResponse;
 import co.ohmygoods.payment.service.PaymentGateway;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
@@ -30,11 +27,11 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SimpleOrderReadyService implements OrderReadyService {
+public class SimpleOrderStartService implements OrderStartService {
 
     private final CouponService couponService;
     private final PaymentGateway paymentGateway;
-    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
     private final AccountRepository accountRepository;
     private final ProductRepository productRepository;
     private final DeliveryAddressRepository deliveryAddressRepository;
@@ -45,25 +42,25 @@ public class SimpleOrderReadyService implements OrderReadyService {
         결제 및 주문 완료 시점으로 재고 차감 미룸
      */
     @Override
-    public OrderReadyResponse readyOrder(OrderReadyRequest request) {
+    public OrderStartResponse startOrder(OrderStartRequest request) {
         OAuth2Account account = accountRepository.findByEmail(request.orderAccountEmail()).orElseThrow(OrderException::new);
         DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(request.deliveryAddressId()).orElseThrow(OrderException::new);
         List<Product> orderProducts = (List<Product>) productRepository.findAllById(request.orderDetails().stream()
-                .map(OrderReadyRequest.OrderProductDetail::productId).toList());
+                .map(OrderStartRequest.OrderProductDetail::productId).toList());
 
-        Map<Product, OrderReadyRequest.OrderProductDetail> orderProductDetailMap = orderProducts.stream()
+        Map<Product, OrderStartRequest.OrderProductDetail> orderProductDetailMap = orderProducts.stream()
                 .collect(Collectors.toMap(product -> product, product -> request.orderDetails()
                         .stream()
                         .filter(detail -> detail.productId().equals(product.getId()))
                         .findFirst()
                         .orElseThrow(OrderException::new)));
 
-        List<Order> orders = orderProductDetailMap
+        List<OrderItem> orderItems = orderProductDetailMap
                 .entrySet()
                 .stream()
                 .map(entry -> {
                     Product product = entry.getKey();
-                    OrderReadyRequest.OrderProductDetail orderDetail = entry.getValue();
+                    OrderStartRequest.OrderProductDetail orderDetail = entry.getValue();
 
                     int originalPrice = product.getOriginalPrice();
                     int totalDiscountedPrice = 0;
@@ -83,7 +80,7 @@ public class SimpleOrderReadyService implements OrderReadyService {
                     totalDiscountedPrice += (productDiscountedPrice + couponDiscountedPrice);
                     productFinalPrice -= totalDiscountedPrice;
 
-                    return Order.builder()
+                    return OrderItem.builder()
                             .account(account)
                             .product(product)
                             .deliveryAddress(deliveryAddress)
@@ -98,7 +95,8 @@ public class SimpleOrderReadyService implements OrderReadyService {
                 })
                 .toList();
 
-        orderRepository.saveAll(orders);
+        orderItemRepository.saveAll(orderItems);
+
 
     }
 

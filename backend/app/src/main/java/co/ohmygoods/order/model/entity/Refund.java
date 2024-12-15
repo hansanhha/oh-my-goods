@@ -27,7 +27,7 @@ public class Refund extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "refund_target_order_id")
-    private Order refundTargetOrder;
+    private OrderItem refundTargetOrderItem;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id")
@@ -65,12 +65,12 @@ public class Refund extends BaseEntity {
         this.requestResponse = requestResponse;
     }
 
-    public static Refund requestByBuyer(Shop shop, Order requestOrder, String requestReason) {
+    public static Refund requestByBuyer(Shop shop, OrderItem requestOrderItem, String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
             RefundException.throwCauseEmptyText();
         }
 
-        return new Refund(0L, requestOrder, shop, null,
+        return new Refund(0L, requestOrderItem, shop, null,
                 RefundStatus.REQUESTED_REFUNDING, requestReason, null, 0, null);
     }
 
@@ -84,7 +84,7 @@ public class Refund extends BaseEntity {
         this.refundPrice = refundedPrice;
         respondedAt = LocalDateTime.now();
         status = RefundStatus.APPROVED_REFUNDING;
-        refundTargetOrder.updateOrderStatus(OrderStatus.APPROVED_REFUNDING);
+        refundTargetOrderItem.updateOrderItemStatus(OrderStatus.ORDER_ITEM_APPROVED_REFUNDING);
     }
 
     public void rejectByShopManager(OAuth2Account manager, String requestResponse) {
@@ -96,6 +96,6 @@ public class Refund extends BaseEntity {
         this.requestResponse = requestResponse;
         respondedAt = LocalDateTime.now();
         status = RefundStatus.REJECTED_REFUNDING;
-        refundTargetOrder.updateOrderStatus(OrderStatus.REJECTED_REFUNDING);
+        refundTargetOrderItem.updateOrderItemStatus(OrderStatus.ORDER_ITEM_REJECTED_REFUNDING);
     }
 }

@@ -3,8 +3,8 @@ package co.ohmygoods.payment.service;
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.order.model.entity.DeliveryAddress;
-import co.ohmygoods.order.model.entity.Order;
-import co.ohmygoods.order.repository.OrderRepository;
+import co.ohmygoods.order.model.entity.OrderItem;
+import co.ohmygoods.order.repository.OrderItemRepository;
 import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.repository.PaymentRepository;
 import co.ohmygoods.product.model.entity.Product;
@@ -46,7 +46,7 @@ class KakaopayServiceTest {
     private AccountRepository accountRepository;
 
     @MockBean
-    private OrderRepository orderRepository;
+    private OrderItemRepository orderItemRepository;
 
     @Autowired
     private KakaopayService kakaopayService;
@@ -68,7 +68,7 @@ class KakaopayServiceTest {
     private static final String ORDER_NUMBER = UUID.randomUUID().toString();
     private static final int ORDERED_QUANTITY = 2;
 
-    private Order newOrder;
+    private OrderItem newOrderItem;
     private Product product;
 
     @BeforeEach
@@ -84,7 +84,7 @@ class KakaopayServiceTest {
                 .originalPrice(10000)
                 .build();
 
-        newOrder = Order.builder()
+        newOrderItem = OrderItem.builder()
                 .account(mockAccount)
                 .product(product)
                 .deliveryAddress(mockDeliveryAddress)
@@ -94,7 +94,7 @@ class KakaopayServiceTest {
                 .discountedPrice(10000)
                 .build();
 
-        newOrder.ready();
+        newOrderItem.ready();
 
         when(mockAccount.getEmail())
                 .thenReturn(ACCOUNT_EMAIL);
@@ -108,11 +108,11 @@ class KakaopayServiceTest {
         when(accountRepository.findByEmail(anyString()))
                 .thenReturn(Optional.of(mockAccount));
 
-        when(orderRepository.findById(anyLong()))
-                .thenReturn(Optional.of(newOrder));
+        when(orderItemRepository.findById(anyLong()))
+                .thenReturn(Optional.of(newOrderItem));
 
         PaymentService.ReadyResponse ready = kakaopayService.ready(PaymentService.UserAgent.DESKTOP,
-                1L, mockAccount.getEmail(), 1L, newOrder.getTotalDiscountedPrice());
+                1L, mockAccount.getEmail(), 1L, newOrderItem.getTotalDiscountedPrice());
 
         System.out.println(ready);
     }

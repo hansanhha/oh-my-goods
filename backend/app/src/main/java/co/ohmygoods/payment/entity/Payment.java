@@ -2,7 +2,7 @@ package co.ohmygoods.payment.entity;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.BaseEntity;
-import co.ohmygoods.order.model.entity.Order;
+import co.ohmygoods.order.model.entity.OrderItem;
 import co.ohmygoods.order.model.vo.OrderStatus;
 import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.vo.PaymentStatus;
@@ -36,7 +36,7 @@ public class Payment extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    private Order order;
+    private OrderItem orderItem;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
@@ -54,16 +54,16 @@ public class Payment extends BaseEntity {
 
     private LocalDateTime transactionReadyAt;
 
-    public static Payment create(Shop shop, OAuth2Account buyer, Order order, ExternalPaymentVendor vendor, int totalPrice) {
+    public static Payment create(Shop shop, OAuth2Account buyer, OrderItem orderItem, ExternalPaymentVendor vendor, int totalPrice) {
         if (totalPrice < 0) {
             PaymentException.throwCauseInvalidPaymentPrice(totalPrice);
         }
 
-        if (!order.isReady()) {
-            PaymentException.throwCauseInvalidOrderStatus(order.getStatus());
+        if (!orderItem.isReady()) {
+            PaymentException.throwCauseInvalidOrderStatus(orderItem.getOrderStatus());
         }
 
-        return new Payment(0L, shop, buyer, order, PaymentStatus.PAYMENT_START, vendor,
+        return new Payment(0L, shop, buyer, orderItem, PaymentStatus.PAYMENT_START, vendor,
                 totalPrice, null, null, null);
     }
 
@@ -77,20 +77,20 @@ public class Payment extends BaseEntity {
         transactionEndedAt = LocalDateTime.now();
         status = PaymentStatus.PAYMENT_CANCEL;
 
-        order.cancel();
+        orderItem.cancel();
     }
 
     public void fail(PaymentStatus cause) {
         transactionEndedAt = LocalDateTime.now();
         status = cause;
 
-        order.fail(OrderStatus.valueOf(cause.name()));
+        orderItem.fail(OrderStatus.valueOf(cause.name()));
     }
 
     public void succeed() {
         transactionEndedAt = LocalDateTime.now();
         status = PaymentStatus.PAID;
 
-        order.ordered();
+        orderItem.ordered();
     }
 }
