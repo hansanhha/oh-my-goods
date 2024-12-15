@@ -67,21 +67,15 @@ public class Payment extends BaseEntity {
     public void cancel() {
         transactionEndedAt = LocalDateTime.now();
         status = PaymentStatus.PAYMENT_CANCEL;
-
-        order.cancel();
     }
 
     public void fail(PaymentStatus cause) {
         transactionEndedAt = LocalDateTime.now();
         status = cause;
-
-        order.fail(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE, cause);
     }
 
     public void succeed() {
         transactionEndedAt = LocalDateTime.now();
         status = PaymentStatus.PAID;
-
-        order.ordered();
     }
 }

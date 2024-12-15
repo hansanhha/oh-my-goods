@@ -7,7 +7,6 @@ import co.ohmygoods.product.exception.InvalidProductSeriesException;
 import co.ohmygoods.product.model.entity.*;
 import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
-import co.ohmygoods.product.repository.ProductSeriesRepository;
 import co.ohmygoods.seller.product.service.SellerProductRegistrationService;
 import co.ohmygoods.seller.product.service.dto.UpdateProductMetadataRequest;
 import co.ohmygoods.seller.product.service.dto.ProductRegisterRequest;
@@ -51,9 +50,6 @@ class SellerProductRegistrationServiceTest {
 
     @Mock
     private ProductCustomCategoryRepository mockProductCustomCategoryRepository;
-
-    @Mock
-    private ProductSeriesRepository mockProductSeriesRepository;
 
     @InjectMocks
     private SellerProductRegistrationService sellerProductRegistrationService;
@@ -154,7 +150,6 @@ class SellerProductRegistrationServiceTest {
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
         then(mockProductRepository).should(times(1)).save(any(Product.class));
         then(mockProductCustomCategoryRepository).shouldHaveNoInteractions();
-        then(mockProductSeriesRepository).shouldHaveNoInteractions();
 
         var product = productArgumentCaptor.getValue();
 
@@ -213,7 +208,6 @@ class SellerProductRegistrationServiceTest {
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
         then(mockProductRepository).should(times(1)).save(any(Product.class));
         then(mockProductCustomCategoryRepository).should(times(1)).findAllByIdAndShop(anyIterable(), any(Shop.class));
-        then(mockProductSeriesRepository).should(times(1)).findAllByIdAndShop(anyIterable(), any(Shop.class));
 
         verify(mockProductRepository).save(productArgumentCaptor.capture());
 
@@ -276,7 +270,6 @@ class SellerProductRegistrationServiceTest {
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
         then(mockProductRepository).should(times(1)).save(any(Product.class));
         then(mockProductCustomCategoryRepository).shouldHaveNoInteractions();
-        then(mockProductSeriesRepository).shouldHaveNoInteractions();
 
         var product = productArgumentCaptor.getValue();
 
@@ -313,7 +306,6 @@ class SellerProductRegistrationServiceTest {
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
         then(mockProductRepository).shouldHaveNoInteractions();
         then(mockProductCustomCategoryRepository).shouldHaveNoInteractions();
-        then(mockProductSeriesRepository).shouldHaveNoInteractions();
     }
 
     @Test
@@ -349,7 +341,6 @@ class SellerProductRegistrationServiceTest {
         then(mockAccountRepository).should(times(1)).findByEmail(anyString());
         then(mockProductRepository).should(times(1)).findById(anyLong());
         then(mockProductCustomCategoryRepository).shouldHaveNoInteractions();
-        then(mockProductSeriesRepository).shouldHaveNoInteractions();
         then(mockProduct).should(times(1)).updateMetadata(modifyName, modifyDescription, modifyType, modifyMainCategory, null);
     }
 

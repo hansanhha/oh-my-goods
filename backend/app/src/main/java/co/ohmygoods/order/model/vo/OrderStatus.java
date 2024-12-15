@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum OrderStatus {
 
-    ORDER_FAILED_OUT_OF_STOCK("주문 수량 초과"),
+    ORDER_FAILED_OUT_OF_STOCK("주문 가능 수량 초과"),
     ORDER_FAILED_INVALID_ADDRESS("유효하지 않는 배송지"),
     ORDER_FAILED_UNKNOWN("기타"),
     ORDER_FAILED_LACK_QUANTITY("주문 실패(수량 부족)"),
@@ -39,7 +39,7 @@ public enum OrderStatus {
     private final String message;
 
     public boolean isNotUpdatableOrderStatus() {
-        return this.equals(OrderStatus.ORDERED) || this.equals(OrderStatus.ORDER_ITEM_PACKAGING);
+        return this.equals(ORDER_ITEM_COMPLETED);
     }
 
 }

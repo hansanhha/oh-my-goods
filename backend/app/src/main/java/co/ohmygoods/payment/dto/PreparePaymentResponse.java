@@ -17,14 +17,14 @@ public record PreparePaymentResponse(boolean isPrepareSuccess,
                                      LocalDateTime preparedAt) {
 
     public static PreparePaymentResponse success(PreparePaymentRequest request, PaymentService.PaymentReadyResponse response, LocalDateTime attemptedAt) {
-        return new PreparePaymentResponse(true, request.userAgent(), request.shopId(),
-                request.accountEmail(), request.orderId(), request.totalPrice(), request.externalPaymentVendor().name(),
+        return new PreparePaymentResponse(true, request.userAgent(),
+                request.accountEmail(), request.orderId(), response.paymentAmount(), request.externalPaymentVendor().name(),
                 response.nextUrl(), null, attemptedAt, response.readyAt());
     }
 
     public static PreparePaymentResponse fail(PreparePaymentRequest request, PaymentService.PaymentReadyResponse response, LocalDateTime attemptedAt) {
-        return new PreparePaymentResponse(true, request.userAgent(), request.shopId(),
-                request.accountEmail(), request.orderId(), request.totalPrice(), request.externalPaymentVendor().name(),
-                null, response.externalPaymentError().errorMsg(), attemptedAt, null);
+        return new PreparePaymentResponse(true, request.userAgent(),
+                request.accountEmail(), request.orderId(), response.paymentAmount(), request.externalPaymentVendor().name(),
+                null, response.paymentFailureCause(), attemptedAt, null);
     }
 }

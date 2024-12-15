@@ -67,14 +67,14 @@ public class KakaopayService
 
     @Override
     public PaymentReadyResponse ready(UserAgent userAgent, String accountEmail, Long orderId, String paymentName) {
-        OAuth2Account buyer = accountRepository.findByEmail(accountEmail).orElseThrow(() -> PaymentException.notFoundAccount(accountEmail));
+        OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(() -> PaymentException.notFoundAccount(accountEmail));
         Order order = orderRepository.findById(orderId).orElseThrow(() -> PaymentException.notFoundOrder(orderId));
 
-        Payment payment = Payment.start(buyer, order, KAKAOPAY, order.getTotalPrice());
+        Payment payment = Payment.start(account, order, KAKAOPAY, order.getTotalPrice());
         paymentRepository.save(payment);
 
         KakaopayPreparationRequest kakaoPayPreparationRequest =
-                KakaopayPreparationRequest.create(payment, buyer, order.getTransactionId(), paymentName, kakaoPayProperties);
+                KakaopayPreparationRequest.create(payment, account, order.getTransactionId(), paymentName, kakaoPayProperties);
 
         PreparationResult<KakaopayPreparationResponse, KakaopayRequestFailureCause> externalPreparationResult =
                 sendExternalPaymentPreparationRequest(kakaoPayPreparationRequest);
@@ -84,14 +84,14 @@ public class KakaopayService
             handlePaymentFailure(payment, externalError);
 
             return externalError != null
-                    ? PaymentReadyResponse.fail(externalError.errorCode(), externalError.errorMessage())
-                    : PaymentReadyResponse.fail(null, "unknown error");
+                    ? PaymentReadyResponse.fail(payment.getPaymentAmount(), convertPaymentFailedStatus(externalError), externalError.errorCode(), externalError.errorMessage())
+                    : PaymentReadyResponse.fail(payment.getPaymentAmount(), null, null, "unknown error");
         }
 
         KakaopayPreparationResponse preparationResponse = externalPreparationResult.preparationResponse();
         payment.ready(preparationResponse.tid(), LocalDateTime.ofInstant(preparationResponse.createdAt().toInstant(), ZoneId.systemDefault()));
 
-        return PaymentReadyResponse.success(payment.getTransactionId(), order.getId(), accountEmail,
+        return PaymentReadyResponse.success(payment.getTransactionId(), order.getId(), accountEmail, payment.getPaymentAmount(),
                 getNextRedirectUrlByUserAgent(userAgent, preparationResponse), LocalDateTime.ofInstant(preparationResponse.createdAt().toInstant(), ZoneId.systemDefault()));
     }
 

@@ -2,16 +2,20 @@ package co.ohmygoods.seller.product.service;
 
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.product.model.entity.*;
 import co.ohmygoods.product.exception.InvalidProductCustomCategoryException;
+import co.ohmygoods.product.exception.ProductNotFoundException;
+import co.ohmygoods.product.model.entity.Product;
+import co.ohmygoods.product.model.entity.ProductCustomCategory;
+import co.ohmygoods.product.model.entity.ProductCustomCategoryMapping;
+import co.ohmygoods.product.model.vo.ProductStockStatus;
 import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
-import co.ohmygoods.product.repository.ProductSeriesRepository;
-import co.ohmygoods.seller.product.service.dto.*;
-import co.ohmygoods.product.exception.ProductNotFoundException;
-import co.ohmygoods.product.model.vo.ProductStockStatus;
-import co.ohmygoods.shop.repository.ShopRepository;
+import co.ohmygoods.seller.product.service.dto.CustomCategoryResponse;
+import co.ohmygoods.seller.product.service.dto.ProductRegisterRequest;
+import co.ohmygoods.seller.product.service.dto.SellerProductResponse;
+import co.ohmygoods.seller.product.service.dto.UpdateProductMetadataRequest;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
+import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,7 +33,6 @@ public class SellerProductRegistrationService {
     private final ShopRepository shopRepository;
     private final ProductRepository productRepository;
     private final ProductCustomCategoryRepository productCustomCategoryRepository;
-    private final ProductSeriesRepository productSeriesRepository;
 
     public List<SellerProductResponse> getRegisteredProducts(Long shopId) {
         return getRegisteredProducts(shopId, Pageable.ofSize(20));

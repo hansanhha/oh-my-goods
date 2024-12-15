@@ -2,9 +2,7 @@ package co.ohmygoods.shop.service;
 
 import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
-import co.ohmygoods.product.repository.ProductSeriesRepository;
 import co.ohmygoods.product.model.entity.ProductCustomCategory;
-import co.ohmygoods.product.model.entity.ProductSeries;
 import co.ohmygoods.shop.repository.ShopRepository;
 import co.ohmygoods.shop.dto.ShopOverviewResponse;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
@@ -22,14 +20,11 @@ public class ShopSearchService {
 
     private final ShopRepository shopRepository;
     private final ProductRepository productRepository;
-    private final ProductSeriesRepository productSeriesRepository;
     private final ProductCustomCategoryRepository productCustomCategoryRepository;
 
     public ShopOverviewResponse getShopOverview(Long shopId) {
         var shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
-        var productSeries = productSeriesRepository.findAllByShop(shop)
-                .stream().collect(Collectors.toMap(ProductSeries::getId, ProductSeries::getSeriesName));
         var productCategoriesMap = productCustomCategoryRepository.findAllByShop(shop).stream()
                 .collect(Collectors.toMap(ProductCustomCategory::getId, ProductCustomCategory::getCustomCategoryName));
         var products = productRepository.findAll(Pageable.ofSize(20));
@@ -40,7 +35,6 @@ public class ShopSearchService {
                 .createdAt(shop.getCreatedAt())
                 .shopImage(shop.getShopImageName().concat(shop.getIntroduction()))
                 .status(shop.getStatus())
-                .shopAllProductSeries(productSeries)
                 .shopAllProductCategories(productCategoriesMap)
                 .products(products.getContent())
                 .build();

@@ -6,7 +6,6 @@ import co.ohmygoods.product.model.entity.ProductCustomCategoryMapping;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
-import co.ohmygoods.product.repository.ProductSeriesRepository;
 import co.ohmygoods.product.service.dto.ProductCustomCategoryResponse;
 import co.ohmygoods.product.service.dto.ProductResponse;
 import co.ohmygoods.shop.entity.Shop;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service

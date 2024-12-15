@@ -16,6 +16,7 @@ import java.util.List;
 public class PaymentGateway {
 
     private final List<PaymentService> paymentServices;
+    private final List<PaymentResultListener> paymentResultListeners;
 
     public PreparePaymentResponse preparePayment(PreparePaymentRequest request) {
         LocalDateTime attemptAt = LocalDateTime.now();
@@ -35,9 +36,15 @@ public class PaymentGateway {
         PaymentService paymentService = findSupportPaymentService(request.externalPaymentVendor());
         PaymentService.PaymentApproveResponse response = paymentService.approve(request.orderTransactionId(), request.properties());
 
-        return response.isApproved()
-                ? ApprovePaymentResponse.success(request, response, attemptAt)
-                : ApprovePaymentResponse.fail(request, response, attemptAt);
+        if (!response.isApproved()) {
+            paymentResultListeners.forEach(listener ->
+                    listener.onFailure(response.paymentId(), response.orderId(), response.paymentStatus()));
+            return ApprovePaymentResponse.fail(request, response, attemptAt);
+        }
+
+        paymentResultListeners.forEach(listener ->
+                listener.onSuccess(response.paymentId(), response.orderId()));
+        return ApprovePaymentResponse.success(request, response, attemptAt);
     }
 
     public void cancelPayment(ExternalPaymentVendor externalPaymentVendor, String transactionId) {

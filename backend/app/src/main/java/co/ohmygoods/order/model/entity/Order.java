@@ -51,16 +51,22 @@ public class Order extends BaseEntity {
     public void ordered() {
         entireOrderStatus = OrderStatus.ORDERED;
         paymentStatus = PaymentStatus.PAID;
+
+        this.orderItems.forEach(oi -> oi.updateOrderItemStatus(OrderStatus.ORDERED));
     }
 
     public void cancel() {
         entireOrderStatus = OrderStatus.ORDER_FAILED_PAYMENT_CANCEL;
         paymentStatus = PaymentStatus.PAYMENT_CANCEL;
+
+        this.orderItems.forEach(oi -> oi.updateOrderItemStatus(OrderStatus.ORDER_FAILED_PAYMENT_CANCEL));
     }
 
     public void fail(OrderStatus orderStatus, PaymentStatus paymentStatus) {
         entireOrderStatus = orderStatus;
         this.paymentStatus = paymentStatus;
+
+        this.orderItems.forEach(oi -> oi.updateOrderItemStatus(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE));
     }
 
     public void updateEntireOrderStatus(OrderStatus orderStatus) {

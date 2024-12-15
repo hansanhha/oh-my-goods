@@ -10,13 +10,9 @@ public record ApprovePaymentResponse(boolean isApproveSuccess,
                                      String transactionId,
                                      Long paymentId,
                                      Long orderId,
-                                     String buyerEmail,
-                                     Long productId,
-                                     String productName,
-                                     int orderedQuantity,
+                                     String accountEmail,
                                      int totalPrice,
                                      String processingVendorName,
-                                     OrderStatus orderStatus,
                                      PaymentStatus paymentStatus,
                                      LocalDateTime attemptedAt,
                                      LocalDateTime approvedAt,
@@ -24,15 +20,13 @@ public record ApprovePaymentResponse(boolean isApproveSuccess,
 
     public static ApprovePaymentResponse success(ApprovePaymentRequest request, PaymentService.PaymentApproveResponse response, LocalDateTime attemptedAt) {
         return new ApprovePaymentResponse(true, request.orderTransactionId(), response.paymentId(),
-                response.orderId(), response.accountEmail(), response.productId(), response.productName(),
-                response.orderedQuantity(), response.totalPrice(), response.vendorName(), response.orderStatus(),
+                response.orderId(), response.accountEmail(), response.paymentAmount(), response.vendorName(),
                 response.paymentStatus(), attemptedAt, response.approvedAt(), null);
     }
 
     public static ApprovePaymentResponse fail(ApprovePaymentRequest request, PaymentService.PaymentApproveResponse response, LocalDateTime attemptedAt) {
         return new ApprovePaymentResponse(false, request.orderTransactionId(), response.paymentId(),
-                response.orderId(), response.accountEmail(), response.productId(), response.productName(),
-                response.orderedQuantity(), response.totalPrice(), response.vendorName(), response.orderStatus(),
+                response.orderId(), response.accountEmail(), response.paymentAmount(), response.vendorName(),
                 response.paymentStatus(), attemptedAt, null, response.externalPaymentError().errorMsg());
     }
 }

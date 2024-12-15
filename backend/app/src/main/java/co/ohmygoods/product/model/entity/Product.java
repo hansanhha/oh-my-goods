@@ -139,7 +139,7 @@ public class Product extends BaseEntity {
     }
 
     public boolean isValidRequestQuantity(int quantity) {
-        return purchaseMaximumQuantity > quantity && remainingQuantity > quantity;
+        return purchaseMaximumQuantity >= quantity && remainingQuantity >= quantity;
     }
 
     public void validateSaleStatus() {
@@ -155,6 +155,10 @@ public class Product extends BaseEntity {
         }
 
         remainingQuantity -= quantity;
+
+        if (remainingQuantity < 0) {
+            ProductException.throwCauseInvalidDecreaseQuantity(purchaseMaximumQuantity, remainingQuantity, quantity);
+        }
     }
 
     public void increase(int quantity) {

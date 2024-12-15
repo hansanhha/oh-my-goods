@@ -86,10 +86,12 @@ public class SimpleOrderStartService implements OrderStartService {
                     int couponDiscountedPrice = 0;
                     int productFinalPrice = originalPrice;
 
+                    // 상품 할인 적용
                     if (product.getDiscountRate() > 0) {
                         productDiscountedPrice = getDiscountPriceByProductDiscountRate(originalPrice, product.getDiscountRate());
                     }
 
+                    // 쿠폰 적용
                     if (orderDetail.isAppliedCoupon()) {
                         couponDiscountedPrice = couponService.applyCoupon(account.getEmail(),
                                 orderDetail.appliedCouponId(), productFinalPrice);
@@ -111,8 +113,8 @@ public class SimpleOrderStartService implements OrderStartService {
                 })
                 .toList();
 
-        // 전체 주문 아이템에 대한 구매 금액/할인 금액 합계
-        // Atomic 대신 Stream으로 주문 아이템 생성 후 일괄 처리
+        // 각 주문 아이템에 대한 최종 구매 금액/할인 금액(쿠폰+상품) 합계
+        // Atomic 대신 Stream으로 전체 주문 아이템 생성 후 일괄 처리
         final String TOTAL_PURCHASE_PRICE = "totalPrice";
         final String TOTAL_COUPON_DISCOUNT_PRICE = "totalCouponDiscountPrice";
         final String TOTAL_PRODUCT_DISCOUNT_PRICE = "totalProductDiscountPrice";
@@ -154,7 +156,7 @@ public class SimpleOrderStartService implements OrderStartService {
         }
 
         return OrderStartResponse.success(preparePaymentResponse.redirectUrl(),
-                order.getTransactionId().toString(), order.getCreatedAt());
+                order.getTransactionId(), order.getCreatedAt());
     }
 
     private int getDiscountPriceByProductDiscountRate(int originalPrice, int discountRate) {

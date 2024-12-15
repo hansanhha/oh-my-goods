@@ -2,16 +2,10 @@ package co.ohmygoods.payment.service;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.order.model.entity.DeliveryAddress;
-import co.ohmygoods.order.model.entity.OrderItem;
-import co.ohmygoods.order.repository.OrderItemRepository;
+import co.ohmygoods.order.model.entity.Order;
+import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.repository.PaymentRepository;
-import co.ohmygoods.product.model.entity.Product;
-import co.ohmygoods.product.model.vo.ProductStockStatus;
-import co.ohmygoods.product.model.vo.ProductMainCategory;
-import co.ohmygoods.product.model.vo.ProductType;
-import co.ohmygoods.shop.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -24,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,73 +41,36 @@ class KakaopayServiceTest {
     private AccountRepository accountRepository;
 
     @MockBean
-    private OrderItemRepository orderItemRepository;
+    private OrderRepository orderRepository;
 
     @Autowired
     private KakaopayService kakaopayService;
 
     @Mock
-    private Shop mockShop;
-
-    @Mock
     private OAuth2Account mockAccount;
 
-    @Mock
-    private DeliveryAddress mockDeliveryAddress;
+    private static final String ACCOUNT_EMAIL = "test@email.com";
+    private static final Long ORDER_ID = 1L;
+    private static final String ORDER_TRANSACTION_ID = UUID.randomUUID().toString();
+    private static final int ORDER_TOTAL_PRICE = 100_000;
+    private static final int ORDER_DISCOUNT_PRICE = 20_000;
+    private static final String PAYMENT_NAME = "ohmygoods 테스트 결제";
 
-    private static final String ACCOUNT_EMAIL = "testAccount@email.com";
-
-    private static final String PRODUCT_NAME = "testProduct";
-    private static final int REMAINING_QUANTITY = 100;
-
-    private static final String ORDER_NUMBER = UUID.randomUUID().toString();
-    private static final int ORDERED_QUANTITY = 2;
-
-    private OrderItem newOrderItem;
-    private Product product;
+    private Order order;
 
     @BeforeEach
     void init() {
-        product = Product.builder()
-                .shop(mockShop)
-                .name(PRODUCT_NAME)
-                .type(ProductType.ANALOGUE_LIMITATION_EXCLUSIVE)
-                .mainCategory(ProductMainCategory.MOVIE)
-                .stockStatus(ProductStockStatus.ON_SALES)
-                .remainingQuantity(REMAINING_QUANTITY)
-                .purchaseMaximumQuantity(5)
-                .originalPrice(10000)
-                .build();
-
-        newOrderItem = OrderItem.builder()
-                .account(mockAccount)
-                .product(product)
-                .deliveryAddress(mockDeliveryAddress)
-                .orderedQuantity(ORDERED_QUANTITY)
-                .orderNumber(ORDER_NUMBER)
-                .originalPrice(10000)
-                .discountedPrice(10000)
-                .build();
-
-
-
-        when(mockAccount.getEmail())
-                .thenReturn(ACCOUNT_EMAIL);
+        order = Order.start(mockAccount,ORDER_TRANSACTION_ID,
+                Collections.emptyList(), ORDER_TOTAL_PRICE,  ORDER_DISCOUNT_PRICE);
     }
 
     @Test
     void 결제_준비_성공() {
-        when(shopRepository.findById(anyLong()))
-                .thenReturn(Optional.of(mockShop));
+        when(mockAccount.getEmail()).thenReturn(ACCOUNT_EMAIL);
+        when(accountRepository.findByEmail(anyString())).thenReturn(Optional.of(mockAccount));
+        when(orderRepository.findById(anyLong())).thenReturn(Optional.of(order));
 
-        when(accountRepository.findByEmail(anyString()))
-                .thenReturn(Optional.of(mockAccount));
-
-        when(orderItemRepository.findById(anyLong()))
-                .thenReturn(Optional.of(newOrderItem));
-
-//        PaymentService.PaymentReadyResponse ready = kakaopayService.ready(PaymentService.UserAgent.DESKTOP,
-//                1L, mockAccount.getEmail(), 1L, newOrderItem.getTotalDiscountedPrice());
+        PaymentService.PaymentReadyResponse ready = kakaopayService.ready(PaymentService.UserAgent.DESKTOP, ACCOUNT_EMAIL, ORDER_ID, PAYMENT_NAME);
 
         System.out.println(ready);
     }
