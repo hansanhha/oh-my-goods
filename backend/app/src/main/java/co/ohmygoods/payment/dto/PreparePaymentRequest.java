@@ -5,7 +5,6 @@ import co.ohmygoods.payment.vo.ExternalPaymentVendor;
 
 public record PreparePaymentRequest(ExternalPaymentVendor externalPaymentVendor,
                                     PaymentService.UserAgent userAgent,
-                                    Long shopId,
                                     String buyerEmail,
                                     Long orderId,
                                     int totalPrice) {

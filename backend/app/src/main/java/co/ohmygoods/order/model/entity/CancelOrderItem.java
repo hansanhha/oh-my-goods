@@ -19,14 +19,14 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CancelOrder extends BaseEntity {
+public class CancelOrderItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cancel_target_order_id")
+    @JoinColumn(name = "cancel_target_order_item_id")
     private OrderItem cancelTargetOrderItem;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -62,21 +62,21 @@ public class CancelOrder extends BaseEntity {
         this.requestResponse = requestResponse;
     }
 
-    public static CancelOrder requestByBuyer(Shop shop, OrderItem requestOrderItem, String requestReason) {
+    public static CancelOrderItem requestByBuyer(Shop shop, OrderItem requestOrderItem, String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
             CancelOrderException.throwCauseEmptyText();
         }
 
-        return new CancelOrder(0L, requestOrderItem,shop, null,
+        return new CancelOrderItem(0L, requestOrderItem,shop, null,
                 CancelOrderStatus.REQUESTED_CANCEL_ORDER, requestReason, null, null);
     }
 
-    public static CancelOrder forceCancelByShopManager(Shop shop, OrderItem cancelTargetOrderItem, OAuth2Account manager, String requestResponse) {
+    public static CancelOrderItem forceCancelByShopManager(Shop shop, OrderItem cancelTargetOrderItem, OAuth2Account manager, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
             CancelOrderException.throwCauseEmptyText();
         }
 
-        return new CancelOrder(0L, cancelTargetOrderItem, shop, manager,
+        return new CancelOrderItem(0L, cancelTargetOrderItem, shop, manager,
                 CancelOrderStatus.CANCELED_ORDER, null, requestResponse, LocalDateTime.now());
     }
 

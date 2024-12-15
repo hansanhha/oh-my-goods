@@ -1,5 +1,7 @@
 package co.ohmygoods.order.service.dto;
 
+import co.ohmygoods.payment.vo.ExternalPaymentVendor;
+
 import java.util.List;
 
 /*
@@ -12,7 +14,7 @@ import java.util.List;
 */
 public record OrderStartRequest(String orderAccountEmail,
                                 List<OrderProductDetail> orderDetails,
-                                OrderPaymentMethod orderPaymentMethod,
+                                ExternalPaymentVendor orderPaymentMethod,
                                 Long deliveryAddressId,
                                 int totalOrderPrice) {
 
@@ -20,15 +22,6 @@ public record OrderStartRequest(String orderAccountEmail,
                                      int purchaseQuantity,
                                      boolean isAppliedCoupon,
                                      Long appliedCouponId) {
-    }
-
-    /*
-        (임시)
-        payment 도메인의 vo 객체를 order 도메인의 service dto에서 사용하기 애매하다고 생각돼서 동일한 값을 가진 dto 사용
-     */
-    public enum OrderPaymentMethod {
-        KAKAOPAY,
-        NAVERPAY;
     }
 
 }

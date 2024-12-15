@@ -6,12 +6,18 @@ import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.service.CouponService;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.entity.DeliveryAddress;
+import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.model.entity.OrderItem;
+import co.ohmygoods.order.model.vo.OrderStatus;
 import co.ohmygoods.order.repository.DeliveryAddressRepository;
 import co.ohmygoods.order.repository.OrderItemRepository;
+import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.order.service.dto.OrderStartRequest;
 import co.ohmygoods.order.service.dto.OrderStartResponse;
+import co.ohmygoods.payment.dto.PreparePaymentRequest;
+import co.ohmygoods.payment.dto.PreparePaymentResponse;
 import co.ohmygoods.payment.service.PaymentGateway;
+import co.ohmygoods.payment.service.PaymentService;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +39,7 @@ public class SimpleOrderStartService implements OrderStartService {
 
     private final CouponService couponService;
     private final PaymentGateway paymentGateway;
+    private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final AccountRepository accountRepository;
     private final ProductRepository productRepository;
@@ -43,24 +52,33 @@ public class SimpleOrderStartService implements OrderStartService {
      */
     @Override
     public OrderStartResponse startOrder(OrderStartRequest request) {
+        // 엔티티 조회
         OAuth2Account account = accountRepository.findByEmail(request.orderAccountEmail()).orElseThrow(OrderException::new);
         DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(request.deliveryAddressId()).orElseThrow(OrderException::new);
         List<Product> orderProducts = (List<Product>) productRepository.findAllById(request.orderDetails().stream()
                 .map(OrderStartRequest.OrderProductDetail::productId).toList());
 
-        Map<Product, OrderStartRequest.OrderProductDetail> orderProductDetailMap = orderProducts.stream()
-                .collect(Collectors.toMap(product -> product, product -> request.orderDetails()
-                        .stream()
-                        .filter(detail -> detail.productId().equals(product.getId()))
-                        .findFirst()
-                        .orElseThrow(OrderException::new)));
+        // product 엔티티에 해당하는 request dto 매핑
+        Map<Product, OrderStartRequest.OrderProductDetail> orderProductDetailMap =
+                orderProducts.stream()
+                        .collect(Collectors.toMap(product -> product, product -> request.orderDetails()
+                                .stream()
+                                .filter(detail -> detail.productId().equals(product.getId()))
+                                .findFirst()
+                                .orElseThrow(OrderException::new)));
 
+        // 매핑된 정보를 기반으로 주문 아이템 엔티티 생성
+        // 구매 개수 검증 (Product.isValidRequestQuantity(int))
         List<OrderItem> orderItems = orderProductDetailMap
                 .entrySet()
                 .stream()
                 .map(entry -> {
                     Product product = entry.getKey();
                     OrderStartRequest.OrderProductDetail orderDetail = entry.getValue();
+
+                    if (product.isValidRequestQuantity(orderDetail.purchaseQuantity())) {
+                        throw new OrderException();
+                    }
 
                     int originalPrice = product.getOriginalPrice();
                     int totalDiscountedPrice = 0;
@@ -81,23 +99,62 @@ public class SimpleOrderStartService implements OrderStartService {
                     productFinalPrice -= totalDiscountedPrice;
 
                     return OrderItem.builder()
-                            .account(account)
                             .product(product)
                             .deliveryAddress(deliveryAddress)
-                            .orderedQuantity(orderDetail.purchaseQuantity())
+                            .orderQuantity(orderDetail.purchaseQuantity())
                             .orderNumber(generateOrderNumber())
                             .originalPrice(originalPrice)
-                            .couponDiscountedPrice(couponDiscountedPrice)
-                            .productDiscountedPrice(productDiscountedPrice)
-                            .totalDiscountedPrice(totalDiscountedPrice)
+                            .couponDiscountPrice(couponDiscountedPrice)
+                            .productDiscountPrice(productDiscountedPrice)
                             .purchasePrice(productFinalPrice)
                             .build();
                 })
                 .toList();
 
-        orderItemRepository.saveAll(orderItems);
+        // 전체 주문 아이템에 대한 구매 금액/할인 금액 합계
+        // Atomic 대신 Stream으로 주문 아이템 생성 후 일괄 처리
+        final String TOTAL_PURCHASE_PRICE = "totalPrice";
+        final String TOTAL_COUPON_DISCOUNT_PRICE = "totalCouponDiscountPrice";
+        final String TOTAL_PRODUCT_DISCOUNT_PRICE = "totalProductDiscountPrice";
 
+        HashMap<String, Integer> summarizingPriceMap = orderItems.stream()
+                .collect(() -> new HashMap<>(Map.of(
+                                TOTAL_PURCHASE_PRICE, 0,
+                                TOTAL_COUPON_DISCOUNT_PRICE, 0,
+                                TOTAL_PRODUCT_DISCOUNT_PRICE, 0)),
+                        (map, orderItem) -> {
+                            map.put(TOTAL_PURCHASE_PRICE, map.get(TOTAL_PURCHASE_PRICE) + orderItem.getPurchasePrice());
+                            map.put(TOTAL_COUPON_DISCOUNT_PRICE, map.get(TOTAL_COUPON_DISCOUNT_PRICE) + orderItem.getCouponDiscountPrice());
+                            map.put(TOTAL_PRODUCT_DISCOUNT_PRICE, map.get(TOTAL_PRODUCT_DISCOUNT_PRICE) + orderItem.getProductDiscountPrice());
+                        },
+                        (map1, map2) -> {
+                            map1.put(TOTAL_PURCHASE_PRICE, map1.get(TOTAL_PURCHASE_PRICE) + map2.get(TOTAL_PURCHASE_PRICE));
+                            map1.put(TOTAL_COUPON_DISCOUNT_PRICE, map1.get(TOTAL_COUPON_DISCOUNT_PRICE) + map2.get(TOTAL_COUPON_DISCOUNT_PRICE));
+                            map1.put(TOTAL_PRODUCT_DISCOUNT_PRICE, map1.get(TOTAL_PRODUCT_DISCOUNT_PRICE) + map2.get(TOTAL_PRODUCT_DISCOUNT_PRICE));
+                        });
 
+        // 주문 엔티티 생성
+        Order newOrder = Order.start(account, UUID.randomUUID(), orderItems,
+                summarizingPriceMap.get(TOTAL_PURCHASE_PRICE),
+                summarizingPriceMap.get(TOTAL_COUPON_DISCOUNT_PRICE) +
+                        summarizingPriceMap.get(TOTAL_PRODUCT_DISCOUNT_PRICE));
+
+        Order order = orderRepository.save(newOrder);
+
+        PreparePaymentRequest preparePaymentRequest = new PreparePaymentRequest(request.orderPaymentMethod(),
+                PaymentService.UserAgent.DESKTOP, account.getEmail(), order.getId(), order.getTotalPrice());
+
+        // 결제 준비 요청(외부 api 호출)
+        PreparePaymentResponse preparePaymentResponse = paymentGateway.preparePayment(preparePaymentRequest);
+
+        // 결제 준비 요청 결과에 따른 분기 처리
+        if (!preparePaymentResponse.isPrepareSuccess()) {
+            order.fail(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE, preparePaymentResponse.paymentFailureCause());
+            return OrderStartResponse.fail(preparePaymentResponse.paymentFailureCause().getMessage());
+        }
+
+        return OrderStartResponse.success(preparePaymentResponse.redirectUrl(),
+                order.getTransactionId().toString(), order.getCreatedAt());
     }
 
     private int getDiscountPriceByProductDiscountRate(int originalPrice, int discountRate) {

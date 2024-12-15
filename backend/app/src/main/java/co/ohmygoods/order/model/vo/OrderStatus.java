@@ -12,6 +12,8 @@ public enum OrderStatus {
     ORDER_FAILED_UNKNOWN("기타"),
     ORDER_FAILED_LACK_QUANTITY("주문 실패(수량 부족)"),
     ORDER_FAILED_INVALID_PRODUCT_STOCK_STATUS("주문 실패(판매 상품 아님)"),
+    ORDER_FAILED_PAYMENT_CANCEL("주문 실패(결제 취소)"),
+    ORDER_FAILED_PAYMENT_FAILURE("주문 실패(결제 실패)"),
 
     ORDER_START("주문 시작"),
     ORDERED("주문 완료"),

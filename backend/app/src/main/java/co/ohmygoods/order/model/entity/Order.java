@@ -11,10 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Getter
@@ -30,6 +27,8 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "account_id")
     private OAuth2Account account;
 
+    private UUID transactionId;
+
     private OrderStatus entireOrderStatus;
 
     private PaymentStatus paymentStatus;
@@ -41,12 +40,27 @@ public class Order extends BaseEntity {
 
     private int discountPrice;
 
-    public static Order start(OAuth2Account account, List<OrderItem> orderItems, int totalPrice, int discountPrice) {
+    public static Order start(OAuth2Account account, UUID transactionId, List<OrderItem> orderItems, int totalPrice, int discountPrice) {
         List<OrderItem> orderItems_ = Objects.requireNonNullElseGet(orderItems, Collections::emptyList);
         int totalPrice_ = Math.max(totalPrice, 0);
         int discountPrice_ = Math.max(discountPrice, 0);
 
-        return new Order(0L, account, OrderStatus.ORDER_START, null, orderItems_, totalPrice_, discountPrice_);
+        return new Order(0L, account, transactionId, OrderStatus.ORDER_START, null, orderItems_, totalPrice_, discountPrice_);
+    }
+
+    public void ordered() {
+        entireOrderStatus = OrderStatus.ORDERED;
+        paymentStatus = PaymentStatus.PAID;
+    }
+
+    public void cancel() {
+        entireOrderStatus = OrderStatus.ORDER_FAILED_PAYMENT_CANCEL;
+        paymentStatus = PaymentStatus.PAYMENT_CANCEL;
+    }
+
+    public void fail(OrderStatus orderStatus, PaymentStatus paymentStatus) {
+        entireOrderStatus = orderStatus;
+        this.paymentStatus = paymentStatus;
     }
 
     public void updateEntireOrderStatus(OrderStatus orderStatus) {
