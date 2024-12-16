@@ -5,7 +5,10 @@ import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.config.PaymentServiceConfig;
+import co.ohmygoods.payment.entity.vo.UserAgent;
 import co.ohmygoods.payment.repository.PaymentRepository;
+import co.ohmygoods.payment.service.dto.ExternalPreparationResponse;
+import co.ohmygoods.product.service.dto.PaymentReadyResponse;
 import co.ohmygoods.shop.repository.ShopRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -68,11 +71,12 @@ class KakaopayServiceTest {
     void 결제_준비_성공() {
         when(mockAccount.getEmail()).thenReturn(ACCOUNT_EMAIL);
         when(accountRepository.findByEmail(anyString())).thenReturn(Optional.of(mockAccount));
-        when(orderRepository.findById(anyLong())).thenReturn(Optional.of(order));
+        when(orderRepository.fetchAccountByTransactionId(anyString())).thenReturn(Optional.of(order));
 
-        PaymentService.PaymentReadyResponse ready = kakaopayService.ready(PaymentService.UserAgent.DESKTOP, ACCOUNT_EMAIL, ORDER_ID, PAYMENT_NAME);
+        ExternalPreparationResponse kakaopayPreparationResponse = kakaopayService.sendPreparationRequest(UserAgent.DESKTOP,
+                ACCOUNT_EMAIL, ORDER_TRANSACTION_ID, ORDER_TOTAL_PRICE, PAYMENT_NAME);
 
-        System.out.println(ready);
+        System.out.println(kakaopayPreparationResponse);
     }
 
     @Test

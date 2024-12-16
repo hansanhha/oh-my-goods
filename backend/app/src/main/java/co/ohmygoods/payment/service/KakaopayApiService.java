@@ -3,17 +3,15 @@ package co.ohmygoods.payment.service;
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.order.model.entity.Order;
-import co.ohmygoods.order.model.entity.OrderItem;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.entity.Payment;
+import co.ohmygoods.payment.entity.vo.UserAgent;
 import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.repository.PaymentRepository;
-import co.ohmygoods.payment.vo.PaymentStatus;
+import co.ohmygoods.payment.service.dto.ExternalPaymentError;
 import co.ohmygoods.payment.vo.ExternalPaymentVendor;
-import co.ohmygoods.product.model.entity.Product;
-import co.ohmygoods.shop.repository.ShopRepository;
-import com.fasterxml.jackson.core.type.TypeReference;
+import co.ohmygoods.payment.vo.PaymentStatus;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,24 +23,23 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
 
-import static co.ohmygoods.payment.service.KakaopayService.*;
+import static co.ohmygoods.payment.service.KakaopayApiService.*;
 
 @Transactional
 @Service
-public class KakaopayService
-        extends AbstractExternalPaymentApiService<KakaopayPreparationResponse, KakaopayApprovalResponse, KakaopayRequestFailureCause>
-        implements PaymentService {
+public class KakaopayApiService
+        extends AbstractExternalPaymentApiService<KakaopayPreparationResponse, KakaopayApprovalResponse, KakaopayRequestFailureCause> {
 
-    private final PaymentServiceConfig.KakaoPayProperties kakaoPayProperties;
+    private final PaymentServiceConfig.KakaoPayProperties kakaopayProperties;
     private final RestClient kakaoPayApiClient;
 
     private final OrderRepository orderRepository;
     private final AccountRepository accountRepository;
     private final PaymentRepository paymentRepository;
 
-    public KakaopayService(PaymentServiceConfig.KakaoPayProperties kakaoPayProperties, @Qualifier("kakaopayApiRestClient") RestClient kakaoPayApiClient,
-                           OrderRepository orderRepository, AccountRepository accountRepository, PaymentRepository paymentRepository) {
-        this.kakaoPayProperties = kakaoPayProperties;
+    public KakaopayApiService(PaymentServiceConfig.KakaoPayProperties kakaopayProperties, @Qualifier("kakaopayApiRestClient") RestClient kakaoPayApiClient,
+                              OrderRepository orderRepository, AccountRepository accountRepository, PaymentRepository paymentRepository) {
+        this.kakaopayProperties = kakaopayProperties;
         this.kakaoPayApiClient = kakaoPayApiClient;
         this.orderRepository = orderRepository;
         this.accountRepository = accountRepository;
@@ -57,96 +54,56 @@ public class KakaopayService
     @Override
     protected URI getExternalPaymentRequestUri(PaymentPhase paymentPhase) {
         return paymentPhase.equals(PaymentPhase.PREPARATION)
-                ? URI.create(kakaoPayProperties.getPreparationRequestUrl())
-                : URI.create(kakaoPayProperties.getApprovalRequestUrl());
+                ? URI.create(kakaopayProperties.getPreparationRequestUrl())
+                : URI.create(kakaopayProperties.getApprovalRequestUrl());
     }
 
     @Override
-    public PaymentReadyResponse ready(UserAgent userAgent, String accountEmail, Long orderId, String paymentName) {
+    protected Object getPreparationRequestBody(String accountEmail, String orderTransactionId, int paymentAmount, String paymentName) {
         OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(() -> PaymentException.notFoundAccount(accountEmail));
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> PaymentException.notFoundOrder(orderId));
+        Order order = orderRepository.fetchAccountByTransactionId(orderTransactionId).orElseThrow(() -> PaymentException.notFoundOrder(orderTransactionId));
 
-        Payment payment = Payment.start(account, order, ExternalPaymentVendor.KAKAOPAY, order.getTotalPrice());
-        paymentRepository.save(payment);
-
-        KakaopayPreparationRequest kakaoPayPreparationRequest =
-                KakaopayPreparationRequest.create(payment, account, order.getTransactionId(), paymentName, kakaoPayProperties);
-
-        PreparationResult externalPreparationResult =
-                sendExternalPaymentPreparationRequest(kakaoPayPreparationRequest);
-
-        if (!externalPreparationResult.isSuccess()) {
-            KakaopayRequestFailureCause externalError = externalPreparationResult.getExternalError();
-            handlePaymentFailure(payment, externalError);
-
-            return externalError != null
-                    ? PaymentReadyResponse.fail(payment.getPaymentAmount(), convertPaymentFailedStatus(externalError), externalError.errorCode(), externalError.errorMessage())
-                    : PaymentReadyResponse.fail(payment.getPaymentAmount(), null, null, "unknown error");
-        }
-
-        KakaopayPreparationResponse preparationResponse = externalPreparationResult.getPreparationResponse();
-        payment.ready(preparationResponse.tid(), LocalDateTime.ofInstant(preparationResponse.createdAt().toInstant(), ZoneId.systemDefault()));
-
-        return PaymentReadyResponse.success(payment.getTransactionId(), order.getId(), accountEmail, payment.getPaymentAmount(),
-                getNextRedirectUrlByUserAgent(userAgent, preparationResponse), LocalDateTime.ofInstant(preparationResponse.createdAt().toInstant(), ZoneId.systemDefault()));
+        return KakaopayPreparationRequest.create(paymentAmount, account, order.getTransactionId(), paymentName, kakaopayProperties);
     }
 
     @Override
-    public PaymentApproveResponse approve(String orderTransactionId, Map<String, String> properties) {
+    protected Object getApprovalRequestBody(String orderTransactionId, Map<String, String> properties) {
         Order order = orderRepository.fetchAccountByTransactionId(orderTransactionId).orElseThrow(() -> PaymentException.notFoundOrder(orderTransactionId));
         Payment payment = paymentRepository.findByOrder(order).orElseThrow(() -> PaymentException.notFoundPayment(order.getId()));
         OAuth2Account account = order.getAccount();
 
-        KakaopayApprovalRequest kakaoPayApprovalRequest = new KakaopayApprovalRequest(kakaoPayProperties.getCid(),
-                payment.getTransactionId(), order.getTransactionId(), account.getEmail(), properties.get("pgToken"));
-
-        ApprovalResult externalApprovalResult =
-                sendExternalPaymentApprovalRequest(kakaoPayApprovalRequest);
-
-        if (!externalApprovalResult.isSuccess()) {
-            KakaopayRequestFailureCause externalError = externalApprovalResult.getExternalError();
-            handlePaymentFailure(payment, externalError);
-
-            return PaymentApproveResponse.fail(payment.getId(),
-                    order.getId(), account.getEmail(), payment.getPaymentAmount(),
-                    payment.getExternalPaymentVendor().name(),  payment.getStatus(),
-                    externalError != null ? new ExternalPaymentError(externalError.errorCode(), externalError.errorMessage()) : null);
-        }
-
-        payment.succeed();
-        return PaymentApproveResponse.success(payment.getId(), order.getId(), account.getEmail(),
-                payment.getPaymentAmount(), payment.getExternalPaymentVendor().name(),
-                payment.getStatus(), LocalDateTime.from(externalApprovalResult.getApprovalResponse().approvedAt().toInstant()));
+        return new KakaopayApprovalRequest(kakaopayProperties.getCid(), payment.getTransactionId(),
+                order.getTransactionId(), account.getEmail(), properties.get("pgToken"));
     }
 
     @Override
-    public void fail(String transactionId) {
-        Payment payment = paymentRepository.findFetchOrderAndProductByTransactionId(transactionId).orElseThrow(() -> PaymentException.notFoundPayment(transactionId));
-        payment.fail(PaymentStatus.PAYMENT_FAILED_TIMEOUT); // 임시
+    protected PreparationResponseDetail extractPreparationResponseDetail(UserAgent userAgent, KakaopayPreparationResponse kpr) {
+        return new PreparationResponseDetail(kpr.tid(), getNextRedirectUrlByUserAgent(userAgent, kpr), toLocalDateTime(kpr.createdAt()));
     }
 
     @Override
-    public void cancel(String transactionId) {
-        Payment payment = paymentRepository.findFetchOrderAndProductByTransactionId(transactionId).orElseThrow(() -> PaymentException.notFoundPayment(transactionId));
-        payment.cancel();
+    protected ApprovalResponseDetail extractApprovalResponseDetail(KakaopayApprovalResponse kpr) {
+        return new ApprovalResponseDetail(kpr.partnerUserId(), kpr.tid(), kpr.amount().total(), toLocalDateTime(kpr.approvedAt()));
     }
 
     @Override
-    public boolean canPay(ExternalPaymentVendor externalPaymentVendor) {
+    protected ExternalPaymentError convertToExternalError(KakaopayRequestFailureCause cause) {
+        return convertKakaopayErrorToExternalError(cause);
+    }
+
+    @Override
+    public boolean isSupport(ExternalPaymentVendor externalPaymentVendor) {
         return externalPaymentVendor.equals(ExternalPaymentVendor.KAKAOPAY);
     }
 
-    private void handlePaymentFailure(Payment payment, KakaopayRequestFailureCause kakaoPayRequestFailureCause) {
-        if (kakaoPayRequestFailureCause == null) {
-            payment.fail(PaymentStatus.PAYMENT_FAILED_OTHER_EXTERNAL_API_ERROR);
-            return;
-        }
+    private ExternalPaymentError convertKakaopayErrorToExternalError(KakaopayRequestFailureCause cause) {
+        PaymentStatus paymentFailedStatus = convertPaymentFailedStatus(cause.errorCode());
 
-        payment.fail(convertPaymentFailedStatus(kakaoPayRequestFailureCause));
+        return new ExternalPaymentError(paymentFailedStatus, cause.errorCode(), cause.errorMessage());
     }
 
-    private PaymentStatus convertPaymentFailedStatus(KakaopayRequestFailureCause kakaoPayApiFailResponse) {
-        return switch (kakaoPayApiFailResponse.errorCode()) {
+    private PaymentStatus convertPaymentFailedStatus(String kakaopayErrorCode) {
+        return switch (kakaopayErrorCode) {
             default -> PaymentStatus.PAYMENT_FAILED_NETWORK_ERROR;
         };
     }
@@ -157,6 +114,10 @@ public class KakaopayService
             case MOBILE_WEB -> preparationResponse.nextRedirectMobileUrl();
             case MOBILE_APP -> preparationResponse.nextRedirectAppUrl();
         };
+    }
+
+    private LocalDateTime toLocalDateTime(Date date) {
+        return LocalDateTime.from(date.toInstant().atZone(ZoneId.systemDefault()));
     }
 
     protected record KakaopayPreparationRequest(String cid,
@@ -170,7 +131,7 @@ public class KakaopayService
                                       String cancelURL,
                                       String failURL) {
 
-        private static KakaopayPreparationRequest create(Payment payment, OAuth2Account account, String orderTransactionId,
+        private static KakaopayPreparationRequest create(int paymentAmount, OAuth2Account account, String orderTransactionId,
                                                          String paymentName, PaymentServiceConfig.KakaoPayProperties kakaoPayProperties) {
             return new KakaopayPreparationRequest(
                     kakaoPayProperties.getCid(),
@@ -178,8 +139,8 @@ public class KakaopayService
                     account.getEmail(),
                     paymentName,
                     1,
-                    payment.getPaymentAmount(),
-                    payment.getPaymentAmount(),
+                    paymentAmount,
+                    paymentAmount,
                     kakaoPayProperties.getApprovalRedirectUrl().concat("?order_number=").concat(orderTransactionId),
                     kakaoPayProperties.getCancelRedirectUrl(),
                     kakaoPayProperties.getFailRedirectUrl());
