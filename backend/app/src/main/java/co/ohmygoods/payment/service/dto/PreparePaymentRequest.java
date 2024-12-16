@@ -1,11 +1,13 @@
-package co.ohmygoods.payment.dto;
+package co.ohmygoods.payment.service.dto;
 
-import co.ohmygoods.payment.service.PaymentService;
+import co.ohmygoods.payment.entity.vo.UserAgent;
 import co.ohmygoods.payment.vo.ExternalPaymentVendor;
 
 public record PreparePaymentRequest(ExternalPaymentVendor externalPaymentVendor,
-                                    PaymentService.UserAgent userAgent,
+                                    UserAgent userAgent,
                                     String accountEmail,
                                     Long orderId,
+                                    String orderTransactionId,
+                                    int paymentAmount,
                                     String paymentName) {
 }

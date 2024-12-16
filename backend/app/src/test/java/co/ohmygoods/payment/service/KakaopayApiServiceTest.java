@@ -8,7 +8,6 @@ import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.entity.vo.UserAgent;
 import co.ohmygoods.payment.repository.PaymentRepository;
 import co.ohmygoods.payment.service.dto.ExternalPreparationResponse;
-import co.ohmygoods.product.service.dto.PaymentReadyResponse;
 import co.ohmygoods.shop.repository.ShopRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -28,11 +27,11 @@ import java.util.UUID;
 import static org.mockito.Mockito.*;
 
 
-@SpringBootTest(classes = {KakaopayService.class, PaymentServiceConfig.class})
+@SpringBootTest(classes = {KakaopayApiService.class, PaymentServiceConfig.class})
 @EnableConfigurationProperties(PaymentServiceConfig.KakaoPayProperties.class)
 @TestPropertySource(locations = "classpath:application.yml")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class KakaopayServiceTest {
+class KakaopayApiServiceTest {
 
     @MockBean
     private ShopRepository shopRepository;
@@ -47,7 +46,7 @@ class KakaopayServiceTest {
     private OrderRepository orderRepository;
 
     @Autowired
-    private KakaopayService kakaopayService;
+    private KakaopayApiService kakaopayApiService;
 
     @Mock
     private OAuth2Account mockAccount;
@@ -73,7 +72,7 @@ class KakaopayServiceTest {
         when(accountRepository.findByEmail(anyString())).thenReturn(Optional.of(mockAccount));
         when(orderRepository.fetchAccountByTransactionId(anyString())).thenReturn(Optional.of(order));
 
-        ExternalPreparationResponse kakaopayPreparationResponse = kakaopayService.sendPreparationRequest(UserAgent.DESKTOP,
+        ExternalPreparationResponse kakaopayPreparationResponse = kakaopayApiService.sendPreparationRequest(UserAgent.DESKTOP,
                 ACCOUNT_EMAIL, ORDER_TRANSACTION_ID, ORDER_TOTAL_PRICE, PAYMENT_NAME);
 
         System.out.println(kakaopayPreparationResponse);

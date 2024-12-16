@@ -1,7 +1,8 @@
 package co.ohmygoods.payment.service;
 
-import co.ohmygoods.payment.dto.*;
+import co.ohmygoods.payment.entity.Payment;
 import co.ohmygoods.payment.exception.PaymentException;
+import co.ohmygoods.payment.service.dto.*;
 import co.ohmygoods.payment.vo.ExternalPaymentVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ import java.util.List;
     1. 적절한 결제 서비스를 찾아 결제 처리를 위임
     2. 처리 결과에 따른 콜백 서비스 호출 및 DTO 반환
 
+    todo
+        결제 취소, 실패 메서드 구현
+
     fixme
         현재 PaymentService 구현체에서 외부 api 요청과 내부 결제 처리를 모두 담당하고 있음
         외부 결제 API 요청 처리 서비스와 애플리케이션 결제 처리 서비스 객체 분리 필요
@@ -26,53 +30,74 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentGateway {
 
-    private final List<PaymentService> paymentServices;
+    private final PaymentService paymentService;
+    private final List<PaymentExternalApiService> paymentExternalApiServices;
     private final List<PaymentResultListener> paymentResultListeners;
 
-    public PreparePaymentResponse preparePayment(PreparePaymentRequest request) {
-        LocalDateTime attemptAt = LocalDateTime.now();
+    public PaymentStartResponse startPayment(PreparePaymentRequest request) {
+        paymentService.createPayment(request.externalPaymentVendor(),
+                request.accountEmail(), request.orderId(), request.paymentAmount(), request.paymentName());
 
-        PaymentService paymentService = findSupportPaymentService(request.externalPaymentVendor());
-        PaymentService.PaymentReadyResponse response = paymentService.ready(request.userAgent(),
-                request.accountEmail(), request.orderId(), request.paymentName());
+        LocalDateTime startedAt = LocalDateTime.now();
 
-        return response.isReady()
-                ? PreparePaymentResponse.success(request, response, attemptAt)
-                : PreparePaymentResponse.fail(request, response, attemptAt);
-    }
+        PaymentExternalApiService externalApiService = findSupportPaymentExternalApiService(request.externalPaymentVendor());
 
-    public ApprovePaymentResponse approvePayment(ApprovePaymentRequest request) {
-        LocalDateTime attemptAt = LocalDateTime.now();
+        ExternalPreparationResponse externalResponse = externalApiService.sendPreparationRequest(request.userAgent(),
+                request.accountEmail(), request.orderTransactionId(), request.paymentAmount(), request.paymentName());
 
-        PaymentService paymentService = findSupportPaymentService(request.externalPaymentVendor());
-        PaymentService.PaymentApproveResponse response = paymentService.approve(request.orderTransactionId(), request.properties());
+        if (!externalResponse.isSuccess()) {
+            LocalDateTime failedAt = LocalDateTime.now();
 
-        if (!response.isApproved()) {
-            paymentResultListeners.forEach(listener ->
-                    listener.onFailure(response.paymentId(), response.orderId(), response.paymentStatus()));
-            return ApprovePaymentResponse.fail(request, response, attemptAt);
+            paymentService.failPayment(request.orderTransactionId(), externalResponse.externalError().paymentFailureCause(), failedAt);
+
+            return PaymentStartResponse.fail(request.accountEmail(), request.paymentAmount(), request.externalPaymentVendor(),
+                    externalResponse.externalError().paymentFailureCause(), startedAt, failedAt);
         }
 
-        paymentResultListeners.forEach(listener ->
-                listener.onSuccess(response.paymentId(), response.orderId()));
-        return ApprovePaymentResponse.success(request, response, attemptAt);
+        Long paymentId = paymentService.getPaymentId(request.orderTransactionId());
+        paymentService.readyPayment(externalResponse.externalTransactionId(), externalResponse.preparedAt());
+
+        return PaymentStartResponse.success(request.accountEmail(), paymentId, request.paymentAmount(),
+                request.externalPaymentVendor(),externalResponse.nextRedirectURI(), externalResponse.createdAt(), externalResponse.preparedAt());
     }
 
-    public void cancelPayment(ExternalPaymentVendor externalPaymentVendor, String transactionId) {
-        PaymentService paymentService = findSupportPaymentService(externalPaymentVendor);
-        paymentService.cancel(transactionId);
+    public PaymentEndResponse continuePayment(ApprovePaymentRequest request) {
+        LocalDateTime continuedAt = LocalDateTime.now();
 
+        PaymentExternalApiService externalApiService = findSupportPaymentExternalApiService(request.externalPaymentVendor());
+
+        ExternalApprovalResponse externalResponse = externalApiService.sendApprovalRequest(request.orderTransactionId(), request.properties());
+
+        Long paymentId = paymentService.getPaymentId(request.orderTransactionId());
+
+        if (!externalResponse.isSuccess()) {
+            LocalDateTime failedAt = LocalDateTime.now();
+
+            paymentService.failPayment(request.orderTransactionId(), externalResponse.externalError().paymentFailureCause(), failedAt);
+
+            return PaymentEndResponse.fail(externalResponse.accountEmail(), paymentId, request.orderTransactionId(),
+                    externalResponse.paymentAmount(), request.externalPaymentVendor(), externalResponse.externalError().paymentFailureCause(),
+                    continuedAt, failedAt);
+        }
+
+        paymentService.readyPayment(externalResponse.externalTransactionId(), externalResponse.approvedAt());
+
+        return PaymentEndResponse.success(externalResponse.accountEmail(), paymentId, request.orderTransactionId(),
+                externalResponse.paymentAmount(), request.externalPaymentVendor(), externalResponse.startedAt(), externalResponse.approvedAt());
     }
 
-    public void failPayment(ExternalPaymentVendor externalPaymentVendor, String transactionId) {
-        PaymentService paymentService = findSupportPaymentService(externalPaymentVendor);
-        paymentService.fail(transactionId);
+    public void cancelPayment(ExternalPaymentVendor externalPaymentVendor, String orderTransactionId) {
+        paymentService.cancelPayment(orderTransactionId, LocalDateTime.now());
     }
 
-    private PaymentService findSupportPaymentService(ExternalPaymentVendor externalPaymentVendor) {
-        return paymentServices
+    public void failPayment(ExternalPaymentVendor externalPaymentVendor, String orderTransactionId) {
+//        paymentService.failPayment(orderTransactionId, LocalDateTime.now());
+    }
+
+    private PaymentExternalApiService findSupportPaymentExternalApiService(ExternalPaymentVendor externalPaymentVendor) {
+        return paymentExternalApiServices
                 .stream()
-                .filter(service -> service.canPay(externalPaymentVendor))
+                .filter(service -> service.isSupport(externalPaymentVendor))
                 .findFirst()
                 .orElseThrow(() -> PaymentException.notSupportPaymentVendor(externalPaymentVendor.name()));
     }

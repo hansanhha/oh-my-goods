@@ -1,4 +1,4 @@
-package co.ohmygoods.payment.dto;
+package co.ohmygoods.payment.service.dto;
 
 import co.ohmygoods.payment.vo.ExternalPaymentVendor;
 

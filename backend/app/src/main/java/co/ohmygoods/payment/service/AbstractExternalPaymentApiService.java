@@ -55,14 +55,15 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
 
         ExternalApiRequestResult preparationResult = sendExternalApiRequest(PaymentPhase.PREPARATION, preparationRequestBody);
 
-        if (!preparationResult.isSuccess()) {
-            return ExternalPreparationResponse.fail(accountEmail, orderTransactionId, paymentAmount, convertToExternalError(preparationResult.getExternalError()));
-        }
-
         PreparationResponseDetail prd = extractPreparationResponseDetail(userAgent, preparationResult.getPreparationResponse());
 
+        if (!preparationResult.isSuccess()) {
+            return ExternalPreparationResponse.fail(accountEmail, orderTransactionId, paymentAmount,
+                    convertToExternalError(preparationResult.getExternalError()), prd.createdAt());
+        }
+
         return ExternalPreparationResponse.success(accountEmail, orderTransactionId,
-                prd.externalTransactionId(), prd.nextRedirectURI(), paymentAmount, prd.preparedAt());
+                prd.externalTransactionId(), prd.nextRedirectURI(), paymentAmount, prd.createdAt(), prd.preparedAt());
     }
 
     @Override
@@ -75,11 +76,12 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
 
         if (!approvalResult.isSuccess()) {
             return ExternalApprovalResponse.fail(ard.accountEmail(), orderTransactionId,
-                    ard.externalTransactionId(), ard.paymentAmount(),convertToExternalError(approvalResult.getExternalError()));
+                    ard.externalTransactionId(), ard.paymentAmount(),
+                    convertToExternalError(approvalResult.getExternalError()), ard.startedAt());
         }
 
         return ExternalApprovalResponse.success(ard.accountEmail(), orderTransactionId,
-                ard.externalTransactionId(), ard.paymentAmount(), ard.approvedAt());
+                ard.externalTransactionId(), ard.paymentAmount(), ard.startedAt(), ard.approvedAt());
     }
 
     /* -------------------------------------------------------------------
@@ -228,6 +230,7 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
     // ExternalPreparationResponse 객체를 생성하기 위한 필요 정보
     protected record PreparationResponseDetail(String externalTransactionId,
                                                String nextRedirectURI,
+                                               LocalDateTime createdAt,
                                                LocalDateTime preparedAt) {
     }
 
@@ -236,6 +239,7 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
     protected record ApprovalResponseDetail(String accountEmail,
                                             String externalTransactionId,
                                             int paymentAmount,
+                                            LocalDateTime startedAt,
                                             LocalDateTime approvedAt) {
     }
 

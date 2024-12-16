@@ -14,10 +14,10 @@ import co.ohmygoods.order.repository.OrderItemRepository;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.order.service.dto.OrderStartRequest;
 import co.ohmygoods.order.service.dto.OrderStartResponse;
-import co.ohmygoods.payment.dto.PreparePaymentRequest;
-import co.ohmygoods.payment.dto.PreparePaymentResponse;
+import co.ohmygoods.payment.entity.vo.UserAgent;
+import co.ohmygoods.payment.service.dto.PreparePaymentRequest;
+import co.ohmygoods.payment.service.dto.PaymentStartResponse;
 import co.ohmygoods.payment.service.PaymentGateway;
-import co.ohmygoods.payment.service.PaymentService;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -144,18 +144,18 @@ public class SimpleOrderStartService implements OrderStartService {
         Order order = orderRepository.save(newOrder);
 
         PreparePaymentRequest preparePaymentRequest = new PreparePaymentRequest(request.orderPaymentMethod(),
-                PaymentService.UserAgent.DESKTOP, account.getEmail(), order.getId(), generatePaymentName(order));
+                UserAgent.DESKTOP, account.getEmail(), order.getId(), order.getTransactionId(), order.getTotalPrice(), generatePaymentName(order));
 
         // 결제 준비 요청(외부 api 호출)
-        PreparePaymentResponse preparePaymentResponse = paymentGateway.preparePayment(preparePaymentRequest);
+        PaymentStartResponse paymentStartResponse = paymentGateway.startPayment(preparePaymentRequest);
 
         // 결제 준비 요청 결과에 따른 분기 처리
-        if (!preparePaymentResponse.isPrepareSuccess()) {
-            order.fail(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE, preparePaymentResponse.paymentFailureCause());
-            return OrderStartResponse.fail(preparePaymentResponse.paymentFailureCause().getMessage());
+        if (!paymentStartResponse.isStartSuccess()) {
+            order.fail(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE, paymentStartResponse.paymentFailureCause());
+            return OrderStartResponse.fail(paymentStartResponse.paymentFailureCause().getMessage());
         }
 
-        return OrderStartResponse.success(preparePaymentResponse.redirectUrl(),
+        return OrderStartResponse.success(paymentStartResponse.redirectUrl(),
                 order.getTransactionId(), order.getCreatedAt());
     }
 

@@ -78,12 +78,14 @@ public class KakaopayApiService
 
     @Override
     protected PreparationResponseDetail extractPreparationResponseDetail(UserAgent userAgent, KakaopayPreparationResponse kpr) {
-        return new PreparationResponseDetail(kpr.tid(), getNextRedirectUrlByUserAgent(userAgent, kpr), toLocalDateTime(kpr.createdAt()));
+        return new PreparationResponseDetail(kpr.tid(), getNextRedirectUrlByUserAgent(userAgent, kpr),
+                toLocalDateTime(kpr.createdAt()), toLocalDateTime(kpr.createdAt()));
     }
 
     @Override
     protected ApprovalResponseDetail extractApprovalResponseDetail(KakaopayApprovalResponse kpr) {
-        return new ApprovalResponseDetail(kpr.partnerUserId(), kpr.tid(), kpr.amount().total(), toLocalDateTime(kpr.approvedAt()));
+        return new ApprovalResponseDetail(kpr.partnerUserId(), kpr.tid(), kpr.amount().total(),
+                toLocalDateTime(kpr.createdAt()), toLocalDateTime(kpr.approvedAt()));
     }
 
     @Override
