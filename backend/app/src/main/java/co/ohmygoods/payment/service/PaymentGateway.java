@@ -10,6 +10,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/*
+    결제 처리 흐름: 결제 준비 -> 결제 승인 -> 결제 완료
+
+    PaymentGateway 역할
+    1. 적절한 결제 서비스를 찾아 결제 처리를 위임
+    2. 처리 결과에 따른 콜백 서비스 호출 및 DTO 반환
+
+    fixme
+        현재 PaymentService 구현체에서 외부 api 요청과 내부 결제 처리를 모두 담당하고 있음
+        외부 결제 API 요청 처리 서비스와 애플리케이션 결제 처리 서비스 객체 분리 필요
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
