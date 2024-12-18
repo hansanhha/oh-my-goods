@@ -2,11 +2,11 @@ package co.ohmygoods.payment.service;
 
 import co.ohmygoods.payment.vo.PaymentStatus;
 
-public interface PaymentResultListener {
+public interface PaymentProcessListener {
 
     void onSuccess(Long paymentId);
 
     void onCancel(Long paymentId);
 
-    void onFailure(Long paymentId, PaymentStatus failureCause);
+    void onFailure(Long paymentId, PaymentStatus paymentFailureCause);
 }

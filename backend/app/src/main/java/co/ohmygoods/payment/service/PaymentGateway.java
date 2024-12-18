@@ -1,6 +1,5 @@
 package co.ohmygoods.payment.service;
 
-import co.ohmygoods.payment.entity.Payment;
 import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.service.dto.*;
 import co.ohmygoods.payment.vo.ExternalPaymentVendor;
@@ -30,7 +29,7 @@ public class PaymentGateway {
 
     private final PaymentService paymentService;
     private final List<PaymentExternalApiService> paymentExternalApiServices;
-    private final List<PaymentResultListener> paymentResultListeners;
+    private final List<PaymentProcessListener> paymentProcessListeners;
 
     public PaymentStartResponse startPayment(PreparePaymentRequest request) {
         Long paymentId = paymentService.createPayment(request.externalPaymentVendor(),
@@ -47,6 +46,9 @@ public class PaymentGateway {
             LocalDateTime failedAt = LocalDateTime.now();
 
             paymentService.failPayment(request.orderTransactionId(), externalResponse.externalError().paymentFailureCause(), failedAt);
+
+            paymentProcessListeners.forEach(listener ->
+                    listener.onFailure(paymentId, externalResponse.externalError().paymentFailureCause()));
 
             return PaymentStartResponse.fail(request.accountEmail(), request.paymentAmount(), request.externalPaymentVendor(),
                     externalResponse.externalError().paymentFailureCause(), startedAt, failedAt);
@@ -70,6 +72,9 @@ public class PaymentGateway {
 
             Long paymentId = paymentService.failPayment(request.orderTransactionId(), externalResponse.externalError().paymentFailureCause(), failedAt);
 
+            paymentProcessListeners.forEach(listener ->
+                    listener.onFailure(paymentId, externalResponse.externalError().paymentFailureCause()));
+
             return PaymentEndResponse.fail(externalResponse.accountEmail(), paymentId, request.orderTransactionId(),
                     externalResponse.paymentAmount(), request.externalPaymentVendor(), externalResponse.externalError().paymentFailureCause(),
                     continuedAt, failedAt);
@@ -77,7 +82,7 @@ public class PaymentGateway {
 
         Long paymentId = paymentService.successPayment(externalResponse.externalTransactionId(), externalResponse.approvedAt());
 
-        paymentResultListeners.forEach(listener -> listener.onSuccess(paymentId));
+        paymentProcessListeners.forEach(listener -> listener.onSuccess(paymentId));
 
         return PaymentEndResponse.success(externalResponse.accountEmail(), paymentId, request.orderTransactionId(),
                 externalResponse.paymentAmount(), request.externalPaymentVendor(), externalResponse.startedAt(), externalResponse.approvedAt());
@@ -86,7 +91,7 @@ public class PaymentGateway {
     public void cancelPayment(ExternalPaymentVendor vendor, String orderTransactionId) {
         Long paymentId = paymentService.cancelPayment(orderTransactionId, LocalDateTime.now());
 
-        paymentResultListeners.forEach(listener -> listener.onCancel(paymentId));
+        paymentProcessListeners.forEach(listener -> listener.onCancel(paymentId));
     }
 
     public void failPayment(ExternalPaymentVendor vendor, String orderTransactionId, Object failureInfo) {
@@ -96,7 +101,7 @@ public class PaymentGateway {
 
         Long paymentId = paymentService.failPayment(orderTransactionId, externalPaymentError.paymentFailureCause(), LocalDateTime.now());
 
-        paymentResultListeners.forEach(listener ->
+        paymentProcessListeners.forEach(listener ->
                 listener.onFailure(paymentId, externalPaymentError.paymentFailureCause()));
     }
 
