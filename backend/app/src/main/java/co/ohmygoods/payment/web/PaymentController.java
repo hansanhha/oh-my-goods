@@ -2,7 +2,7 @@ package co.ohmygoods.payment.web;
 
 import co.ohmygoods.payment.service.dto.ApprovePaymentRequest;
 import co.ohmygoods.payment.service.PaymentGateway;
-import co.ohmygoods.payment.vo.ExternalPaymentVendor;
+import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

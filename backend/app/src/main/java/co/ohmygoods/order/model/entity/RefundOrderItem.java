@@ -5,7 +5,7 @@ import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.RefundException;
 import co.ohmygoods.order.model.vo.OrderStatus;
 import co.ohmygoods.order.model.vo.RefundStatus;
-import co.ohmygoods.shop.entity.Shop;
+import co.ohmygoods.shop.model.entity.Shop;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

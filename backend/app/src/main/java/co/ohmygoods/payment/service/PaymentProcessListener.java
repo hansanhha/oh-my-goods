@@ -1,6 +1,6 @@
 package co.ohmygoods.payment.service;
 
-import co.ohmygoods.payment.vo.PaymentStatus;
+import co.ohmygoods.payment.model.vo.PaymentStatus;
 
 public interface PaymentProcessListener {
 

@@ -1,10 +1,10 @@
 package co.ohmygoods.payment.service;
 
-import co.ohmygoods.payment.entity.vo.UserAgent;
+import co.ohmygoods.payment.model.vo.UserAgent;
 import co.ohmygoods.payment.service.dto.ExternalApprovalResponse;
 import co.ohmygoods.payment.service.dto.ExternalPaymentError;
 import co.ohmygoods.payment.service.dto.ExternalPreparationResponse;
-import co.ohmygoods.payment.vo.ExternalPaymentVendor;
+import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
 
 import java.util.Map;
 

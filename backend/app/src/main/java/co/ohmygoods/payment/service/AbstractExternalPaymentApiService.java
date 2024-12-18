@@ -1,6 +1,6 @@
 package co.ohmygoods.payment.service;
 
-import co.ohmygoods.payment.entity.vo.UserAgent;
+import co.ohmygoods.payment.model.vo.UserAgent;
 import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.service.dto.ExternalApprovalResponse;
 import co.ohmygoods.payment.service.dto.ExternalPaymentError;

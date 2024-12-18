@@ -2,9 +2,9 @@ package co.ohmygoods.cart.service;
 
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.cart.dto.AddCartRequest;
-import co.ohmygoods.cart.dto.UpdateCartQuantityRequest;
-import co.ohmygoods.cart.entity.Cart;
+import co.ohmygoods.cart.service.dto.AddCartRequest;
+import co.ohmygoods.cart.service.dto.UpdateCartQuantityRequest;
+import co.ohmygoods.cart.model.entity.Cart;
 import co.ohmygoods.cart.exception.CartException;
 import co.ohmygoods.cart.repository.CartRepository;
 import co.ohmygoods.product.exception.ProductNotFoundException;

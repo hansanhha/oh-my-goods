@@ -2,7 +2,7 @@ package co.ohmygoods.coupon.service;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.coupon.dto.ApplicableIssuedCouponResponse;
+import co.ohmygoods.coupon.service.dto.ApplicableIssuedCouponResponse;
 import co.ohmygoods.coupon.exception.CouponException;
 import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
@@ -15,7 +15,7 @@ import co.ohmygoods.order.model.entity.OrderItem;
 import co.ohmygoods.order.repository.OrderItemRepository;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
-import co.ohmygoods.shop.entity.Shop;
+import co.ohmygoods.shop.model.entity.Shop;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

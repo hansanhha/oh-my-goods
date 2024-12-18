@@ -1,7 +1,7 @@
 package co.ohmygoods.cart.repository;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
-import co.ohmygoods.cart.entity.Cart;
+import co.ohmygoods.cart.model.entity.Cart;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;

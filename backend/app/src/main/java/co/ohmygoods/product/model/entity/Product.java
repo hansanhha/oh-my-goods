@@ -8,7 +8,7 @@ import co.ohmygoods.product.exception.ProductStockStatusException;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
 import co.ohmygoods.product.model.vo.ProductType;
-import co.ohmygoods.shop.entity.Shop;
+import co.ohmygoods.shop.model.entity.Shop;
 import jakarta.persistence.*;
 import lombok.*;
 

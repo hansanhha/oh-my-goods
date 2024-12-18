@@ -2,7 +2,7 @@ package co.ohmygoods.order.service;
 
 import co.ohmygoods.order.service.dto.OrderStartRequest;
 import co.ohmygoods.order.service.dto.OrderStartResponse;
-import co.ohmygoods.payment.vo.PaymentStatus;
+import co.ohmygoods.payment.model.vo.PaymentStatus;
 
 import java.util.UUID;
 

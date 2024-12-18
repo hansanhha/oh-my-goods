@@ -2,7 +2,7 @@ package co.ohmygoods.payment.service;
 
 import co.ohmygoods.payment.exception.PaymentException;
 import co.ohmygoods.payment.service.dto.*;
-import co.ohmygoods.payment.vo.ExternalPaymentVendor;
+import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

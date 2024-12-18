@@ -1,8 +1,7 @@
 package co.ohmygoods.product.service.dto;
 
-import co.ohmygoods.payment.service.PaymentService;
 import co.ohmygoods.payment.service.dto.ExternalPaymentError;
-import co.ohmygoods.payment.vo.PaymentStatus;
+import co.ohmygoods.payment.model.vo.PaymentStatus;
 
 import java.time.LocalDateTime;
 

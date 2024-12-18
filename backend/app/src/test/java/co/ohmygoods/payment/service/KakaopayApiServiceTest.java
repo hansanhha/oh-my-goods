@@ -5,7 +5,7 @@ import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.config.PaymentServiceConfig;
-import co.ohmygoods.payment.entity.vo.UserAgent;
+import co.ohmygoods.payment.model.vo.UserAgent;
 import co.ohmygoods.payment.repository.PaymentRepository;
 import co.ohmygoods.payment.service.dto.ExternalPreparationResponse;
 import co.ohmygoods.shop.repository.ShopRepository;

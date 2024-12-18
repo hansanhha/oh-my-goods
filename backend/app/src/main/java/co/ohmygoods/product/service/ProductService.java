@@ -8,7 +8,7 @@ import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.service.dto.ProductCustomCategoryResponse;
 import co.ohmygoods.product.service.dto.ProductResponse;
-import co.ohmygoods.shop.entity.Shop;
+import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;

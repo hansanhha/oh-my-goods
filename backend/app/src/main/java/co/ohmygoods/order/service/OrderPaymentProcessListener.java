@@ -4,7 +4,7 @@ import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.service.PaymentProcessListener;
-import co.ohmygoods.payment.vo.PaymentStatus;
+import co.ohmygoods.payment.model.vo.PaymentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

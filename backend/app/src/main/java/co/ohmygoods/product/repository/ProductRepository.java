@@ -3,7 +3,7 @@ package co.ohmygoods.product.repository;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.model.entity.ProductCustomCategory;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
-import co.ohmygoods.shop.entity.Shop;
+import co.ohmygoods.shop.model.entity.Shop;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.Query;

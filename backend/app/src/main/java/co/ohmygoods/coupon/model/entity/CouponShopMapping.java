@@ -1,7 +1,7 @@
 package co.ohmygoods.coupon.model.entity;
 
 import co.ohmygoods.global.entity.BaseEntity;
-import co.ohmygoods.shop.entity.Shop;
+import co.ohmygoods.shop.model.entity.Shop;
 import jakarta.persistence.*;
 import lombok.Getter;
 

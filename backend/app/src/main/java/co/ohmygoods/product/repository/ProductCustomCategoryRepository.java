@@ -1,7 +1,7 @@
 package co.ohmygoods.product.repository;
 
 import co.ohmygoods.product.model.entity.ProductCustomCategory;
-import co.ohmygoods.shop.entity.Shop;
+import co.ohmygoods.shop.model.entity.Shop;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 

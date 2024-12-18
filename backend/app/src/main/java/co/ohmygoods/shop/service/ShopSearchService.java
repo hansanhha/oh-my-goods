@@ -4,7 +4,7 @@ import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.model.entity.ProductCustomCategory;
 import co.ohmygoods.shop.repository.ShopRepository;
-import co.ohmygoods.shop.dto.ShopOverviewResponse;
+import co.ohmygoods.shop.service.dto.ShopOverviewResponse;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
