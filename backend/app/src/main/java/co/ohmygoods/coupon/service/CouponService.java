@@ -131,6 +131,7 @@ public class CouponService {
         HashSet<Coupon> applicableCoupons = new HashSet<>();
 
         // 사용자에게 발급된 모든 종류의 사용 가능한 상태의 쿠폰 목록
+        // 쿠폰 적용 범위로 그룹화
         Slice<CouponUsageHistory> couponIssuanceHistories = couponUsageHistoryRepository.fetchIssuedStatusAllByAccount(account, pageable);
         Map<CouponApplicableProductScope, List<Coupon>> issuedAllCoupons =
                 couponIssuanceHistories
@@ -138,11 +139,14 @@ public class CouponService {
                 .map(CouponUsageHistory::getCoupon)
                 .collect(Collectors.groupingBy(Coupon::getApplicableProductScope));
 
-        // "애플리케이션 전체 상품 적용 쿠폰"을 적용 가능 쿠폰 목록에 삽입
+        // "애플리케이션 전체 상품 적용 쿠폰"을 적용 가능한 쿠폰 목록에 삽입
         applicableCoupons.addAll(issuedAllCoupons.get(CouponApplicableProductScope.ALL_PRODUCTS));
 
-        // 대상 상품에 적용 가능한 쿠폰 필터링 작업
-        // 1. "애플리케이션 일부 상품 적용 쿠폰" 중 대상 상품이 포함된 쿠폰 필터링 및 적용 가능 쿠폰 목록 삽입
+        /* ------------------------------------
+            대상 상품에 적용 가능한 쿠폰 필터링 작업
+           ------------------------------------ */
+
+        // 1. "애플리케이션 일부 상품 적용 쿠폰" 중 대상 상품이 포함된 쿠폰 필터링 후 적용 가능 쿠폰 목록에 삽입
         List<Coupon> specificProductGeneralCoupons = issuedAllCoupons.get(CouponApplicableProductScope.SPECIFIC_PRODUCTS);
         if (!specificProductGeneralCoupons.isEmpty()) {
             List<Coupon> specificProductApplicableGeneralCoupons =
@@ -150,6 +154,7 @@ public class CouponService {
             applicableCoupons.addAll(specificProductApplicableGeneralCoupons);
         }
 
+        // 모든 상점에서 발급한 쿠폰 목록
         List<Coupon> allShopCoupons = Stream.concat(
                         issuedAllCoupons.get(CouponApplicableProductScope.SHOP_ALL_PRODUCTS).stream(),
                         issuedAllCoupons.get(CouponApplicableProductScope.SHOP_SPECIFIC_PRODUCTS).stream())
@@ -165,7 +170,7 @@ public class CouponService {
             // 3. "상점 전체 상품 적용 쿠폰"을 적용 가능 쿠폰 목록에 삽입
             applicableCoupons.addAll(targetShopCoupons.get(CouponApplicableProductScope.SHOP_ALL_PRODUCTS));
 
-            // 4. "상점 일부 상품 적용 쿠폰" 중 대상 상품이 포함된 쿠폰 필터링 및 적용 가능 쿠폰 목록 삽입
+            // 4. "상점 일부 상품 적용 쿠폰" 중 대상 상품이 포함된 쿠폰 필터링 후 적용 가능 쿠폰 목록에 삽입
             List<Coupon> specificShopProductShopCoupons = targetShopCoupons.get(CouponApplicableProductScope.SPECIFIC_PRODUCTS);
             if (!specificShopProductShopCoupons.isEmpty()) {
                 List<Coupon> specificShopProductApplicableShopCoupons =
