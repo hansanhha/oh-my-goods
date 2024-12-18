@@ -84,6 +84,12 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
                 ard.externalTransactionId(), ard.paymentAmount(), ard.startedAt(), ard.approvedAt());
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public ExternalPaymentError extractExternalPaymentError(Object failureInfo) {
+        return convertToExternalError((ExternalError) failureInfo);
+    }
+
     /* -------------------------------------------------------------------
          템플릿 메서드
     ---------------------------------------------------------------------- */

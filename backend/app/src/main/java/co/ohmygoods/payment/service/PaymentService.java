@@ -7,13 +7,13 @@ import java.time.LocalDateTime;
 
 public interface PaymentService {
 
-    Long getPaymentId(String orderTransactionId);
+    Long createPayment(ExternalPaymentVendor externalPaymentVendor, String accountEmail, Long orderId, int paymentAmount, String paymentName);
 
-    void createPayment(ExternalPaymentVendor externalPaymentVendor, String accountEmail, Long orderId, int paymentAmount, String paymentName);
+    Long readyPayment(Long paymentId, String paymentTransactionId, LocalDateTime readyAt);
 
-    void readyPayment(String transactionId, LocalDateTime readyAt);
+    Long successPayment(String orderTransactionId, LocalDateTime succeededAt);
 
-    void cancelPayment(String orderTransactionId, LocalDateTime canceledAt);
+    Long cancelPayment(String orderTransactionId, LocalDateTime canceledAt);
 
-    void failPayment(String orderTransactionId, PaymentStatus paymentFailureCause, LocalDateTime failedAt);
+    Long failPayment(String orderTransactionId, PaymentStatus paymentFailureCause, LocalDateTime failedAt);
 }

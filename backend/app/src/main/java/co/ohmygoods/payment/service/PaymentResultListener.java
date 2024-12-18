@@ -4,9 +4,9 @@ import co.ohmygoods.payment.vo.PaymentStatus;
 
 public interface PaymentResultListener {
 
-    void onSuccess(Long paymentId, Long orderId);
+    void onSuccess(Long paymentId);
 
-    void onCancel(Long paymentId, Long orderId);
+    void onCancel(Long paymentId);
 
-    void onFailure(Long paymentId, Long orderId, PaymentStatus failureCause);
+    void onFailure(Long paymentId, PaymentStatus failureCause);
 }

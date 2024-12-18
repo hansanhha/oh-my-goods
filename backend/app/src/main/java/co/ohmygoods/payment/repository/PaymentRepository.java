@@ -5,12 +5,16 @@ import co.ohmygoods.payment.entity.Payment;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PaymentRepository extends CrudRepository<Payment, Long> {
 
-    @Query("SELECT p FROM Payment p JOIN FETCH p.order po JOIN FETCH p.order.product")
-    Optional<Payment> findFetchOrderAndProductByTransactionId(String transactionId);
-
     Optional<Payment> findByOrder(Order order);
+
+    @Query("SELECT p " +
+            "FROM Payment p " +
+            "JOIN p.order o " +
+            "WHERE o.transactionId = :orderTransactionId")
+    Optional<Payment> findByOrderTransactionId(String orderTransactionId);
 }
