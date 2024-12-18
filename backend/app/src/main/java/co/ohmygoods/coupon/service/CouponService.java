@@ -5,12 +5,14 @@ import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.coupon.dto.ApplicableIssuedCouponResponse;
 import co.ohmygoods.coupon.exception.CouponException;
 import co.ohmygoods.coupon.model.entity.Coupon;
-import co.ohmygoods.coupon.model.entity.CouponIssuanceHistory;
+import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
 import co.ohmygoods.coupon.model.vo.CouponApplicableProductScope;
-import co.ohmygoods.coupon.repository.CouponIssuanceHistoryRepository;
+import co.ohmygoods.coupon.repository.CouponUsageHistoryRepository;
 import co.ohmygoods.coupon.repository.CouponProductMappingRepository;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.repository.CouponShopMappingRepository;
+import co.ohmygoods.order.model.entity.OrderItem;
+import co.ohmygoods.order.repository.OrderItemRepository;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.shop.entity.Shop;
@@ -36,39 +38,47 @@ public class CouponService {
     private final CouponValidationService couponValidationService;
     private final CouponRepository couponRepository;
     private final AccountRepository accountRepository;
-    private final CouponIssuanceHistoryRepository couponIssuanceHistoryRepository;
+    private final CouponUsageHistoryRepository couponUsageHistoryRepository;
     private final CouponProductMappingRepository couponProductMappingRepository;
     private final ProductRepository productRepository;
+    private final OrderItemRepository orderItemRepository;
     private final CouponShopMappingRepository couponShopMappingRepository;
 
     // 쿠폰 발급 및 발급 이력 저장
     public void issueCoupon(Long couponId, String accountEmail) {
         Coupon coupon = couponRepository.findById(couponId).orElseThrow(CouponException::notFoundCoupon);
         OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::notFoundAccount);
-        List<CouponIssuanceHistory> couponAccountHistories = couponIssuanceHistoryRepository.findAllByCouponAndAccount(coupon, account);
+        List<CouponUsageHistory> couponAccountHistories = couponUsageHistoryRepository.findAllByCouponAndAccount(coupon, account);
 
         couponValidationService.validateBeforeIssue(coupon, account, couponAccountHistories.size());
 
         coupon.issue();
-        CouponIssuanceHistory couponIssuanceHistory = CouponIssuanceHistory.issued(coupon, account);
+        CouponUsageHistory couponUsageHistory = CouponUsageHistory.issued(coupon, account);
 
-        couponIssuanceHistoryRepository.save(couponIssuanceHistory);
+        couponUsageHistoryRepository.save(couponUsageHistory);
     }
 
     // 쿠폰 적용 및 최대 할인 금액 계산
-    public int applyCoupon(String accountEmail, Long couponId, int targetProductPrice) {
+    public int applyCoupon(String accountEmail, Long orderItemId, Long couponId, int targetProductPrice) {
         OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::new);
+        OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow(CouponException::new);
         Coupon coupon = couponRepository.findById(couponId).orElseThrow(CouponException::new);
 
-        CouponIssuanceHistory couponIssuanceHistory = couponIssuanceHistoryRepository.fetchFirstByAccountAndCouponAndCouponUsageStatusIssued(account, coupon)
+        CouponUsageHistory couponUsageHistory = couponUsageHistoryRepository.fetchFirstByAccountAndCouponAndCouponUsageStatusIssued(account, coupon)
                 .orElseThrow(CouponException::notFoundCouponIssuanceHistory);
 
-        couponValidationService.validateBeforeUse(couponIssuanceHistory);
+        couponValidationService.validateBeforeUse(couponUsageHistory);
 
         int discountedPrice = coupon.calculate(targetProductPrice);
-        couponIssuanceHistory.used();
+        couponUsageHistory.used(orderItem);
 
         return discountedPrice;
+    }
+
+    public void restoreAppliedCoupon(String accountEmail, List<Long> couponUsageHistoryIds) {
+        List<CouponUsageHistory> couponUsageHistories = couponUsageHistoryRepository.findAllByAccountEmailAndId(accountEmail, couponUsageHistoryIds);
+
+        couponUsageHistories.forEach(CouponUsageHistory::restore);
     }
 
     /**
@@ -83,7 +93,7 @@ public class CouponService {
         Pageable pageable = getNullProcessingPageable(pageableNullable);
 
         OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::notFoundAccount);
-        Slice<CouponIssuanceHistory> couponIssuanceHistories = couponIssuanceHistoryRepository.fetchIssuedStatusAllByAccount(account, pageable);
+        Slice<CouponUsageHistory> couponIssuanceHistories = couponUsageHistoryRepository.fetchIssuedStatusAllByAccount(account, pageable);
 
         List<ApplicableIssuedCouponResponse> issuedCouponResponses = couponIssuanceHistories
                 .stream()
@@ -120,11 +130,11 @@ public class CouponService {
         HashSet<Coupon> applicableCoupons = new HashSet<>();
 
         // 사용자에게 발급된 모든 종류의 사용 가능한 상태의 쿠폰 목록
-        Slice<CouponIssuanceHistory> couponIssuanceHistories = couponIssuanceHistoryRepository.fetchIssuedStatusAllByAccount(account, pageable);
+        Slice<CouponUsageHistory> couponIssuanceHistories = couponUsageHistoryRepository.fetchIssuedStatusAllByAccount(account, pageable);
         Map<CouponApplicableProductScope, List<Coupon>> issuedAllCoupons =
                 couponIssuanceHistories
                 .stream()
-                .map(CouponIssuanceHistory::getCoupon)
+                .map(CouponUsageHistory::getCoupon)
                 .collect(Collectors.groupingBy(Coupon::getApplicableProductScope));
 
         // "애플리케이션 전체 상품 적용 쿠폰"을 적용 가능 쿠폰 목록에 삽입

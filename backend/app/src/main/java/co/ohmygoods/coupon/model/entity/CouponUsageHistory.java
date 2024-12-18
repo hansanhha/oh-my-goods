@@ -3,6 +3,7 @@ package co.ohmygoods.coupon.model.entity;
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.coupon.model.vo.CouponUsageStatus;
 import co.ohmygoods.global.entity.BaseEntity;
+import co.ohmygoods.order.model.entity.OrderItem;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class CouponIssuanceHistory extends BaseEntity {
+public class CouponUsageHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,22 +25,32 @@ public class CouponIssuanceHistory extends BaseEntity {
     @JoinColumn(name = "account_id")
     private OAuth2Account account;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_item_id")
+    private OrderItem orderItem;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CouponUsageStatus couponUsageStatus;
 
     private LocalDateTime usedAt;
 
-    public static CouponIssuanceHistory issued(Coupon coupon, OAuth2Account account) {
-        CouponIssuanceHistory couponIssuanceHistory = new CouponIssuanceHistory();
-        couponIssuanceHistory.coupon = coupon;
-        couponIssuanceHistory.account = account;
-        couponIssuanceHistory.couponUsageStatus = CouponUsageStatus.ISSUED;
-        return couponIssuanceHistory;
+    public static CouponUsageHistory issued(Coupon coupon, OAuth2Account account) {
+        CouponUsageHistory couponUsageHistory = new CouponUsageHistory();
+        couponUsageHistory.coupon = coupon;
+        couponUsageHistory.account = account;
+        couponUsageHistory.couponUsageStatus = CouponUsageStatus.ISSUED;
+        return couponUsageHistory;
     }
 
-    public void used() {
+    public void used(OrderItem orderItem) {
+        this.orderItem = orderItem;
         couponUsageStatus = CouponUsageStatus.USED;
         usedAt = LocalDateTime.now();
+    }
+
+    public void restore() {
+        this.orderItem =  null;
+        couponUsageStatus = CouponUsageStatus.ISSUED;
     }
 }

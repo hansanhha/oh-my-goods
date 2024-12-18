@@ -3,7 +3,7 @@ package co.ohmygoods.coupon.service;
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.coupon.exception.CouponException;
 import co.ohmygoods.coupon.model.entity.Coupon;
-import co.ohmygoods.coupon.model.entity.CouponIssuanceHistory;
+import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
 import co.ohmygoods.coupon.model.vo.CouponIssuanceTarget;
 import co.ohmygoods.coupon.model.vo.CouponLimitConditionType;
 import co.ohmygoods.coupon.model.vo.CouponUsageStatus;
@@ -16,7 +16,7 @@ todo
 @Component
 public class CouponValidationService {
 
-    public void validateBeforeUse(CouponIssuanceHistory history) {
+    public void validateBeforeUse(CouponUsageHistory history) {
         if (history.getCouponUsageStatus().equals(CouponUsageStatus.USED)) {
             CouponException.throwAlreadyUsedCoupon();
         }

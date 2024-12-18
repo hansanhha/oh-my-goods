@@ -2,6 +2,7 @@ package co.ohmygoods.order.service;
 
 import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
+import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.service.CouponService;
 import co.ohmygoods.order.exception.OrderException;
@@ -15,27 +16,25 @@ import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.order.service.dto.OrderStartRequest;
 import co.ohmygoods.order.service.dto.OrderStartResponse;
 import co.ohmygoods.payment.entity.vo.UserAgent;
-import co.ohmygoods.payment.service.dto.PreparePaymentRequest;
-import co.ohmygoods.payment.service.dto.PaymentStartResponse;
 import co.ohmygoods.payment.service.PaymentGateway;
+import co.ohmygoods.payment.service.dto.PaymentStartResponse;
+import co.ohmygoods.payment.service.dto.PreparePaymentRequest;
+import co.ohmygoods.payment.vo.PaymentStatus;
+import co.ohmygoods.product.exception.ProductException;
+import co.ohmygoods.product.exception.ProductStockStatusException;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SimpleOrderStartService implements OrderStartService {
+public class SimpleOrderService implements OrderService {
 
     private final CouponService couponService;
     private final PaymentGateway paymentGateway;
@@ -81,26 +80,17 @@ public class SimpleOrderStartService implements OrderStartService {
                     }
 
                     int originalPrice = product.getOriginalPrice();
-                    int totalDiscountedPrice = 0;
                     int productDiscountedPrice = 0;
                     int couponDiscountedPrice = 0;
                     int productFinalPrice = originalPrice;
 
                     // 상품 할인 적용
                     if (product.getDiscountRate() > 0) {
-                        productDiscountedPrice = getDiscountPriceByProductDiscountRate(originalPrice, product.getDiscountRate());
+                        productDiscountedPrice = product.calculateActualPrice();
+                        productFinalPrice = productDiscountedPrice;
                     }
 
-                    // 쿠폰 적용
-                    if (orderDetail.isAppliedCoupon()) {
-                        couponDiscountedPrice = couponService.applyCoupon(account.getEmail(),
-                                orderDetail.appliedCouponId(), productFinalPrice);
-                    }
-
-                    totalDiscountedPrice += (productDiscountedPrice + couponDiscountedPrice);
-                    productFinalPrice -= totalDiscountedPrice;
-
-                    return OrderItem.builder()
+                    OrderItem orderItem = OrderItem.builder()
                             .product(product)
                             .deliveryAddress(deliveryAddress)
                             .orderQuantity(orderDetail.purchaseQuantity())
@@ -110,6 +100,17 @@ public class SimpleOrderStartService implements OrderStartService {
                             .productDiscountPrice(productDiscountedPrice)
                             .purchasePrice(productFinalPrice)
                             .build();
+
+                    // 쿠폰 적용
+                    if (orderDetail.isAppliedCoupon()) {
+                        couponDiscountedPrice = couponService.applyCoupon(account.getEmail(),
+                                orderItem.getId(), orderDetail.appliedCouponId(), productDiscountedPrice);
+
+                        productFinalPrice -= couponDiscountedPrice;
+                        orderItem.updateCouponApplyingPurchasePrice(productFinalPrice, couponDiscountedPrice);
+                    }
+
+                    return orderItem;
                 })
                 .toList();
 
@@ -155,14 +156,64 @@ public class SimpleOrderStartService implements OrderStartService {
             return OrderStartResponse.fail(paymentStartResponse.paymentFailureCause().getMessage());
         }
 
-        return OrderStartResponse.success(paymentStartResponse.redirectUrl(),
+        return OrderStartResponse.success(paymentStartResponse.nextRedirectUrl(),
                 order.getTransactionId(), order.getCreatedAt());
     }
 
-    private int getDiscountPriceByProductDiscountRate(int originalPrice, int discountRate) {
-        double discountPrice = originalPrice - (originalPrice * (double) discountRate / 100);
-        BigDecimal halfUpDiscountPrice = BigDecimal.valueOf(discountPrice).setScale(0, RoundingMode.HALF_UP);
-        return halfUpDiscountPrice.intValue();
+    @Override
+    public void successOrder(Long orderId) {
+        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::new);
+
+        List<OrderItem> orderItems = order.getOrderItems();
+
+        for (OrderItem orderItem : orderItems) {
+            Product product = orderItem.getProduct();
+            int orderQuantity = orderItem.getOrderQuantity();
+
+            // 구매 수량만큼 재고 차감
+            // 예외 발생 시 주문 실패 처리(트랜잭션 예외 발생 X) -> 결제 금액 환불 처리 필요
+            try {
+                product.decrease(orderQuantity);
+            } catch (ProductException e) {
+                order.fail(OrderStatus.ORDER_FAILED_OUT_OF_STOCK, PaymentStatus.PAID);
+                return;
+            } catch (ProductStockStatusException e) {
+                order.fail(OrderStatus.ORDER_FAILED_INVALID_PRODUCT_STOCK_STATUS, PaymentStatus.PAID);
+                return;
+            }
+        }
+
+        order.ordered();
+    }
+
+    @Override
+    public void cancelOrderByPaymentCancellation(Long orderId) {
+        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::new);
+
+        List<Long> couponUsageHistoryIds = order.getOrderItems().stream()
+                .map(OrderItem::getCouponUsageHistory)
+                .filter(Objects::nonNull)
+                .map(CouponUsageHistory::getId)
+                .toList();
+
+        couponService.restoreAppliedCoupon(order.getAccount().getEmail(), couponUsageHistoryIds);
+
+        order.cancel();
+    }
+
+    @Override
+    public void failOrderByPaymentFailed(Long orderId, PaymentStatus paymentFailureCause) {
+        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::new);
+
+        List<Long> couponUsageHistoryIds = order.getOrderItems().stream()
+                .map(OrderItem::getCouponUsageHistory)
+                .filter(Objects::nonNull)
+                .map(CouponUsageHistory::getId)
+                .toList();
+
+        couponService.restoreAppliedCoupon(order.getAccount().getEmail(), couponUsageHistoryIds);
+
+        order.fail(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE, paymentFailureCause);
     }
 
     private String generatePaymentName(Order order) {

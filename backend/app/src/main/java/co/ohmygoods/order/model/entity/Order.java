@@ -4,6 +4,7 @@ import co.ohmygoods.auth.account.entity.OAuth2Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.OrderStatus;
+import co.ohmygoods.payment.entity.Payment;
 import co.ohmygoods.payment.vo.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -33,6 +34,9 @@ public class Order extends BaseEntity {
 
     private PaymentStatus paymentStatus;
 
+    @OneToOne(mappedBy = "order", orphanRemoval = true)
+    private Payment payment;
+
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems = new ArrayList<>();
 
@@ -45,7 +49,7 @@ public class Order extends BaseEntity {
         int totalPrice_ = Math.max(totalPrice, 0);
         int discountPrice_ = Math.max(discountPrice, 0);
 
-        return new Order(0L, account, transactionId, OrderStatus.ORDER_START, null, orderItems_, totalPrice_, discountPrice_);
+        return new Order(0L, account, transactionId, OrderStatus.ORDER_START, null, null, orderItems_, totalPrice_, discountPrice_);
     }
 
     public void ordered() {

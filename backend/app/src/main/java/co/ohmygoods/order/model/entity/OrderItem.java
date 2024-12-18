@@ -1,5 +1,6 @@
 package co.ohmygoods.order.model.entity;
 
+import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.OrderStatus;
@@ -32,6 +33,9 @@ public class OrderItem extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
+
+    @OneToOne(mappedBy = "order_item", orphanRemoval = true)
+    private CouponUsageHistory couponUsageHistory;
 
     @Column(nullable = false)
     private int orderQuantity;
@@ -90,4 +94,11 @@ public class OrderItem extends BaseEntity {
         this.orderQuantity = quantity;
     }
 
+    public void updateCouponApplyingPurchasePrice(int productFinalPrice, int couponDiscountedPrice) {
+        if (productFinalPrice < 0 || couponDiscountedPrice < 0)
+            throw new OrderException();
+
+        this.purchasePrice = productFinalPrice;
+        this.couponDiscountPrice = couponDiscountedPrice;
+    }
 }
