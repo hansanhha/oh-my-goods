@@ -42,7 +42,7 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CouponLimitConditionType limitConditionType;
+    private CouponIssueQuantityLimitType issueQuantityLimitType;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -60,9 +60,9 @@ public class Coupon extends BaseEntity {
     @Column(nullable = false)
     private CouponDiscountType discountType;
 
-    private int maxIssuableCount;
+    private int maxIssuableQuantity;
 
-    private int maxUsageCountPerAccount;
+    private int maxUsageQuantityPerAccount;
 
     @Column(nullable = false)
     private int issuedCount;
@@ -85,9 +85,9 @@ public class Coupon extends BaseEntity {
     public void issue() {
         issuedCount++;
 
-        if ((limitConditionType.equals(CouponLimitConditionType.FULL_LIMITED)
-                || limitConditionType.equals(CouponLimitConditionType.MAX_ISSUABLE_LIMITED))
-                && maxIssuableCount < issuedCount) {
+        if ((issueQuantityLimitType.equals(CouponIssueQuantityLimitType.FULL_LIMITED)
+                || issueQuantityLimitType.equals(CouponIssueQuantityLimitType.MAX_ISSUABLE_LIMITED))
+                && maxIssuableQuantity < issuedCount) {
             CouponException.throwExhausted();
         }
     }
@@ -138,15 +138,15 @@ public class Coupon extends BaseEntity {
         private String name;
         private String couponCode;
         private CouponType type;
-        private CouponLimitConditionType limitConditionType;
+        private CouponIssueQuantityLimitType issueQuantityLimitType;
         private CouponApplicableProductScope usageProductScope;
         private CouponStatus status;
         private CouponIssuanceTarget issuanceTarget;
         private CouponDiscountType discountType;
         private Integer discountValue;
         private Integer maxDiscountPrice;
-        private Integer maxIssuableCount;
-        private Integer maxUsageCountPerAccount;
+        private Integer maxIssuableQuantity;
+        private Integer maxUsageQuantityPerAccount;
         private Integer issuedCount;
         private LocalDateTime validFrom;
         private LocalDateTime validUntil;
@@ -170,8 +170,8 @@ public class Coupon extends BaseEntity {
             return this;
         }
 
-        public CouponBuilder limitedConditionType(CouponLimitConditionType limitConditionType) {
-            this.limitConditionType = limitConditionType;
+        public CouponBuilder issueQuantityLimitType(CouponIssueQuantityLimitType issueQuantityLimitType) {
+            this.issueQuantityLimitType = issueQuantityLimitType;
             return this;
         }
 
@@ -185,13 +185,13 @@ public class Coupon extends BaseEntity {
             return this;
         }
 
-        public CouponBuilder maxIssuableCount(int maxIssuableCount) {
-            this.maxIssuableCount = maxIssuableCount;
+        public CouponBuilder maxIssuableQuantity(int maxIssuableQuantity) {
+            this.maxIssuableQuantity = maxIssuableQuantity;
             return this;
         }
 
-        public CouponBuilder maxUsageCountPerAccount(int maxUsageCountPerAccount) {
-            this.maxUsageCountPerAccount = maxUsageCountPerAccount;
+        public CouponBuilder maxUsageQuantityPerAccount(int maxUsageQuantityPerAccount) {
+            this.maxUsageQuantityPerAccount = maxUsageQuantityPerAccount;
             return this;
         }
 
@@ -238,9 +238,9 @@ public class Coupon extends BaseEntity {
             validateCouponIssuanceAuthority(issuer, type);
             validateDiscountValue(discountType, discountValue);
 
-            return new Coupon(0L, issuer, name, couponCode, type, limitConditionType,
-                    couponApplicableProductScope, status, issuanceTarget, discountType, maxIssuableCount,
-                    maxUsageCountPerAccount, issuedCount, discountValue, maxDiscountPrice, validFrom, validUntil);
+            return new Coupon(0L, issuer, name, couponCode, type, issueQuantityLimitType,
+                    couponApplicableProductScope, status, issuanceTarget, discountType, maxIssuableQuantity,
+                    maxUsageQuantityPerAccount, issuedCount, discountValue, maxDiscountPrice, validFrom, validUntil);
         }
 
         private void validateRequiredField() {
@@ -252,24 +252,24 @@ public class Coupon extends BaseEntity {
         }
 
         private void validateLimitCondition() {
-            if (limitConditionType.equals(CouponLimitConditionType.FULL_LIMITED)) {
+            if (issueQuantityLimitType.equals(CouponIssueQuantityLimitType.FULL_LIMITED)) {
                 validateMaxUsageCountPerAccount();
                 validateMaxIssuableCount();
-            } else if (limitConditionType.equals(CouponLimitConditionType.MAX_ISSUABLE_LIMITED)) {
+            } else if (issueQuantityLimitType.equals(CouponIssueQuantityLimitType.MAX_ISSUABLE_LIMITED)) {
                 validateMaxUsageCountPerAccount();
-            } else if (limitConditionType.equals(CouponLimitConditionType.PER_ACCOUNT_LIMITED)) {
+            } else if (issueQuantityLimitType.equals(CouponIssueQuantityLimitType.PER_ACCOUNT_LIMITED)) {
                 validateMaxIssuableCount();
             }
         }
 
         private void validateMaxIssuableCount() {
-            if (maxIssuableCount <= 0) {
+            if (maxIssuableQuantity <= 0) {
                 CouponException.throwBadLimitCondition();
             }
         }
 
         private void validateMaxUsageCountPerAccount() {
-            if (maxUsageCountPerAccount <= 0) {
+            if (maxUsageQuantityPerAccount <= 0) {
                 CouponException.throwBadLimitCondition();
             }
         }

@@ -8,7 +8,7 @@ import co.ohmygoods.coupon.model.entity.CouponProductMapping;
 import co.ohmygoods.coupon.model.entity.CouponShopMapping;
 import co.ohmygoods.coupon.model.vo.CouponDiscountType;
 import co.ohmygoods.coupon.model.vo.CouponIssuanceTarget;
-import co.ohmygoods.coupon.model.vo.CouponLimitConditionType;
+import co.ohmygoods.coupon.model.vo.CouponIssueQuantityLimitType;
 import co.ohmygoods.coupon.repository.CouponUsageHistoryRepository;
 import co.ohmygoods.coupon.repository.CouponProductMappingRepository;
 import co.ohmygoods.coupon.repository.CouponRepository;
@@ -33,7 +33,7 @@ public class SellerCouponService {
     private final AccountRepository accountRepository;
     private final CouponRepository couponRepository;
     private final ProductRepository productRepository;
-    private final CouponUsageHistoryRepository couponAccountMappingRepository;
+    private final CouponUsageHistoryRepository couponUsageHistoryRepository;
     private final CouponProductMappingRepository couponProductMappingRepository;
     private final CouponShopMappingRepository couponShopMappingRepository;
     private final ShopRepository shopRepository;
@@ -53,7 +53,8 @@ public class SellerCouponService {
 
         shop.validateShopManager(issuer);
 
-        CouponLimitConditionType limitConditionType = convertToCouponLimitConditionType(request.isLimitedMaxIssueCount(), request.isLimitedUsageCountPerAccount());
+        CouponIssueQuantityLimitType issueQuantityLimitType = CouponIssueQuantityLimitType.get(
+                request.isLimitedMaxIssueCount(), request.isLimitedUsageCountPerAccount());
 
         CouponDiscountType discountType = request.isFixedDiscount()
                 ? CouponDiscountType.FIXED : CouponDiscountType.PERCENTAGE;
@@ -64,13 +65,13 @@ public class SellerCouponService {
                 .issuer(issuer)
                 .name(request.couponName())
                 .couponCode(request.couponCode())
-                .limitedConditionType(limitConditionType)
+                .issueQuantityLimitType(issueQuantityLimitType)
                 .issuanceTarget(CouponIssuanceTarget.ALL_ACCOUNTS)
                 .discountType(discountType)
                 .discountValue(request.discountValue())
                 .maxDiscountPrice(request.maxDiscountPrice())
-                .maxIssuableCount(request.maxIssueCount())
-                .maxUsageCountPerAccount(request.usageCountPerAccount())
+                .maxIssuableQuantity(request.maxIssueCount())
+                .maxUsageQuantityPerAccount(request.usageCountPerAccount())
                 .validFrom(request.startDate())
                 .validUntil(request.endDate())
                 .buildShopCoupon(applicableSpecificProducts);
@@ -109,18 +110,6 @@ public class SellerCouponService {
 
         shop.validateShopManager(account);
         coupon.destroy(account);
-    }
-
-    private CouponLimitConditionType convertToCouponLimitConditionType(boolean limitedMaxIssueCount, boolean limitedUsageCountPerAccount) {
-        if (limitedMaxIssueCount && limitedUsageCountPerAccount) {
-            return CouponLimitConditionType.FULL_LIMITED;
-        } else if (limitedMaxIssueCount) {
-            return CouponLimitConditionType.MAX_ISSUABLE_LIMITED;
-        } else if (limitedUsageCountPerAccount) {
-            return CouponLimitConditionType.PER_ACCOUNT_LIMITED;
-        } else {
-            return CouponLimitConditionType.UNLIMITED;
-        }
     }
 
 }

@@ -5,7 +5,7 @@ import co.ohmygoods.coupon.exception.CouponException;
 import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
 import co.ohmygoods.coupon.model.vo.CouponIssuanceTarget;
-import co.ohmygoods.coupon.model.vo.CouponLimitConditionType;
+import co.ohmygoods.coupon.model.vo.CouponIssueQuantityLimitType;
 import co.ohmygoods.coupon.model.vo.CouponUsageStatus;
 import org.springframework.stereotype.Component;
 
@@ -28,15 +28,15 @@ public class CouponValidationService {
     }
 
     public void validateIssuanceLimit(Coupon coupon, int issuedSameCouponCountToAccount) {
-        CouponLimitConditionType limitConditionType = coupon.getLimitConditionType();
+        CouponIssueQuantityLimitType limitConditionType = coupon.getIssueQuantityLimitType();
 
-        if (limitConditionType.equals(CouponLimitConditionType.FULL_LIMITED) ||
-                limitConditionType.equals(CouponLimitConditionType.PER_ACCOUNT_LIMITED)) {
-            validateMaxIssuedCountPerAccount(issuedSameCouponCountToAccount, coupon.getMaxUsageCountPerAccount());
+        if (limitConditionType.equals(CouponIssueQuantityLimitType.FULL_LIMITED) ||
+                limitConditionType.equals(CouponIssueQuantityLimitType.PER_ACCOUNT_LIMITED)) {
+            validateMaxIssuedCountPerAccount(issuedSameCouponCountToAccount, coupon.getMaxUsageQuantityPerAccount());
         }
 
-        if (limitConditionType.equals(CouponLimitConditionType.FULL_LIMITED) ||
-                limitConditionType.equals(CouponLimitConditionType.MAX_ISSUABLE_LIMITED)) {
+        if (limitConditionType.equals(CouponIssueQuantityLimitType.FULL_LIMITED) ||
+                limitConditionType.equals(CouponIssueQuantityLimitType.MAX_ISSUABLE_LIMITED)) {
             validateOverTotalIssueCount(coupon);
         }
 
@@ -55,7 +55,7 @@ public class CouponValidationService {
     }
 
     private void validateOverTotalIssueCount(Coupon coupon) {
-        if (coupon.getIssuedCount() >= coupon.getMaxIssuableCount()) {
+        if (coupon.getIssuedCount() >= coupon.getMaxIssuableQuantity()) {
             CouponException.throwExhausted();
         }
     }
