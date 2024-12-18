@@ -112,10 +112,10 @@ public class Coupon extends BaseEntity {
         return String.valueOf(discountValue);
     }
 
-    public int calculate(int productOriginalPrice) {
+    public int calculate(int productPrice) {
         double subtractedPrice = discountType.equals(CouponDiscountType.FIXED)
-                ? productOriginalPrice - discountValue
-                : productOriginalPrice - (productOriginalPrice * getPercentageValue(discountValue));
+                ? productPrice - discountValue
+                : productPrice - (productPrice * getPercentageValue(discountValue));
 
         return finalCalculate(subtractedPrice, maxDiscountPrice);
     }

@@ -12,6 +12,8 @@ import co.ohmygoods.shop.entity.Shop;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +96,12 @@ public class Product extends BaseEntity {
         this.type = type;
         this.mainCategory = category;
         this.customCategoriesMappings = productCustomCategoryMappings;
+    }
+
+    public int calculateActualPrice() {
+        double discountPrice = originalPrice - (originalPrice * (double) discountRate / 100);
+        BigDecimal halfUpDiscountPrice = BigDecimal.valueOf(discountPrice).setScale(0, RoundingMode.HALF_UP);
+        return halfUpDiscountPrice.intValue();
     }
 
     public void updateRemainingQuantity(int remainingQuantity) {

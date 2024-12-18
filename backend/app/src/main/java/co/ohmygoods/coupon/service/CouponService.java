@@ -56,7 +56,7 @@ public class CouponService {
     }
 
     // 쿠폰 적용 및 최대 할인 금액 계산
-    public int applyCoupon(String accountEmail, Long couponId, int targetProductOriginalPrice) {
+    public int applyCoupon(String accountEmail, Long couponId, int targetProductPrice) {
         OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::new);
         Coupon coupon = couponRepository.findById(couponId).orElseThrow(CouponException::new);
 
@@ -65,7 +65,7 @@ public class CouponService {
 
         couponValidationService.validateBeforeUse(couponIssuanceHistory);
 
-        int discountedPrice = coupon.calculate(targetProductOriginalPrice);
+        int discountedPrice = coupon.calculate(targetProductPrice);
         couponIssuanceHistory.used();
 
         return discountedPrice;
