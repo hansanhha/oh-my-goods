@@ -69,6 +69,7 @@ public class SellerCouponService {
                 .issuanceTarget(CouponIssuanceTarget.ALL_ACCOUNTS)
                 .discountType(discountType)
                 .discountValue(request.discountValue())
+                .minimumPurchasePriceForApply(request.minimumPurchasePrice())
                 .maxDiscountPrice(request.maxDiscountPrice())
                 .maxIssuableQuantity(request.maxIssueCount())
                 .maxUsageQuantityPerAccount(request.usageCountPerAccount())

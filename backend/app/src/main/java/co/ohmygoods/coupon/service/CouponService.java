@@ -35,7 +35,6 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class CouponService {
 
-    private final CouponValidationService couponValidationService;
     private final CouponRepository couponRepository;
     private final AccountRepository accountRepository;
     private final CouponUsageHistoryRepository couponUsageHistoryRepository;
@@ -50,7 +49,7 @@ public class CouponService {
         OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::notFoundAccount);
         List<CouponUsageHistory> couponAccountHistories = couponUsageHistoryRepository.findAllByCouponAndAccount(coupon, account);
 
-        couponValidationService.validateBeforeIssue(coupon, account, couponAccountHistories.size());
+        CouponValidationService.validateBeforeIssue(coupon, account, couponAccountHistories.size());
 
         coupon.issue();
         CouponUsageHistory couponUsageHistory = CouponUsageHistory.issued(coupon, account);
@@ -67,7 +66,8 @@ public class CouponService {
         CouponUsageHistory couponUsageHistory = couponUsageHistoryRepository.fetchFirstByAccountAndCouponAndCouponUsageStatusIssued(account, coupon)
                 .orElseThrow(CouponException::notFoundCouponIssuanceHistory);
 
-        couponValidationService.validateBeforeUse(couponUsageHistory);
+        CouponValidationService.validateBeforeUse(couponUsageHistory.getCouponUsageStatus(),
+                coupon.getMinimumPurchasePriceForApply(), targetProductPrice);
 
         int discountedPrice = coupon.calculate(targetProductPrice);
         couponUsageHistory.used(orderItem);
@@ -97,7 +97,8 @@ public class CouponService {
 
         List<ApplicableIssuedCouponResponse> issuedCouponResponses = couponIssuanceHistories
                 .stream()
-                .map(history -> ApplicableIssuedCouponResponse.from(history.getCoupon(), null))
+                .map(CouponUsageHistory::getCoupon)
+                .map(ApplicableIssuedCouponResponse::from)
                 .toList();
 
         return new SliceImpl<>(issuedCouponResponses, pageable, couponIssuanceHistories.hasNext());
@@ -174,7 +175,7 @@ public class CouponService {
         }
 
         List<ApplicableIssuedCouponResponse> applicableIssuedCouponResponses = applicableCoupons.stream()
-                .map(coupon -> ApplicableIssuedCouponResponse.from(coupon, targetProductOriginalPrice))
+                .map(ApplicableIssuedCouponResponse::from)
                 .toList();
 
         return new SliceImpl<>(applicableIssuedCouponResponses, pageable, couponIssuanceHistories.hasNext());

@@ -70,6 +70,8 @@ public class Coupon extends BaseEntity {
     @Column(nullable = false)
     private int discountValue;
 
+    private int minimumPurchasePriceForApply;
+
     private int maxDiscountPrice;
 
     @Column(nullable = false)
@@ -144,6 +146,7 @@ public class Coupon extends BaseEntity {
         private CouponIssuanceTarget issuanceTarget;
         private CouponDiscountType discountType;
         private Integer discountValue;
+        private Integer minimumPurchasePriceForApply;
         private Integer maxDiscountPrice;
         private Integer maxIssuableQuantity;
         private Integer maxUsageQuantityPerAccount;
@@ -200,6 +203,11 @@ public class Coupon extends BaseEntity {
             return this;
         }
 
+        public CouponBuilder minimumPurchasePriceForApply(int minimumPurchasePriceForApply) {
+            this.minimumPurchasePriceForApply = minimumPurchasePriceForApply;
+            return this;
+        }
+
         public CouponBuilder maxDiscountPrice(int maxDiscountPrice) {
             this.maxDiscountPrice = maxDiscountPrice;
             return this;
@@ -240,7 +248,8 @@ public class Coupon extends BaseEntity {
 
             return new Coupon(0L, issuer, name, couponCode, type, issueQuantityLimitType,
                     couponApplicableProductScope, status, issuanceTarget, discountType, maxIssuableQuantity,
-                    maxUsageQuantityPerAccount, issuedCount, discountValue, maxDiscountPrice, validFrom, validUntil);
+                    maxUsageQuantityPerAccount, issuedCount, discountValue, minimumPurchasePriceForApply,
+                    maxDiscountPrice, validFrom, validUntil);
         }
 
         private void validateRequiredField() {
