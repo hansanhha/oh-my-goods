@@ -1,6 +1,6 @@
 package co.ohmygoods.order.model.entity;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.DeliveryAddressException;
 import co.ohmygoods.order.model.vo.DeliveryRequirement;
@@ -21,7 +21,7 @@ public class DeliveryAddress extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
-    private OAuth2Account account;
+    private Account account;
 
     private String recipientName;
 

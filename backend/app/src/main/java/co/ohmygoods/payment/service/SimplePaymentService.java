@@ -1,6 +1,6 @@
 package co.ohmygoods.payment.service;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
@@ -26,7 +26,7 @@ public class SimplePaymentService implements PaymentService {
 
     @Override
     public Long createPayment(ExternalPaymentVendor externalPaymentVendor, String accountEmail, Long orderId, int paymentAmount, String paymentName) {
-        OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(PaymentException::new);
+        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(PaymentException::new);
         Order order = orderRepository.findById(orderId).orElseThrow(PaymentException::new);
 
         Payment newPayment = Payment.start(account, order, externalPaymentVendor, paymentAmount);

@@ -1,6 +1,6 @@
 package co.ohmygoods.shop.model.entity;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.shop.exception.InvalidShopOwnerException;
 import co.ohmygoods.shop.exception.UnchangeableShopStatusException;
@@ -23,7 +23,7 @@ public class Shop extends BaseEntity {
 
     @OneToOne
     @JoinColumn(name = "owner_id")
-    private OAuth2Account owner;
+    private Account owner;
 
     @Column(columnDefinition = "TEXT")
     private String introduction;
@@ -36,7 +36,7 @@ public class Shop extends BaseEntity {
 
     private String shopImageName;
 
-    public static Shop toEntity(String name, OAuth2Account owner, String introduction, ShopStatus status) {
+    public static Shop toEntity(String name, Account owner, String introduction, ShopStatus status) {
         var shop = new Shop();
         shop.name = name;
         shop.owner = owner;
@@ -53,17 +53,17 @@ public class Shop extends BaseEntity {
         this.status = status;
     }
 
-    public void changeOwner(OAuth2Account targetAccount) {
+    public void changeOwner(Account targetAccount) {
         owner = targetAccount;
     }
 
-    public void ownerCheck(OAuth2Account account) {
+    public void ownerCheck(Account account) {
         if (!owner.getId().equals(account.getId())) {
             throw InvalidShopOwnerException.isNotOwner(account.getEmail(), name);
         }
     }
 
-    public void validateShopManager(OAuth2Account account) {
+    public void validateShopManager(Account account) {
     }
 
     @Override

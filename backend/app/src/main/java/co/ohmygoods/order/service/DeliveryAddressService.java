@@ -1,6 +1,6 @@
 package co.ohmygoods.order.service;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.order.exception.DeliveryAddressException;
 import co.ohmygoods.order.model.entity.DeliveryAddress;
@@ -34,7 +34,7 @@ public class DeliveryAddressService {
             throw new DeliveryAddressException();
         }
 
-        OAuth2Account account = accountRepository.findByEmail(request.accountEmail()).orElseThrow(DeliveryAddressException::new);
+        Account account = accountRepository.findByEmail(request.accountEmail()).orElseThrow(DeliveryAddressException::new);
 
         DeliveryAddress deliveryAddress = DeliveryAddress.builder()
                 .account(account)

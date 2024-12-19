@@ -1,6 +1,6 @@
 package co.ohmygoods.order.model.entity;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.ExchangeException;
 import co.ohmygoods.order.model.vo.ExchangeStatus;
@@ -36,7 +36,7 @@ public class ExchangeOrderItem extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
-    private OAuth2Account manager;
+    private Account manager;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exchange_product_id")
@@ -77,7 +77,7 @@ public class ExchangeOrderItem extends BaseEntity {
                 ExchangeStatus.REQUESTED_EXCHANGING, requestReason, null, null);
     }
 
-    public void approveByShopManager(OAuth2Account manager, Product exchangeProduct, String requestResponse) {
+    public void approveByShopManager(Account manager, Product exchangeProduct, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
             ExchangeException.throwCauseEmptyText();
         }
@@ -90,7 +90,7 @@ public class ExchangeOrderItem extends BaseEntity {
         exchangeTargetOrderItem.updateOrderItemStatus(OrderStatus.ORDER_ITEM_EXCHANGED);
     }
 
-    public void rejectByShopManager(OAuth2Account manager, String requestResponse) {
+    public void rejectByShopManager(Account manager, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
             ExchangeException.throwCauseEmptyText();
         }

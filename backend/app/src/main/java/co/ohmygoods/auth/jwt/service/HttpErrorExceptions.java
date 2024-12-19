@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt.service;
 
-import co.ohmygoods.auth.config.SecurityConfigProperties;
+import co.ohmygoods.auth.web.security.config.SecurityConfigProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
@@ -44,11 +44,11 @@ public class HttpErrorExceptions {
         this.httpHeaders = httpHeaders;
     }
 
-    HttpClientErrorException unauthorized(Map<?, ?> body) {
+    public HttpClientErrorException unauthorized(Map<?, ?> body) {
         return HttpClientErrorException.create(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase(), httpHeaders, convertBody(body), DEFAULT_CHARSET);
     }
 
-    HttpClientErrorException forbidden(Map<?, ?> body) {
+    public HttpClientErrorException forbidden(Map<?, ?> body) {
         return HttpClientErrorException.create(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.getReasonPhrase(), httpHeaders, convertBody(body), DEFAULT_CHARSET);
     }
 

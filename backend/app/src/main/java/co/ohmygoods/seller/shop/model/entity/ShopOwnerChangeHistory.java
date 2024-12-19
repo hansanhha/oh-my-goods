@@ -1,6 +1,6 @@
 package co.ohmygoods.seller.shop.model.entity;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.exception.UnchangeableShopOwnerException;
@@ -22,17 +22,17 @@ public class ShopOwnerChangeHistory extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "original_owner_id")
-    private OAuth2Account originalOwner;
+    private Account originalOwner;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_account_id")
-    private OAuth2Account targetAccount;
+    private Account targetAccount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ShopOwnerStatus status;
 
-    public static ShopOwnerChangeHistory toEntity(Shop shop, OAuth2Account originalOwner, OAuth2Account targetAccount, ShopOwnerStatus status) {
+    public static ShopOwnerChangeHistory toEntity(Shop shop, Account originalOwner, Account targetAccount, ShopOwnerStatus status) {
         var shopOwnerChange = new ShopOwnerChangeHistory();
         shopOwnerChange.shop = shop;
         shopOwnerChange.originalOwner = originalOwner;
@@ -41,7 +41,7 @@ public class ShopOwnerChangeHistory extends BaseEntity {
         return shopOwnerChange;
     }
 
-    public void targetAccountCheck(OAuth2Account account) {
+    public void targetAccountCheck(Account account) {
         if (!targetAccount.getEmail().equals(account.getEmail())) {
             throw UnchangeableShopOwnerException.isNotTargetAccount(account.getEmail(), shop.getName());
         }

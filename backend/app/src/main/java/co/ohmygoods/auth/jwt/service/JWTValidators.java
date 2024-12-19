@@ -1,8 +1,8 @@
 package co.ohmygoods.auth.jwt.service;
 
-import co.ohmygoods.auth.jwt.nimbus.DelegatingNimbusJWTClaimValidator;
-import co.ohmygoods.auth.jwt.nimbus.NimbusJWTExpirationClaimValidator;
-import co.ohmygoods.auth.jwt.nimbus.NimbusJWTIssuerClaimValidator;
+import co.ohmygoods.auth.jwt.service.nimbus.DelegatingNimbusJWTClaimValidator;
+import co.ohmygoods.auth.jwt.service.nimbus.NimbusJWTExpirationClaimValidator;
+import co.ohmygoods.auth.jwt.service.nimbus.NimbusJWTIssuerClaimValidator;
 import com.nimbusds.jwt.JWT;
 
 import java.util.List;

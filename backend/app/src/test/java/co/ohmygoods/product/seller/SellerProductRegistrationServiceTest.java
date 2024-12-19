@@ -1,6 +1,6 @@
 package co.ohmygoods.product.seller;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.product.exception.InvalidProductCustomCategoryException;
 import co.ohmygoods.product.model.entity.*;
@@ -69,7 +69,7 @@ class SellerProductRegistrationServiceTest {
     private Shop mockShop;
 
     @Mock
-    private OAuth2Account mockAccount;
+    private Account mockAccount;
 
     private static final Long SHOP_ID = 1L;
     private static final String ACCOUNT_EMAIL = "test@test.com";

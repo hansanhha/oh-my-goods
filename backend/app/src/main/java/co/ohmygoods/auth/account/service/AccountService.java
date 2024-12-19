@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.account.service;
 
-import co.ohmygoods.auth.account.dto.OAuth2AccountDTO;
+import co.ohmygoods.auth.account.service.dto.AccountResponse;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,8 +15,8 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
 
-    public Optional<OAuth2AccountDTO> getOne(String email) {
+    public Optional<AccountResponse> getOne(String email) {
         return accountRepository.findByEmail(email)
-                .map(OAuth2AccountDTO::from);
+                .map(AccountResponse::from);
     }
 }

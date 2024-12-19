@@ -1,6 +1,6 @@
 package co.ohmygoods.coupon.repository;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
 import org.springframework.data.domain.Pageable;
@@ -13,21 +13,21 @@ import java.util.Optional;
 
 public interface CouponUsageHistoryRepository extends CrudRepository<CouponUsageHistory, Long> {
 
-    List<CouponUsageHistory> findAllByCouponAndAccount(Coupon coupon, OAuth2Account account);
+    List<CouponUsageHistory> findAllByCouponAndAccount(Coupon coupon, Account account);
 
     @Query("SELECT cuh " +
             "FROM CouponUsageHistory cuh " +
             "JOIN FETCH cuh.account a ON a = :account " +
             "JOIN FETCH cuh.coupon c ON c = :coupon " +
             "WHERE cuh.couponUsageStatus = 'ISSUED' ")
-    Optional<CouponUsageHistory> fetchFirstByAccountAndCouponAndCouponUsageStatusIssued(OAuth2Account account, Coupon coupon);
+    Optional<CouponUsageHistory> fetchFirstByAccountAndCouponAndCouponUsageStatusIssued(Account account, Coupon coupon);
 
     @Query("SELECT cuh " +
             "FROM CouponUsageHistory  cuh " +
             "JOIN FETCH Coupon c " +
             "WHERE cuh.account = :account " +
             "AND cuh.couponUsageStatus = 'ISSUED'")
-    Slice<CouponUsageHistory> fetchIssuedStatusAllByAccount(OAuth2Account account, Pageable pageable);
+    Slice<CouponUsageHistory> fetchIssuedStatusAllByAccount(Account account, Pageable pageable);
 
     @Query("SELECT cuh " +
             "FROM CouponUsageHistory cuh " +

@@ -1,6 +1,6 @@
 package co.ohmygoods.review.service;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.file.model.vo.StorageStrategy;
 import co.ohmygoods.file.service.FileService;
@@ -63,7 +63,7 @@ public class ReviewService {
     }
 
     public void writeReview(WriteReviewRequest request) {
-        OAuth2Account account = accountRepository.findByEmail(request.accountEmail())
+        Account account = accountRepository.findByEmail(request.accountEmail())
                 .orElseThrow(ReviewException::notFoundAccount);
 
         OrderItem orderItem = orderItemRepository.fetchProductByOrderNumber(request.reviewOrderNumber())
@@ -95,7 +95,7 @@ public class ReviewService {
         Review review = reviewRepository.findById(request.updateReviewId())
                 .orElseThrow(ReviewException::notFoundReview);
 
-        OAuth2Account account = accountRepository.findByEmail(request.reviewerEmail())
+        Account account = accountRepository.findByEmail(request.reviewerEmail())
                 .orElseThrow(ReviewException::notFoundAccount);
 
         if (!review.isNotReviewer(account)) {
@@ -120,7 +120,7 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(ReviewException::notFoundReview);
 
-        OAuth2Account account = accountRepository.findByEmail(reviewerEmail)
+        Account account = accountRepository.findByEmail(reviewerEmail)
                 .orElseThrow(ReviewException::notFoundAccount);
 
         if (review.isNotReviewer(account)) {
@@ -135,7 +135,7 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(ReviewException::notFoundReview);
 
-        OAuth2Account account = accountRepository.findByEmail(accountEmail)
+        Account account = accountRepository.findByEmail(accountEmail)
                 .orElseThrow(ReviewException::notFoundAccount);
 
         ReviewComment reviewComment = ReviewComment.write(review, account, reviewCommentContent);
@@ -147,7 +147,7 @@ public class ReviewService {
         ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId)
                 .orElseThrow(ReviewException::notFoundReview);
 
-        OAuth2Account account = accountRepository.findByEmail(reviewCommenterEmail)
+        Account account = accountRepository.findByEmail(reviewCommenterEmail)
                 .orElseThrow(ReviewException::notFoundAccount);
 
         if (!reviewComment.isNotReviewCommenter(account)) {
@@ -161,7 +161,7 @@ public class ReviewService {
         ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId)
                 .orElseThrow(ReviewException::notFoundReview);
 
-        OAuth2Account account = accountRepository.findByEmail(reviewCommenterEmail)
+        Account account = accountRepository.findByEmail(reviewCommenterEmail)
                 .orElseThrow(ReviewException::notFoundAccount);
 
         if (reviewComment.isNotReviewCommenter(account)) {
@@ -175,7 +175,7 @@ public class ReviewService {
         ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId)
                 .orElseThrow(ReviewException::notFoundReviewComment);
 
-        OAuth2Account account = accountRepository.findByEmail(accountEmail)
+        Account account = accountRepository.findByEmail(accountEmail)
                 .orElseThrow(ReviewException::notFoundAccount);
 
         ReviewComment reply = ReviewComment.reply(reviewComment, account, reviewReplyCommentContent);

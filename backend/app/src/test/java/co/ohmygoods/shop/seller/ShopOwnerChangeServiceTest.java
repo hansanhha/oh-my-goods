@@ -1,6 +1,6 @@
 package co.ohmygoods.shop.seller;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.seller.shop.repository.ShopOwnerChangeHistoryRepository;
 import co.ohmygoods.seller.shop.service.ShopOwnerChangeService;
@@ -42,10 +42,10 @@ class ShopOwnerChangeServiceTest {
     private ShopOwnerChangeService shopOwnerChangeService;
 
     @Mock
-    private OAuth2Account fooMockAccount;
+    private Account fooMockAccount;
 
     @Mock
-    private OAuth2Account barMockAccount;
+    private Account barMockAccount;
 
     @Mock
     private Shop mockShop;
@@ -176,8 +176,8 @@ class ShopOwnerChangeServiceTest {
         var shopOwnerStatus = ShopOwnerStatus.OWNER_CHANGE_REQUESTED;
         var createdAt = LocalDateTime.now();
 
-        when(mockShopOwnerChangeHistory.getOriginalOwner()).thenReturn(spy(OAuth2Account.class));
-        when(mockShopOwnerChangeHistory.getTargetAccount()).thenReturn(spy(OAuth2Account.class));
+        when(mockShopOwnerChangeHistory.getOriginalOwner()).thenReturn(spy(Account.class));
+        when(mockShopOwnerChangeHistory.getTargetAccount()).thenReturn(spy(Account.class));
         when(mockShopOwnerChangeHistory.getOriginalOwner().getEmail()).thenReturn(requestAccountEmail);
         when(mockShopOwnerChangeHistory.getTargetAccount().getEmail()).thenReturn(targetAccountEmail);
         when(mockShopOwnerChangeHistory.getStatus()).thenReturn(shopOwnerStatus);

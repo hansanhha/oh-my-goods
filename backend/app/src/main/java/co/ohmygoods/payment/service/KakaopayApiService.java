@@ -1,6 +1,6 @@
 package co.ohmygoods.payment.service;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
@@ -60,7 +60,7 @@ public class KakaopayApiService
 
     @Override
     protected Object getPreparationRequestBody(String accountEmail, String orderTransactionId, int paymentAmount, String paymentName) {
-        OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(() -> PaymentException.notFoundAccount(accountEmail));
+        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(() -> PaymentException.notFoundAccount(accountEmail));
         Order order = orderRepository.fetchAccountByTransactionId(orderTransactionId).orElseThrow(() -> PaymentException.notFoundOrder(orderTransactionId));
 
         return KakaopayPreparationRequest.create(paymentAmount, account, order.getTransactionId(), paymentName, kakaopayProperties);
@@ -70,7 +70,7 @@ public class KakaopayApiService
     protected Object getApprovalRequestBody(String orderTransactionId, Map<String, String> properties) {
         Order order = orderRepository.fetchAccountByTransactionId(orderTransactionId).orElseThrow(() -> PaymentException.notFoundOrder(orderTransactionId));
         Payment payment = paymentRepository.findByOrder(order).orElseThrow(() -> PaymentException.notFoundPayment(order.getId()));
-        OAuth2Account account = order.getAccount();
+        Account account = order.getAccount();
 
         return new KakaopayApprovalRequest(kakaopayProperties.getCid(), payment.getTransactionId(),
                 order.getTransactionId(), account.getEmail(), properties.get("pgToken"));
@@ -133,7 +133,7 @@ public class KakaopayApiService
                                       String cancelURL,
                                       String failURL) {
 
-        private static KakaopayPreparationRequest create(int paymentAmount, OAuth2Account account, String orderTransactionId,
+        private static KakaopayPreparationRequest create(int paymentAmount, Account account, String orderTransactionId,
                                                          String paymentName, PaymentServiceConfig.KakaoPayProperties kakaoPayProperties) {
             return new KakaopayPreparationRequest(
                     kakaoPayProperties.getCid(),

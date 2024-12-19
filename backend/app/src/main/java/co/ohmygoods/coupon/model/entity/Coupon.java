@@ -1,6 +1,6 @@
 package co.ohmygoods.coupon.model.entity;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.coupon.exception.CouponException;
 import co.ohmygoods.coupon.model.vo.*;
 import co.ohmygoods.global.entity.BaseEntity;
@@ -28,7 +28,7 @@ public class Coupon extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "issuer_id")
-    private OAuth2Account issuer;
+    private Account issuer;
 
     @Column(nullable = false)
     private String name;
@@ -94,7 +94,7 @@ public class Coupon extends BaseEntity {
         }
     }
 
-    public void destroy(OAuth2Account account) {
+    public void destroy(Account account) {
         if (!account.canDestroyShopCoupon()) {
             CouponException.throwInvalidCouponAuthority();
         }
@@ -136,7 +136,7 @@ public class Coupon extends BaseEntity {
     }
 
     public static class CouponBuilder {
-        private OAuth2Account issuer;
+        private Account issuer;
         private String name;
         private String couponCode;
         private CouponType type;
@@ -158,7 +158,7 @@ public class Coupon extends BaseEntity {
 
         }
 
-        public CouponBuilder issuer(OAuth2Account issuer) {
+        public CouponBuilder issuer(Account issuer) {
             this.issuer = issuer;
             return this;
         }
@@ -290,7 +290,7 @@ public class Coupon extends BaseEntity {
             }
         }
 
-        private static void validateCouponIssuanceAuthority(OAuth2Account account, CouponType couponType) {
+        private static void validateCouponIssuanceAuthority(Account account, CouponType couponType) {
             switch (couponType) {
                 case GENERAL_COUPON -> {
                     if (!account.canIssueGeneralCoupon()) {

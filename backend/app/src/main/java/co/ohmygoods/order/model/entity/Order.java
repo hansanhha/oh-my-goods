@@ -1,6 +1,6 @@
 package co.ohmygoods.order.model.entity;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.OrderStatus;
@@ -26,7 +26,7 @@ public class Order extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
-    private OAuth2Account account;
+    private Account account;
 
     private String transactionId;
 
@@ -44,7 +44,7 @@ public class Order extends BaseEntity {
 
     private int discountPrice;
 
-    public static Order start(OAuth2Account account, String transactionId, List<OrderItem> orderItems, int totalPrice, int discountPrice) {
+    public static Order start(Account account, String transactionId, List<OrderItem> orderItems, int totalPrice, int discountPrice) {
         List<OrderItem> orderItems_ = Objects.requireNonNullElseGet(orderItems, Collections::emptyList);
         int totalPrice_ = Math.max(totalPrice, 0);
         int discountPrice_ = Math.max(discountPrice, 0);
@@ -86,7 +86,7 @@ public class Order extends BaseEntity {
         orderItem.setOrder(this);
     }
 
-    public boolean isOrderer(OAuth2Account account) {
+    public boolean isOrderer(Account account) {
         return this.account.getEmail().equals(account.getEmail());
     }
 }

@@ -13,7 +13,7 @@ public interface CouponRepository extends CrudRepository<Coupon, Long> {
     @Query("SELECT c " +
             "FROM Coupon c " +
             "JOIN CouponShopMapping csm on csm.coupon = c " +
-            "JOIN FETCH OAuth2Account a on c.issuer = a " +
+            "JOIN FETCH Account a on c.issuer = a " +
             "WHERE csm.applyTargetShop = :shop")
     List<Coupon> fetchAllByShop(Shop shop);
 

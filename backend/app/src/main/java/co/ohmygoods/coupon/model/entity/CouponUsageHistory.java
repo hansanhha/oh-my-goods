@@ -1,6 +1,6 @@
 package co.ohmygoods.coupon.model.entity;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.coupon.model.vo.CouponUsageStatus;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.model.entity.OrderItem;
@@ -23,7 +23,7 @@ public class CouponUsageHistory extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
-    private OAuth2Account account;
+    private Account account;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_item_id")
@@ -35,7 +35,7 @@ public class CouponUsageHistory extends BaseEntity {
 
     private LocalDateTime usedAt;
 
-    public static CouponUsageHistory issued(Coupon coupon, OAuth2Account account) {
+    public static CouponUsageHistory issued(Coupon coupon, Account account) {
         CouponUsageHistory couponUsageHistory = new CouponUsageHistory();
         couponUsageHistory.coupon = coupon;
         couponUsageHistory.account = account;

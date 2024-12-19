@@ -1,6 +1,6 @@
 package co.ohmygoods.shop.seller;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.seller.shop.service.SellerShopService;
 import co.ohmygoods.shop.model.entity.Shop;
@@ -41,7 +41,7 @@ class SellerShopServiceTest {
     private Shop mockShop;
 
     @Mock
-    private OAuth2Account mockAccount;
+    private Account mockAccount;
 
     private CreateShopRequest createShopRequest;
     private static final String MOCK_ACCOUNT_EMAIL = "mockAccount@test.com";

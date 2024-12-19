@@ -1,6 +1,6 @@
 package co.ohmygoods.payment.model.entity;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.payment.exception.PaymentException;
@@ -26,7 +26,7 @@ public class Payment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
-    private OAuth2Account account;
+    private Account account;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
@@ -48,7 +48,7 @@ public class Payment extends BaseEntity {
 
     private LocalDateTime transactionReadyAt;
 
-    public static Payment start(OAuth2Account account, Order order, ExternalPaymentVendor vendor, int paymentAmount) {
+    public static Payment start(Account account, Order order, ExternalPaymentVendor vendor, int paymentAmount) {
         if (paymentAmount < 0) {
             PaymentException.throwCauseInvalidPaymentPrice(paymentAmount);
         }

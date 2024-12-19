@@ -1,6 +1,6 @@
 package co.ohmygoods.order.service;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
 import co.ohmygoods.coupon.repository.CouponRepository;
@@ -52,7 +52,7 @@ public class SimpleOrderService implements OrderService {
     @Override
     public OrderStartResponse startOrder(OrderStartRequest request) {
         // 엔티티 조회
-        OAuth2Account account = accountRepository.findByEmail(request.orderAccountEmail()).orElseThrow(OrderException::new);
+        Account account = accountRepository.findByEmail(request.orderAccountEmail()).orElseThrow(OrderException::new);
         DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(request.deliveryAddressId()).orElseThrow(OrderException::new);
         List<Product> orderProducts = (List<Product>) productRepository.findAllById(request.orderDetails().stream()
                 .map(OrderStartRequest.OrderProductDetail::productId).toList());

@@ -1,13 +1,11 @@
 package co.ohmygoods.coupon.service;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.coupon.exception.CouponException;
 import co.ohmygoods.coupon.model.entity.Coupon;
-import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
 import co.ohmygoods.coupon.model.vo.CouponIssuanceTarget;
 import co.ohmygoods.coupon.model.vo.CouponIssueQuantityLimitType;
 import co.ohmygoods.coupon.model.vo.CouponUsageStatus;
-import org.springframework.stereotype.Component;
 
 /*
 todo
@@ -25,7 +23,7 @@ class CouponValidationService {
         }
     }
 
-    public static void validateBeforeIssue(Coupon coupon, OAuth2Account account, int issuedSameCouponCountToAccount) {
+    public static void validateBeforeIssue(Coupon coupon, Account account, int issuedSameCouponCountToAccount) {
         validateIssuanceLimit(coupon, issuedSameCouponCountToAccount);
         validateIssueAccount(coupon, account);
     }
@@ -45,7 +43,7 @@ class CouponValidationService {
 
     }
 
-    public static void validateIssueAccount(Coupon coupon, OAuth2Account account) {
+    public static void validateIssueAccount(Coupon coupon, Account account) {
         if (coupon.getIssuanceTarget().equals(CouponIssuanceTarget.SPECIFIC_ACCOUNTS)) {
 
         }

@@ -1,6 +1,6 @@
 package co.ohmygoods.seller.coupon.service;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.coupon.exception.CouponException;
 import co.ohmygoods.coupon.model.entity.Coupon;
@@ -48,7 +48,7 @@ public class SellerCouponService {
         - 최대 할인 금액 설정
      */
     public ShopCouponResponse createShopCoupon(CreateShopCouponRequest request) {
-        OAuth2Account issuer = accountRepository.findByEmail(request.issuerEmail()).orElseThrow(CouponException::notFoundIssuer);
+        Account issuer = accountRepository.findByEmail(request.issuerEmail()).orElseThrow(CouponException::notFoundIssuer);
         Shop shop = shopRepository.findById(request.shopId()).orElseThrow(CouponException::notFoundShop);
 
         shop.validateShopManager(issuer);
@@ -105,7 +105,7 @@ public class SellerCouponService {
     }
 
     public void destroyIssuingShopCoupon(Long shopId, Long couponId, String accountEmail) {
-        OAuth2Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::notFoundAccount);
+        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::notFoundAccount);
         Shop shop = shopRepository.findById(shopId).orElseThrow(CouponException::notFoundShop);
         Coupon coupon = couponRepository.findByShopAndCouponId(shop, couponId).orElseThrow(CouponException::notFoundCoupon);
 

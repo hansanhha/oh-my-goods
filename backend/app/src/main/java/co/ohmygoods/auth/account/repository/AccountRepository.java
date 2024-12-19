@@ -1,11 +1,11 @@
 package co.ohmygoods.auth.account.repository;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface AccountRepository extends CrudRepository<OAuth2Account, Long> {
+public interface AccountRepository extends CrudRepository<Account, Long> {
 
-    Optional<OAuth2Account> findByEmail(String email);
+    Optional<Account> findByEmail(String email);
 }

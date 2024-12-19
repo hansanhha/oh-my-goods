@@ -1,6 +1,6 @@
 package co.ohmygoods.order.model.entity;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.CancelOrderException;
 import co.ohmygoods.order.model.vo.CancelOrderStatus;
@@ -35,7 +35,7 @@ public class CancelOrderItem extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
-    private OAuth2Account manager;
+    private Account manager;
 
     @Enumerated(EnumType.STRING)
     private CancelOrderStatus status;
@@ -71,7 +71,7 @@ public class CancelOrderItem extends BaseEntity {
                 CancelOrderStatus.REQUESTED_CANCEL_ORDER, requestReason, null, null);
     }
 
-    public static CancelOrderItem forceCancelByShopManager(Shop shop, OrderItem cancelTargetOrderItem, OAuth2Account manager, String requestResponse) {
+    public static CancelOrderItem forceCancelByShopManager(Shop shop, OrderItem cancelTargetOrderItem, Account manager, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
             CancelOrderException.throwCauseEmptyText();
         }
@@ -80,7 +80,7 @@ public class CancelOrderItem extends BaseEntity {
                 CancelOrderStatus.CANCELED_ORDER, null, requestResponse, LocalDateTime.now());
     }
 
-    public void approveByShopManager(OAuth2Account manager, String requestResponse, CancelOrderStatus status) {
+    public void approveByShopManager(Account manager, String requestResponse, CancelOrderStatus status) {
         if (!StringUtils.hasText(requestResponse)) {
             CancelOrderException.throwCauseEmptyText();
         }
@@ -92,7 +92,7 @@ public class CancelOrderItem extends BaseEntity {
         respondedAt = LocalDateTime.now();
     }
 
-    public void rejectByShopManager(OAuth2Account manager, String requestResponse) {
+    public void rejectByShopManager(Account manager, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
             CancelOrderException.throwCauseEmptyText();
         }

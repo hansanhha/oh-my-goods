@@ -1,6 +1,6 @@
 package co.ohmygoods.order.model.entity;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.RefundException;
 import co.ohmygoods.order.model.vo.OrderStatus;
@@ -35,7 +35,7 @@ public class RefundOrderItem extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
-    private OAuth2Account manager;
+    private Account manager;
 
     @Enumerated(EnumType.STRING)
     private RefundStatus status;
@@ -74,7 +74,7 @@ public class RefundOrderItem extends BaseEntity {
                 RefundStatus.REQUESTED_REFUNDING, requestReason, null, 0, null);
     }
 
-    public void approveByShopManager(OAuth2Account manager, String requestResponse, int refundedPrice) {
+    public void approveByShopManager(Account manager, String requestResponse, int refundedPrice) {
         if (!StringUtils.hasText(requestResponse)) {
             RefundException.throwCauseEmptyText();
         }
@@ -87,7 +87,7 @@ public class RefundOrderItem extends BaseEntity {
         refundTargetOrderItem.updateOrderItemStatus(OrderStatus.ORDER_ITEM_APPROVED_REFUNDING);
     }
 
-    public void rejectByShopManager(OAuth2Account manager, String requestResponse) {
+    public void rejectByShopManager(Account manager, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
             RefundException.throwCauseEmptyText();
         }

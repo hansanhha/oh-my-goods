@@ -1,6 +1,6 @@
 package co.ohmygoods.payment.service;
 
-import co.ohmygoods.auth.account.entity.OAuth2Account;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
@@ -49,7 +49,7 @@ class KakaopayApiServiceTest {
     private KakaopayApiService kakaopayApiService;
 
     @Mock
-    private OAuth2Account mockAccount;
+    private Account mockAccount;
 
     private static final String ACCOUNT_EMAIL = "test@email.com";
     private static final Long ORDER_ID = 1L;
