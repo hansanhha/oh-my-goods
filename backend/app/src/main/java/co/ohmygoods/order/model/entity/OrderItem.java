@@ -34,7 +34,7 @@ public class OrderItem extends BaseEntity {
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
 
-    @OneToOne(mappedBy = "order_item", orphanRemoval = true)
+    @OneToOne(mappedBy = "orderItem", orphanRemoval = true)
     private CouponUsageHistory couponUsageHistory;
 
     @Column(nullable = false)

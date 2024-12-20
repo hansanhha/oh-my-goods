@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.*;
 
+@Table(name = "orders")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

@@ -19,7 +19,7 @@ public class ReviewImageInfo extends BaseEntity {
 
     private UUID imageId;
 
-    private int order;
+    private int imageOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
