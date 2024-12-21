@@ -1,8 +1,8 @@
-package co.ohmygoods.auth.web.security.oauth2.kakao;
+package co.ohmygoods.auth.oauth2.service.kakao;
 
 import co.ohmygoods.auth.account.service.dto.OAuth2AuthorizationResponse;
-import co.ohmygoods.auth.model.vo.OAuth2Provider;
-import co.ohmygoods.auth.web.security.oauth2.AbstractOAuth2AuthorizationService;
+import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
+import co.ohmygoods.auth.oauth2.service.AbstractOAuth2AuthorizationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 
-import static co.ohmygoods.auth.web.security.oauth2.kakao.KakaoOAuth2AuthorizationService.KakaoOAuth2AuthorizationResponse;
+import static co.ohmygoods.auth.oauth2.service.kakao.KakaoOAuth2AuthorizationService.KakaoOAuth2AuthorizationResponse;
 
 @Component
 @Transactional

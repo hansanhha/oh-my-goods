@@ -1,7 +1,7 @@
-package co.ohmygoods.auth.web.security.oauth2;
+package co.ohmygoods.auth.oauth2.service;
 
 import co.ohmygoods.auth.account.service.dto.OAuth2AuthorizationResponse;
-import co.ohmygoods.auth.model.vo.OAuth2Provider;
+import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
 
 public interface OAuth2AuthorizationService {
 

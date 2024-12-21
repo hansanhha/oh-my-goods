@@ -6,6 +6,7 @@ import co.ohmygoods.auth.account.service.dto.AccountResponse;
 import co.ohmygoods.auth.account.service.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.jwt.service.JWTService;
 import co.ohmygoods.auth.jwt.model.vo.JWTs;
+import co.ohmygoods.auth.model.vo.OAuth2Provider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +54,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
             accountResponse = optionalOAuth2AccountDTO.get();
         }
 
-        var jwts = signService.signIn(email, OAuth2AuthorizationService.OAuth2Vendor.valueOf(oAuth2UserPrincipal.getOAuth2UserDetail().registrationId().toUpperCase()), accountResponse.role());
+        var jwts = signService.signIn(email, OAuth2Provider.valueOf(oAuth2UserPrincipal.getOAuth2UserDetail().registrationId().toUpperCase()), accountResponse.role());
         var redirectUri = calculateRedirectURI(request, jwts);
 
         redirect.sendRedirect(request, response, redirectUri.toString());
@@ -64,9 +65,9 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String email = oAuth2UserPrincipal.getName();
         String oAuth2MemberId = oAuth2UserDetail.getOAuth2MemberId();
         String registrationId = oAuth2UserDetail.registrationId();
-        OAuth2AuthorizationService.OAuth2Vendor oAuth2Vendor = OAuth2AuthorizationService.OAuth2Vendor.valueOf(registrationId.toUpperCase());
+        OAuth2Provider oAuth2Provider = OAuth2Provider.valueOf(registrationId.toUpperCase());
 
-        return new OAuth2SignUpRequest(email, oAuth2MemberId, oAuth2Vendor);
+        return new OAuth2SignUpRequest(email, oAuth2MemberId, oAuth2Provider);
     }
 
     private URI calculateRedirectURI(HttpServletRequest request, JWTs jwts) {
