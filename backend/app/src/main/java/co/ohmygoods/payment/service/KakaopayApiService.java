@@ -28,7 +28,7 @@ import static co.ohmygoods.payment.service.KakaopayApiService.*;
 @Transactional
 @Service
 public class KakaopayApiService
-        extends AbstractExternalPaymentApiService<KakaopayPreparationResponse, KakaopayApprovalResponse, KakaopayRequestFailureCause> {
+        extends AbstractPaymentExternalRequestService<KakaopayPreparationResponse, KakaopayApprovalResponse, KakaopayRequestFailureCause> {
 
     private final PaymentServiceConfig.KakaoPayProperties kakaopayProperties;
     private final RestClient kakaoPayApiClient;
@@ -77,13 +77,13 @@ public class KakaopayApiService
     }
 
     @Override
-    protected PreparationResponseDetail extractPreparationResponseDetail(UserAgent userAgent, KakaopayPreparationResponse kpr) {
+    protected PreparationResponseDetail getPreparationResponseDetail(UserAgent userAgent, KakaopayPreparationResponse kpr) {
         return new PreparationResponseDetail(kpr.tid(), getNextRedirectUrlByUserAgent(userAgent, kpr),
                 toLocalDateTime(kpr.createdAt()), toLocalDateTime(kpr.createdAt()));
     }
 
     @Override
-    protected ApprovalResponseDetail extractApprovalResponseDetail(KakaopayApprovalResponse kpr) {
+    protected ApprovalResponseDetail getApprovalResponseDetail(KakaopayApprovalResponse kpr) {
         return new ApprovalResponseDetail(kpr.partnerUserId(), kpr.tid(), kpr.amount().total(),
                 toLocalDateTime(kpr.createdAt()), toLocalDateTime(kpr.approvedAt()));
     }

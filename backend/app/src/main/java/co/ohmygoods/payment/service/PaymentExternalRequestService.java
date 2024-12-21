@@ -8,7 +8,7 @@ import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
 
 import java.util.Map;
 
-public interface PaymentExternalApiService {
+public interface PaymentExternalRequestService {
 
     ExternalPreparationResponse sendPreparationRequest(UserAgent userAgent, String accountEmail, String orderTransactionId, int paymentAmount, String paymentName);
 

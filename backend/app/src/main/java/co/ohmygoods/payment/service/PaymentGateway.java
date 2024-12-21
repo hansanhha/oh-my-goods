@@ -28,7 +28,7 @@ import java.util.List;
 public class PaymentGateway {
 
     private final PaymentService paymentService;
-    private final List<PaymentExternalApiService> paymentExternalApiServices;
+    private final List<PaymentExternalRequestService> paymentExternalRequestServices;
     private final List<PaymentProcessListener> paymentProcessListeners;
 
     public PaymentStartResponse startPayment(PreparePaymentRequest request) {
@@ -37,7 +37,7 @@ public class PaymentGateway {
 
         LocalDateTime startedAt = LocalDateTime.now();
 
-        PaymentExternalApiService externalApiService = findSupportPaymentExternalApiService(request.externalPaymentVendor());
+        PaymentExternalRequestService externalApiService = findSupportPaymentExternalApiService(request.externalPaymentVendor());
 
         ExternalPreparationResponse externalResponse = externalApiService.sendPreparationRequest(request.userAgent(),
                 request.accountEmail(), request.orderTransactionId(), request.paymentAmount(), request.paymentName());
@@ -63,7 +63,7 @@ public class PaymentGateway {
     public PaymentEndResponse continuePayment(ApprovePaymentRequest request) {
         LocalDateTime continuedAt = LocalDateTime.now();
 
-        PaymentExternalApiService externalApiService = findSupportPaymentExternalApiService(request.externalPaymentVendor());
+        PaymentExternalRequestService externalApiService = findSupportPaymentExternalApiService(request.externalPaymentVendor());
 
         ExternalApprovalResponse externalResponse = externalApiService.sendApprovalRequest(request.orderTransactionId(), request.properties());
 
@@ -95,7 +95,7 @@ public class PaymentGateway {
     }
 
     public void failPayment(ExternalPaymentVendor vendor, String orderTransactionId, Object failureInfo) {
-        PaymentExternalApiService externalApiService = findSupportPaymentExternalApiService(vendor);
+        PaymentExternalRequestService externalApiService = findSupportPaymentExternalApiService(vendor);
 
         ExternalPaymentError externalPaymentError = externalApiService.extractExternalPaymentError(failureInfo);
 
@@ -105,8 +105,8 @@ public class PaymentGateway {
                 listener.onFailure(paymentId, externalPaymentError.paymentFailureCause()));
     }
 
-    private PaymentExternalApiService findSupportPaymentExternalApiService(ExternalPaymentVendor externalPaymentVendor) {
-        return paymentExternalApiServices
+    private PaymentExternalRequestService findSupportPaymentExternalApiService(ExternalPaymentVendor externalPaymentVendor) {
+        return paymentExternalRequestServices
                 .stream()
                 .filter(service -> service.isSupport(externalPaymentVendor))
                 .findFirst()

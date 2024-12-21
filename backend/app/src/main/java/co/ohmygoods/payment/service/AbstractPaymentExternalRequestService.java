@@ -42,8 +42,8 @@ import java.util.Map;
  * @param <ApprovalResponse> 외부 결제 승인 API 응답 매핑 타입
  * @param <ExternalError> 외부 결제 API 실패 응답 매핑 타입
  */
-public abstract class AbstractExternalPaymentApiService<PreparationResponse, ApprovalResponse, ExternalError>
-        implements PaymentExternalApiService {
+public abstract class AbstractPaymentExternalRequestService<PreparationResponse, ApprovalResponse, ExternalError>
+        implements PaymentExternalRequestService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper()
             .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
@@ -53,35 +53,35 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
     public ExternalPreparationResponse sendPreparationRequest(UserAgent userAgent, String accountEmail, String orderTransactionId, int paymentAmount, String paymentName) {
         Object preparationRequestBody = getPreparationRequestBody(accountEmail, orderTransactionId, paymentAmount, paymentName);
 
-        ExternalApiRequestResult preparationResult = sendExternalApiRequest(PaymentPhase.PREPARATION, preparationRequestBody);
+        ExternalApiRequestResult preparationResult = sendExternalPaymentApiRequest(PaymentPhase.PREPARATION, preparationRequestBody);
 
-        PreparationResponseDetail prd = extractPreparationResponseDetail(userAgent, preparationResult.getPreparationResponse());
+        PreparationResponseDetail detail = getPreparationResponseDetail(userAgent, preparationResult.getPreparationResponse());
 
         if (!preparationResult.isSuccess()) {
             return ExternalPreparationResponse.fail(accountEmail, orderTransactionId, paymentAmount,
-                    convertToExternalError(preparationResult.getExternalError()), prd.createdAt());
+                    convertToExternalError(preparationResult.getExternalError()), detail.createdAt());
         }
 
         return ExternalPreparationResponse.success(accountEmail, orderTransactionId,
-                prd.externalTransactionId(), prd.nextRedirectURI(), paymentAmount, prd.createdAt(), prd.preparedAt());
+                detail.externalTransactionId(), detail.nextRedirectURI(), paymentAmount, detail.createdAt(), detail.preparedAt());
     }
 
     @Override
     public ExternalApprovalResponse sendApprovalRequest(String orderTransactionId, Map<String, String> properties) {
         Object approvalRequestBody = getApprovalRequestBody(orderTransactionId, properties);
 
-        ExternalApiRequestResult approvalResult = sendExternalApiRequest(PaymentPhase.APPROVAL, approvalRequestBody);
+        ExternalApiRequestResult approvalResult = sendExternalPaymentApiRequest(PaymentPhase.APPROVAL, approvalRequestBody);
 
-        ApprovalResponseDetail ard = extractApprovalResponseDetail(approvalResult.getApprovalResponse());
+        ApprovalResponseDetail detail = getApprovalResponseDetail(approvalResult.getApprovalResponse());
 
         if (!approvalResult.isSuccess()) {
-            return ExternalApprovalResponse.fail(ard.accountEmail(), orderTransactionId,
-                    ard.externalTransactionId(), ard.paymentAmount(),
-                    convertToExternalError(approvalResult.getExternalError()), ard.startedAt());
+            return ExternalApprovalResponse.fail(detail.accountEmail(), orderTransactionId,
+                    detail.externalTransactionId(), detail.paymentAmount(),
+                    convertToExternalError(approvalResult.getExternalError()), detail.startedAt());
         }
 
-        return ExternalApprovalResponse.success(ard.accountEmail(), orderTransactionId,
-                ard.externalTransactionId(), ard.paymentAmount(), ard.startedAt(), ard.approvedAt());
+        return ExternalApprovalResponse.success(detail.accountEmail(), orderTransactionId,
+                detail.externalTransactionId(), detail.paymentAmount(), detail.startedAt(), detail.approvedAt());
     }
 
     @SuppressWarnings("unchecked")
@@ -102,10 +102,10 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
     protected abstract Object getApprovalRequestBody(String orderTransactionId, Map<String, String> properties);
 
     // ExternalPreparationResponse를 생성하기 위한 정보를 외부 결제 준비 api 응답 정보를 바탕으로 자식 구현체에서 추출함
-    protected abstract PreparationResponseDetail extractPreparationResponseDetail(UserAgent userAgent, PreparationResponse preparationResponse);
+    protected abstract PreparationResponseDetail getPreparationResponseDetail(UserAgent userAgent, PreparationResponse preparationResponse);
 
     // ExternalApprovalResponse를 생성하기 위한 정보를 외부 결제 승인 api 응답 정보를 바탕으로 자식 구현체에서 추출함
-    protected abstract ApprovalResponseDetail extractApprovalResponseDetail(ApprovalResponse approvalResponse);
+    protected abstract ApprovalResponseDetail getApprovalResponseDetail(ApprovalResponse approvalResponse);
 
     // 자식 구현체에 종속되는 예외 정보를 ExternalPaymentError 객체로 변환
     protected abstract ExternalPaymentError convertToExternalError(ExternalError externalError);
@@ -122,15 +122,15 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
      * 자식 구현체에서 지정한 제네릭 타입을 기반으로 결제 api json 응답을 매핑함</p>
      *
      * <p>외부 결제 api 응답의 http 상태 값에 따라 요청 오류/성공 분기 처리</p>
-     * <p>{@link #createExternalApiErrorResponse}
-     * {@link #createExternalApiSuccessResponse}</p>
+     * <p>{@link #getFailureResult}
+     * {@link #getSuccessResult}</p>
      *
      * @param paymentPhase 결제 단계(준비/승인)
      * @param requestBody 외부 결제 api 요청 바디
      *
      * @return 외부 결제 API 요청(준비/승인) 결과 {@link ExternalApiRequestResult}
      */
-    private ExternalApiRequestResult sendExternalApiRequest(PaymentPhase paymentPhase, Object requestBody) {
+    private ExternalApiRequestResult sendExternalPaymentApiRequest(PaymentPhase paymentPhase, Object requestBody) {
         RestClient externalApiClient = getExternalApiRestClient();
 
         return externalApiClient
@@ -141,10 +141,10 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
                     HttpStatusCode externalResponseCode = response.getStatusCode();
 
                     if (externalResponseCode.isError()) {
-                        return createExternalApiErrorResponse(paymentPhase, externalResponseCode, response);
+                        return getFailureResult(paymentPhase, externalResponseCode, response);
                     }
 
-                    return createExternalApiSuccessResponse(paymentPhase, externalResponseCode, response);
+                    return getSuccessResult(paymentPhase, externalResponseCode, response);
                 });
     }
 
@@ -160,7 +160,7 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
      * paymentPhase 값에 따라 분기 처리하여 외부 결제 오류 응답 생성
      * <p>{@link #convertToPaymentResponse}</p>
      */
-    private ExternalApiRequestResult createExternalApiErrorResponse(PaymentPhase paymentPhase, HttpStatusCode statusCode, ConvertibleClientHttpResponse response) {
+    private ExternalApiRequestResult getFailureResult(PaymentPhase paymentPhase, HttpStatusCode statusCode, ConvertibleClientHttpResponse response) {
         return new ExternalApiRequestResult(null,null,
                 false, statusCode, convertToPaymentResponse(response, PaymentPhase.ERROR));
     }
@@ -169,7 +169,7 @@ public abstract class AbstractExternalPaymentApiService<PreparationResponse, App
      * paymentPhase 값에 따라 분기 처리하여 외부 결제 성공 응답 생성
      * <p>{@link #convertToPaymentResponse}</p>
      */
-    private ExternalApiRequestResult createExternalApiSuccessResponse(PaymentPhase paymentPhase, HttpStatusCode statusCode, ConvertibleClientHttpResponse response) {
+    private ExternalApiRequestResult getSuccessResult(PaymentPhase paymentPhase, HttpStatusCode statusCode, ConvertibleClientHttpResponse response) {
         if (paymentPhase.equals(PaymentPhase.PREPARATION)) {
             return new ExternalApiRequestResult(convertToPaymentResponse(response, paymentPhase), null, true,
                     statusCode, null);
