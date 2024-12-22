@@ -31,15 +31,15 @@ public class KakaoOAuth2AuthorizationService
     @Override
     protected OAuth2AuthorizationResponse processSignOut(KakaoOAuth2AuthorizationResponse response, HttpStatusCode httpStatusCode) {
         return response.isError()
-                ? OAuth2AuthorizationResponse.success(httpStatusCode)
-                : OAuth2AuthorizationResponse.fail(httpStatusCode, response.code(), response.msg());
+                ? OAuth2AuthorizationResponse.fail(httpStatusCode, response.code(), response.msg())
+                : OAuth2AuthorizationResponse.success(httpStatusCode);
     }
 
     @Override
     protected OAuth2AuthorizationResponse processUnlink(KakaoOAuth2AuthorizationResponse response, HttpStatusCode httpStatusCode) {
         return response.isError()
-                ? OAuth2AuthorizationResponse.success(httpStatusCode)
-                : OAuth2AuthorizationResponse.fail(httpStatusCode, response.code(), response.msg());
+                ? OAuth2AuthorizationResponse.fail(httpStatusCode, response.code(), response.msg())
+                : OAuth2AuthorizationResponse.success(httpStatusCode);
     }
 
     @Override
