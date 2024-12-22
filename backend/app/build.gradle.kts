@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.spring.web)
     implementation(libs.spring.validation)
     implementation(libs.spring.data.jpa)
+    implementation(libs.spring.data.redis)
     implementation(libs.spring.security)
     implementation(libs.spring.oauth2.client)
 
