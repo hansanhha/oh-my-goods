@@ -7,33 +7,21 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @Column(nullable = false, updatable = false, columnDefinition = "TEXT")
     private String tokenValue;
 
-    @Column(nullable = false)
-    private String subject;
+    public static RefreshToken create(String email, String tokenValue) {
+        return new RefreshToken(email, tokenValue);
+    }
 
-    @Column(unique = true, nullable = false, updatable = false)
-    private String jwtId;
-
-    @Column(nullable = false)
-    private String issuer;
-
-    @Column(nullable = false, updatable = false)
-    private String audience;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime issuedAt;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime expiresIn;
+    public void updateTokenValue(String tokenValue) {
+        this.tokenValue = tokenValue;
+    }
 }

@@ -2,7 +2,7 @@ package co.ohmygoods.auth.jwt.service.nimbus;
 
 import co.ohmygoods.auth.jwt.service.JWTParser;
 import co.ohmygoods.auth.jwt.model.vo.JWTError;
-import co.ohmygoods.auth.jwt.model.vo.JWTParseResult;
+import co.ohmygoods.auth.jwt.service.dto.JWTParseResult;
 import com.nimbusds.jwt.JWT;
 import org.springframework.stereotype.Component;
 

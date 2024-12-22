@@ -1,9 +1,10 @@
-package co.ohmygoods.auth.jwt.service.nimbus;
+package co.ohmygoods.auth.jwt.service.nimbus.validation;
 
-import co.ohmygoods.auth.jwt.service.JWTClaimValidator;
 import co.ohmygoods.auth.jwt.model.vo.JWTError;
-import co.ohmygoods.auth.jwt.model.vo.JWTValidationResult;
+import co.ohmygoods.auth.jwt.service.JwtValidator;
+import co.ohmygoods.auth.jwt.service.dto.ValidationResult;
 import com.nimbusds.jwt.JWT;
+import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.time.Clock;
@@ -11,31 +12,32 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-public class NimbusJWTExpirationClaimValidator implements JWTClaimValidator<JWT> {
+@Component
+public class NimbusJoseJwtExpirationValidator implements JwtValidator<JWT> {
 
     private static final Duration DEFAULT_MAX_CLOCK_SKEW = Duration.of(60, ChronoUnit.MINUTES);
 
     private final Duration clockSkew;
     private final Clock clock = Clock.systemUTC();
 
-    public NimbusJWTExpirationClaimValidator() {
+    public NimbusJoseJwtExpirationValidator() {
         clockSkew = DEFAULT_MAX_CLOCK_SKEW;
     }
 
-    public NimbusJWTExpirationClaimValidator(Duration clockSkew) {
+    public NimbusJoseJwtExpirationValidator(Duration clockSkew) {
         this.clockSkew = clockSkew;
     }
 
     @Override
-    public JWTValidationResult validate(JWT jwt) {
+    public ValidationResult validate(JWT jwt) {
         try {
             if (Instant.now(clock).minus(clockSkew).isAfter(jwt.getJWTClaimsSet().getExpirationTime().toInstant())) {
-                return JWTValidationResult.success();
+                return ValidationResult.valid();
             }
 
-            return JWTValidationResult.error(JWTError.EXPIRED);
+            return ValidationResult.invalid(JWTError.EXPIRED);
         } catch (ParseException e) {
-            return JWTValidationResult.error(JWTError.MALFORMED);
+            return ValidationResult.invalid(JWTError.MALFORMED);
         }
     }
 }

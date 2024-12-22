@@ -1,4 +1,4 @@
-package co.ohmygoods.auth.jwt.model.vo;
+package co.ohmygoods.auth.jwt.config;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
@@ -29,7 +29,10 @@ public class JWTProperties {
     private String issuer;
 
     @NotNull
-    private JWSAlgorithm algorithm;
+    private JWSAlgorithm accessTokenAlgorithm;
+
+    @NotNull
+    private JWSAlgorithm refreshTokenAlgorithm;
 
     @NotNull
     @DurationMin(seconds = 1)
@@ -41,13 +44,17 @@ public class JWTProperties {
 
     private String audience;
 
-    public void setAlgorithm(@NotNull String algorithm) {
-        this.algorithm = JWSAlgorithm.parse(algorithm);
+    public void setAccessTokenAlgorithm(@NotNull String accessTokenAlgorithm) {
+        this.accessTokenAlgorithm = JWSAlgorithm.parse(accessTokenAlgorithm);
+    }
+
+    public void setRefreshTokenAlgorithm(@NotNull String refreshTokenAlgorithm) {
+        this.accessTokenAlgorithm = JWSAlgorithm.parse(refreshTokenAlgorithm);
     }
 
     public void setAccessTokenKey(@NotNull String key) {
         var jwk = new OctetSequenceKey.Builder(key.getBytes())
-                .algorithm(algorithm)
+                .algorithm(accessTokenAlgorithm)
                 .build();
 
         this.accessTokenKey = jwk.toSecretKey();
@@ -55,7 +62,7 @@ public class JWTProperties {
 
     public void setRefreshTokenKey(@NotNull String key) {
         var jwk = new OctetSequenceKey.Builder(key.getBytes())
-                .algorithm(algorithm)
+                .algorithm(accessTokenAlgorithm)
                 .build();
 
         this.refreshTokenKey= jwk.toSecretKey();

@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt.service;
 
-import co.ohmygoods.auth.jwt.model.vo.JWTInfo;
+import co.ohmygoods.auth.jwt.service.dto.JWTInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

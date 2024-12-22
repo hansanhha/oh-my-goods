@@ -1,22 +1,21 @@
 package co.ohmygoods.auth.jwt.service;
 
-import co.ohmygoods.auth.jwt.model.vo.JWTClaimsKey;
-import co.ohmygoods.auth.jwt.model.vo.JWTInfo;
-import co.ohmygoods.auth.jwt.model.vo.JWTs;
-import co.ohmygoods.auth.jwt.model.vo.JWTValidationResult;
+import co.ohmygoods.auth.account.model.vo.Role;
+import co.ohmygoods.auth.jwt.model.vo.JwtProvider;
+import co.ohmygoods.auth.jwt.service.dto.ValidationResult;
+import co.ohmygoods.auth.jwt.service.dto.Jwts;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
-public interface JWTService {
+public interface JwtService {
 
-    JWTs generate(Map<JWTClaimsKey, Object> claims);
+    Jwts generate(String email, Set<Role.Authority> scopes);
 
-    JWTs regenerate(String refreshToken);
+    Jwts regenerate(String email, String refreshTokenValue);
 
-    Optional<JWTInfo> extractTokenInfo(String token);
+    void removeRefreshToken(String email);
 
-    void revokeRefreshToken(String accessToken);
+    ValidationResult validateAccessToken(String accessToken);
 
-    JWTValidationResult validateToken(String token);
+    boolean isSupport(JwtProvider jwtProvider);
 }
