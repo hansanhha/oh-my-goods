@@ -1,7 +1,7 @@
 package co.ohmygoods.auth.account.model.entity;
 
 import co.ohmygoods.auth.account.model.vo.Role;
-import co.ohmygoods.auth.web.security.oauth2.OAuth2AuthorizationService;
+import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
 import co.ohmygoods.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,7 +36,7 @@ public class Account extends BaseEntity {
     private int businessConversionCount = 0;
 
     @Enumerated(EnumType.STRING)
-    private OAuth2AuthorizationService.OAuth2Vendor oauth2Vendor;
+    private OAuth2Provider oauth2Provider;
 
     private String oauth2MemberId;
 

@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.web.controller;
 
-import co.ohmygoods.auth.account.service.SignService;
+import co.ohmygoods.auth.account.service.OAuth2AccountService;
 import co.ohmygoods.auth.jwt.service.JWTAuthenticationToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,21 +15,21 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OAuth2SignController {
 
-    private final SignService signService;
+    private final OAuth2AccountService OAuth2AccountService;
 
     @PostMapping("/refresh-token")
     public ResponseEntity<Map<String, Object>> refreshToken(@AuthenticationPrincipal Authentication authentication) {
         var jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
         var principal = jwtAuthenticationToken.getPrincipal();
 
-        var jwts = signService.reissueJWT(principal.tokenValue());
+        var jwts = OAuth2AccountService.reissueJWT(principal.tokenValue());
         return ResponseEntity.ok(Map.of("message", "succeed reissue tokens", "tokens", jwts));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(@AuthenticationPrincipal Authentication authentication) {
         var jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
-        signService.signOut(jwtAuthenticationToken.getPrincipal().tokenValue());
+        OAuth2AccountService.signOut(jwtAuthenticationToken.getPrincipal().tokenValue());
 
         return ResponseEntity.ok(Map.of("message", "succeed logout"));
     }
@@ -38,7 +38,7 @@ public class OAuth2SignController {
     public ResponseEntity<Map<String, Object>> delete(@AuthenticationPrincipal Authentication authentication,
                                                       @RequestBody String emailToBeDelete) {
         var jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
-        var deleted = signService.deleteAccount(jwtAuthenticationToken.getPrincipal().tokenValue(), emailToBeDelete);
+        var deleted = OAuth2AccountService.deleteAccount(jwtAuthenticationToken.getPrincipal().tokenValue(), emailToBeDelete);
 
         return deleted
                 ? ResponseEntity.ok(Map.of("result", true, "message", "deleted"))

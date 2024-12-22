@@ -1,4 +1,4 @@
-package co.ohmygoods.auth.web.security.filter;
+package co.ohmygoods.auth.web.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

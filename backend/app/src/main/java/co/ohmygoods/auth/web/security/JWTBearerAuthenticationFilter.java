@@ -1,9 +1,9 @@
-package co.ohmygoods.auth.web.security.filter;
+package co.ohmygoods.auth.web.security;
 
 import co.ohmygoods.auth.web.security.config.SecurityConfigProperties;
 import co.ohmygoods.auth.jwt.service.HttpErrorExceptions;
 import co.ohmygoods.auth.jwt.service.JWTAuthenticationToken;
-import co.ohmygoods.auth.jwt.service.JWTService;
+import co.ohmygoods.auth.jwt.service.JwtService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,7 +26,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JWTBearerAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JWTService jwtService;
+    private final JwtService jwtService;
     private final SecurityConfigProperties.SignUrlProperties signUrlProperties;
     private final SecurityConfigProperties.WhitelistProperties whitelistProperties;
     private final HttpErrorExceptions httpErrorExceptions;
@@ -47,10 +47,10 @@ public class JWTBearerAuthenticationFilter extends OncePerRequestFilter {
         }
 
         var bearerToken = optionalBearerToken.get();
-        var validationResult = jwtService.validateToken(bearerToken);
+        var validationResult = jwtService.validateAccessToken(bearerToken);
 
-        if (validationResult.hasError()) {
-            throw httpErrorExceptions.unauthorized(Map.of("message", validationResult.error().getDescription()));
+        if (validationResult.isValid()) {
+            throw httpErrorExceptions.unauthorized(Map.of("message", validationResult.invalid().getDescription()));
         }
 
         var jwtAuthenticationToken = JWTAuthenticationToken.authenticated(validationResult.jwtInfo(), null);

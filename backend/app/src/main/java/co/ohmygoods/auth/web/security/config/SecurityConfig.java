@@ -1,10 +1,10 @@
 package co.ohmygoods.auth.web.security.config;
 
-import co.ohmygoods.auth.web.security.filter.HttpErrorExceptionHandleFilter;
-import co.ohmygoods.auth.web.security.filter.JWTBearerAuthenticationFilter;
-import co.ohmygoods.auth.web.security.filter.JsonAccessDeniedHandler;
-import co.ohmygoods.auth.web.security.filter.JsonAuthenticationEntryPoint;
-import co.ohmygoods.auth.web.security.oauth2.OAuth2AuthenticationSuccessHandler;
+import co.ohmygoods.auth.web.security.HttpErrorExceptionHandleFilter;
+import co.ohmygoods.auth.web.security.JWTBearerAuthenticationFilter;
+import co.ohmygoods.auth.web.security.JsonAccessDeniedHandler;
+import co.ohmygoods.auth.web.security.JsonAuthenticationEntryPoint;
+import co.ohmygoods.auth.web.security.OAuth2AuthenticationSuccessHandler;
 import co.ohmygoods.auth.web.security.oauth2.OAuth2UserPrincipalService;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;

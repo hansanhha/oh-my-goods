@@ -1,4 +1,4 @@
-package co.ohmygoods.auth.web.security.filter;
+package co.ohmygoods.auth.web.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
