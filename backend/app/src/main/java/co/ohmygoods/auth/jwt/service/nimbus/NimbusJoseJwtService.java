@@ -5,8 +5,9 @@ import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.jwt.config.JWTProperties;
 import co.ohmygoods.auth.jwt.model.vo.JwtProvider;
 import co.ohmygoods.auth.jwt.model.vo.TokenType;
-import co.ohmygoods.auth.jwt.repository.RedisRefreshTokenRepository;
+import co.ohmygoods.auth.jwt.repository.RefreshTokenRepository;
 import co.ohmygoods.auth.jwt.service.AbstractJwtService;
+import co.ohmygoods.auth.jwt.service.CacheableRefreshTokenService;
 import co.ohmygoods.auth.jwt.service.JWTParser;
 import co.ohmygoods.auth.jwt.service.JwtValidator;
 import co.ohmygoods.auth.jwt.service.dto.ValidationResult;
@@ -38,11 +39,11 @@ public class NimbusJoseJwtService extends AbstractJwtService {
     private final JWTProperties jwtProperties;
 
     public NimbusJoseJwtService(AccountRepository accountRepository,
-                                RedisRefreshTokenRepository refreshTokenRepository,
+                                CacheableRefreshTokenService refreshTokenService,
                                 JWTParser<JWT> parser,
                                 JWTProperties jwtProperties,
                                 @Qualifier("nimbusJoseJwtValidatorDelegate") JwtValidator<JWT> validator) {
-        super(accountRepository, refreshTokenRepository);
+        super(accountRepository, refreshTokenService);
         this.parser = parser;
         this.jwtProperties = jwtProperties;
         this.validator = validator;
