@@ -1,5 +1,6 @@
 package co.ohmygoods.auth.web.security;
 
+import co.ohmygoods.auth.oauth2.service.IdentifiedOAuthUser;
 import co.ohmygoods.auth.oauth2.service.OAuth2AttributeService;
 import co.ohmygoods.auth.account.service.OAuth2AccountService;
 import co.ohmygoods.auth.account.service.dto.AccountResponse;
@@ -53,22 +54,17 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         }
 
         OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) authentication;
+        IdentifiedOAuthUser identifiedOAuthUser = (IdentifiedOAuthUser) oauth2Token.getPrincipal();
         OAuth2Provider oAuth2Provider = OAuth2Provider.valueOf(oauth2Token.getAuthorizedClientRegistrationId().toUpperCase());
         Map<String, Object> oauth2Attributes = oauth2Token.getPrincipal().getAttributes();
         String email = oAuth2AttributeService.getEmail(oAuth2Provider, oauth2Attributes);
 
-        Optional<AccountResponse> account = oAuth2AccountService.getAccount(email);
-
-        SignInResponse signInResponse;
-
-        if (account.isPresent()) {
-            signInResponse = oAuth2AccountService.signIn(email, account.get().role());
-        } else {
-            AccountResponse accountResponse = oAuth2AccountService.signUp(new OAuth2SignUpRequest(
-                    email, oauth2Attributes, oauth2Token.getName(), oAuth2Provider));
-
-            signInResponse = oAuth2AccountService.signIn(email, accountResponse.role());
+        if (identifiedOAuthUser.isFirstLogin()) {
+            oAuth2AccountService.signUp(new OAuth2SignUpRequest(
+                    email, oauth2Attributes, oauth2Token.getName(), identifiedOAuthUser.getMemberId(), oAuth2Provider));
         }
+
+        SignInResponse signInResponse = oAuth2AccountService.signIn(identifiedOAuthUser.getMemberId());
 
         request.setAttribute("accessToken", signInResponse.accessToken());
         request.setAttribute("refreshToken", signInResponse.refreshToken());

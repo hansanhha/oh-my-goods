@@ -12,13 +12,16 @@ import java.time.LocalDateTime;
 public class RefreshToken {
 
     @Id
-    private String id;
+    private Long id;
 
-    @Column(nullable = false, updatable = false, columnDefinition = "TEXT")
+    @Column(nullable = false)
+    private String memberId;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String tokenValue;
 
-    public static RefreshToken create(String email, String tokenValue) {
-        return new RefreshToken(email, tokenValue);
+    public static RefreshToken create(String memberId, String tokenValue) {
+        return new RefreshToken(0L, memberId, tokenValue);
     }
 
     public void updateTokenValue(String tokenValue) {

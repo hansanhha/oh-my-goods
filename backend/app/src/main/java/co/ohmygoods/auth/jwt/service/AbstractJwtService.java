@@ -19,13 +19,13 @@ public abstract class AbstractJwtService implements JwtService {
     private final RedisRefreshTokenRepository refreshTokenRepository;
 
     @Override
-    public Jwts generate(String email, Set<Role.Authority> scopes) {
-        refreshTokenRepository.removeAllById(email);
+    public Jwts generate(String memberId, Set<Role.Authority> scopes) {
+        refreshTokenRepository.removeAllByMemberId(memberId);
 
-        TokenDTO accessToken = generateAccessToken(email, scopes);
-        TokenDTO refreshToken = generateRefreshToken(email);
+        TokenDTO accessToken = generateAccessToken(memberId, scopes);
+        TokenDTO refreshToken = generateRefreshToken(memberId);
 
-        RefreshToken issuedRefreshToken = RefreshToken.create(email, refreshToken.tokenValue());
+        RefreshToken issuedRefreshToken = RefreshToken.create(memberId, refreshToken.tokenValue());
 
         refreshTokenRepository.save(issuedRefreshToken);
 
@@ -39,20 +39,20 @@ public abstract class AbstractJwtService implements JwtService {
      * @param refreshTokenValue: 클라이언트에게 전달받은 서명된 refresh token 값
      */
     @Override
-    public Jwts regenerate(String email, String refreshTokenValue) {
-        RefreshToken refreshTokenInDB = refreshTokenRepository.findById(email)
+    public Jwts regenerate(String memberId, String refreshTokenValue) {
+        RefreshToken refreshTokenInDB = refreshTokenRepository.findByMemberId(memberId)
                 .orElseThrow(AccountException::new);
 
         // 토큰 탈취 감지
         if (refreshTokenValue.equals(refreshTokenInDB.getTokenValue())) {
-            refreshTokenRepository.removeAllById(email);
+            refreshTokenRepository.removeAllByMemberId(memberId);
             throw new AccountException();
         }
 
-        Account account = accountRepository.findByEmail(email).orElseThrow(AccountException::new);
+        Account account = accountRepository.findByEmail(memberId).orElseThrow(AccountException::new);
 
-        TokenDTO accessToken = generateAccessToken(email, account.getRole().getAuthorities());
-        TokenDTO refreshToken = generateRefreshToken(email);
+        TokenDTO accessToken = generateAccessToken(memberId, account.getRole().getAuthorities());
+        TokenDTO refreshToken = generateRefreshToken(memberId);
 
         refreshTokenInDB.updateTokenValue(refreshToken.tokenValue());
 
@@ -60,8 +60,8 @@ public abstract class AbstractJwtService implements JwtService {
     }
 
     @Override
-    public void removeRefreshToken(String email) {
-        refreshTokenRepository.removeAllById(email);
+    public void removeRefreshToken(String memberId) {
+        refreshTokenRepository.removeAllByMemberId(memberId);
     }
 
     abstract protected TokenDTO generateAccessToken(String email, Set<Role.Authority> scopes);

@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface RedisRefreshTokenRepository extends CrudRepository<RefreshToken, String> {
 
-    void removeAllById(String id);
+    void removeAllByMemberId(String memberId);
 
-    Optional<RefreshToken> findById(String id);
+    Optional<RefreshToken> findByMemberId(String memberId);
 }

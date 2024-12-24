@@ -9,11 +9,11 @@ import java.util.Set;
 
 public interface JwtService {
 
-    Jwts generate(String email, Set<Role.Authority> scopes);
+    Jwts generate(String memberId, Set<Role.Authority> scopes);
 
-    Jwts regenerate(String email, String refreshTokenValue);
+    Jwts regenerate(String memberId, String refreshTokenValue);
 
-    void removeRefreshToken(String email);
+    void removeRefreshToken(String memberId);
 
     ValidationResult validateAccessToken(String accessToken);
 

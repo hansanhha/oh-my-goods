@@ -35,18 +35,19 @@ public class OAuth2AccountService {
         return accountRepository.findByEmail(email).map(AccountResponse::from);
     }
 
-    public SignInResponse signIn(String email, Role role) {
-        Jwts generatedJwts = jwtService.generate(email, role.getAuthorities());
+    public SignInResponse signIn(String memberId) {
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AccountException::new);
+        Jwts generatedJwts = jwtService.generate(memberId, account.getRole().getAuthorities());
         return new SignInResponse(generatedJwts.accessToken(), generatedJwts.refreshToken());
     }
 
-    public SignInResponse refreshSignIn(String email, String refreshTokenValue) {
-        Jwts regeneratedJwts = jwtService.regenerate(email, refreshTokenValue);
+    public SignInResponse refreshSignIn(String memberId, String refreshTokenValue) {
+        Jwts regeneratedJwts = jwtService.regenerate(memberId, refreshTokenValue);
         return new SignInResponse(regeneratedJwts.accessToken(), regeneratedJwts.refreshToken());
     }
 
-    public void signOut(String email) {
-        jwtService.removeRefreshToken(email);
+    public void signOut(String memberId) {
+        jwtService.removeRefreshToken(memberId);
     }
 
     public void deleteAccount(String email) {
@@ -60,17 +61,18 @@ public class OAuth2AccountService {
             throw new AccountException();
         }
 
-        jwtService.removeRefreshToken(email);
+        jwtService.removeRefreshToken(account.getMemberId());
         accountRepository.delete(account);
     }
 
     public AccountResponse signUp(OAuth2SignUpRequest oAuth2SignUpRequest) {
-        String oauth2MemberId = oAuth2AttributeService.getCombinedOAuth2MemberId(oAuth2SignUpRequest.oAuth2Provider(), oAuth2SignUpRequest.oauth2MemberId());
+        String combinedOAuth2MemberId = oAuth2AttributeService.getCombinedOAuth2MemberId(oAuth2SignUpRequest.oAuth2Provider(), oAuth2SignUpRequest.oauth2MemberId());
 
         var newAccount = Account.builder()
+                .memberId(oAuth2SignUpRequest.memberId())
                 .nickname(UUID.randomUUID().toString())
                 .oauth2Provider(oAuth2SignUpRequest.oAuth2Provider())
-                .oauth2MemberId(oauth2MemberId)
+                .oauth2MemberId(combinedOAuth2MemberId)
                 .email(oAuth2SignUpRequest.email())
                 .role(Role.USER)
                 .build();

@@ -38,6 +38,8 @@ public class Account extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OAuth2Provider oauth2Provider;
 
+    private String memberId;
+
     private String oauth2MemberId;
 
     public boolean canIssueGeneralCoupon() {
