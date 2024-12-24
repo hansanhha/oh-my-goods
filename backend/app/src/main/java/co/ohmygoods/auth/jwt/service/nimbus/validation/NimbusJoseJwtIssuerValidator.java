@@ -2,7 +2,7 @@ package co.ohmygoods.auth.jwt.service.nimbus.validation;
 
 import co.ohmygoods.auth.jwt.model.vo.JWTError;
 import co.ohmygoods.auth.jwt.service.JwtValidator;
-import co.ohmygoods.auth.jwt.service.dto.ValidationResult;
+import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
 import com.nimbusds.jwt.JWT;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,15 +18,15 @@ public class NimbusJoseJwtIssuerValidator implements JwtValidator<JWT> {
     private String issuer;
 
     @Override
-    public ValidationResult validate(JWT jwt) {
+    public JwtValidationResult validate(JWT jwt) {
         try {
             if (jwt.getJWTClaimsSet().getIssuer().equals(issuer)) {
-                return ValidationResult.valid();
+                return JwtValidationResult.valid();
             }
 
-            return ValidationResult.invalid(JWTError.INVALID_ISSUER);
+            return JwtValidationResult.invalid(JWTError.INVALID_ISSUER);
         } catch (ParseException e) {
-            return ValidationResult.invalid(JWTError.MALFORMED);
+            return JwtValidationResult.invalid(JWTError.MALFORMED);
         }
     }
 }

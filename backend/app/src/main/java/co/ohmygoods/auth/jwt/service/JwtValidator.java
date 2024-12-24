@@ -1,8 +1,8 @@
 package co.ohmygoods.auth.jwt.service;
 
-import co.ohmygoods.auth.jwt.service.dto.ValidationResult;
+import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
 
 public interface JwtValidator<T> {
 
-    ValidationResult validate(T t);
+    JwtValidationResult validate(T t);
 }

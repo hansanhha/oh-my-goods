@@ -2,7 +2,7 @@ package co.ohmygoods.auth.jwt.service.nimbus.validation;
 
 import co.ohmygoods.auth.jwt.model.vo.JWTError;
 import co.ohmygoods.auth.jwt.service.JwtValidator;
-import co.ohmygoods.auth.jwt.service.dto.ValidationResult;
+import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
 import com.nimbusds.jwt.JWT;
 import org.springframework.stereotype.Component;
 
@@ -29,15 +29,15 @@ public class NimbusJoseJwtExpirationValidator implements JwtValidator<JWT> {
     }
 
     @Override
-    public ValidationResult validate(JWT jwt) {
+    public JwtValidationResult validate(JWT jwt) {
         try {
             if (Instant.now(clock).minus(clockSkew).isAfter(jwt.getJWTClaimsSet().getExpirationTime().toInstant())) {
-                return ValidationResult.valid();
+                return JwtValidationResult.valid();
             }
 
-            return ValidationResult.invalid(JWTError.EXPIRED);
+            return JwtValidationResult.invalid(JWTError.EXPIRED);
         } catch (ParseException e) {
-            return ValidationResult.invalid(JWTError.MALFORMED);
+            return JwtValidationResult.invalid(JWTError.MALFORMED);
         }
     }
 }

@@ -5,12 +5,11 @@ import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.jwt.config.JWTProperties;
 import co.ohmygoods.auth.jwt.model.vo.JwtProvider;
 import co.ohmygoods.auth.jwt.model.vo.TokenType;
-import co.ohmygoods.auth.jwt.repository.RefreshTokenRepository;
 import co.ohmygoods.auth.jwt.service.AbstractJwtService;
 import co.ohmygoods.auth.jwt.service.CacheableRefreshTokenService;
 import co.ohmygoods.auth.jwt.service.JWTParser;
 import co.ohmygoods.auth.jwt.service.JwtValidator;
-import co.ohmygoods.auth.jwt.service.dto.ValidationResult;
+import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
 import co.ohmygoods.auth.jwt.service.dto.TokenDTO;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -74,11 +73,11 @@ public class NimbusJoseJwtService extends AbstractJwtService {
     }
 
     @Override
-    public ValidationResult validateAccessToken(String accessToken) {
+    public JwtValidationResult validateAccessToken(String accessToken) {
         var parseResult = parser.parse(accessToken);
 
         if (parseResult.isFailed()) {
-            return ValidationResult.invalid(parseResult.error());
+            return JwtValidationResult.invalid(parseResult.error());
         }
 
         return validator.validate(parseResult.token());
