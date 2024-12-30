@@ -1,90 +1,56 @@
 package co.ohmygoods.auth.web.security;
 
-import co.ohmygoods.auth.web.security.config.SecurityConfigProperties;
-import co.ohmygoods.auth.jwt.service.AuthExceptions;
-import co.ohmygoods.auth.jwt.service.JWTAuthenticationToken;
-import co.ohmygoods.auth.jwt.service.JwtService;
-import jakarta.annotation.PostConstruct;
+import co.ohmygoods.auth.exception.AuthError;
+import co.ohmygoods.auth.exception.JwtAuthenticationException;
+import co.ohmygoods.auth.jwt.service.JwtValidator;
+import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class JwtBearerAuthenticationFilter extends OncePerRequestFilter {
+public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter {
 
     private static final String BEARER = "Bearer ";
 
-    private final JwtService jwtService;
-    private final SecurityConfigProperties.SignUrlProperties signUrlProperties;
-    private final SecurityConfigProperties.WhitelistProperties whitelistProperties;
-    private final AuthExceptions authExceptions;
-    private final List<RequestMatcher> oauth2ProcessingRequestMatchers;
-
-    @PostConstruct
-    void init() {
-        oauth2ProcessingRequestMatchers.add(new AntPathRequestMatcher(signUrlProperties.getOauth2AuthorizationProcessingUrl()));
-        oauth2ProcessingRequestMatchers.add(new AntPathRequestMatcher(signUrlProperties.getOauth2LoginProcessingUrl()));
-    }
+    private final JwtValidator jwtValidator;
+    private final List<RequestMatcher> permitRequests;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        var optionalBearerToken = extractBearerToken(request);
+    protected Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String jwt = extractBearerToken(request);
 
-        if (optionalBearerToken.isEmpty()) {
-            throw authExceptions.unauthorized(Map.of("message", "invalid credentials"));
+        JwtValidationResult validationResult = jwtValidator.validate(jwt);
+
+        if (!validationResult.isValid()) {
+            throw new JwtAuthenticationException(validationResult.error());
         }
 
-        var bearerToken = optionalBearerToken.get();
-        var validationResult = jwtService.validateAccessToken(bearerToken);
-
-        if (validationResult.isValid()) {
-            throw authExceptions.unauthorized(Map.of("message", validationResult.invalid().getDescription()));
-        }
-
-        var jwtAuthenticationToken = JWTAuthenticationToken.authenticated(validationResult.jwtInfo(), null);
-
-        SecurityContextHolder.clearContext();
-        var securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(jwtAuthenticationToken);
-        SecurityContextHolder.setContext(securityContext);
-
-        filterChain.doFilter(request, response);
+        return jwtValidationResultConverter.convert(validationResult);
     }
 
-    private Optional<String> extractBearerToken(HttpServletRequest request) {
+    private String extractBearerToken(HttpServletRequest request) {
         var authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER)) {
-            return Optional.empty();
+            throw new JwtAuthenticationException(AuthError.EMPTY_BEARER_HEADER);
         }
 
-        return Optional.of(authorizationHeader.replace(BEARER, ""));
+        return authorizationHeader.replace(BEARER, "");
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return
-                whitelistProperties
-                        .getWhiteServletPathList()
-                        .stream()
-                        .anyMatch(servletPath -> servletPath.equals(request.getServletPath())) ||
-                oauth2ProcessingRequestMatchers
-                        .stream()
-                        .anyMatch(matcher -> matcher.matches(request));
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return permitRequests.stream().anyMatch(ignore -> ignore.matches(request));
     }
-
 }

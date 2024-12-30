@@ -7,19 +7,14 @@ import co.ohmygoods.auth.jwt.model.vo.JwtProvider;
 import co.ohmygoods.auth.jwt.model.vo.TokenType;
 import co.ohmygoods.auth.jwt.service.AbstractJwtService;
 import co.ohmygoods.auth.jwt.service.CacheableRefreshTokenService;
-import co.ohmygoods.auth.jwt.service.JWTParser;
-import co.ohmygoods.auth.jwt.service.JwtValidator;
-import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
 import co.ohmygoods.auth.jwt.service.dto.TokenDTO;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.annotation.Nullable;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,19 +28,13 @@ import java.util.UUID;
 @Transactional
 public class NimbusJoseJwtService extends AbstractJwtService {
 
-    private final JWTParser<JWT> parser;
-    private final JwtValidator<JWT> validator;
     private final JWTProperties jwtProperties;
 
     public NimbusJoseJwtService(AccountRepository accountRepository,
                                 CacheableRefreshTokenService refreshTokenService,
-                                JWTParser<JWT> parser,
-                                JWTProperties jwtProperties,
-                                @Qualifier("nimbusJoseJwtValidatorDelegate") JwtValidator<JWT> validator) {
+                                JWTProperties jwtProperties) {
         super(accountRepository, refreshTokenService);
-        this.parser = parser;
         this.jwtProperties = jwtProperties;
-        this.validator = validator;
     }
 
     @Override
@@ -70,17 +59,6 @@ public class NimbusJoseJwtService extends AbstractJwtService {
         SignedJWT signedRefreshToken = getSignedNimbusJwt(jwsHeader, refreshTokenClaimsSet, jwtProperties.getRefreshTokenKey());
 
         return new TokenDTO(signedRefreshToken.serialize(), TokenType.BEARER, jwtProperties.getRefreshTokenExpiresIn());
-    }
-
-    @Override
-    public JwtValidationResult validateAccessToken(String accessToken) {
-        var parseResult = parser.parse(accessToken);
-
-        if (parseResult.isFailed()) {
-            return JwtValidationResult.invalid(parseResult.error());
-        }
-
-        return validator.validate(parseResult.token());
     }
 
     @Override

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum JWTError {
+public enum JwtError {
 
     EXPIRED("Expired token"),
     INVALID("Invalid token"),

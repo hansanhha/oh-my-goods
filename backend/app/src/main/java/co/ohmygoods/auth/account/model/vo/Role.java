@@ -2,7 +2,9 @@ package co.ohmygoods.auth.account.model.vo;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Collection;
 import java.util.Set;
 
 import static co.ohmygoods.auth.account.model.vo.Role.Authority.*;
@@ -48,6 +50,12 @@ public enum Role {
 
     public boolean hasDestroyGeneralCouponAuthority() {
         return this.getAuthorities().contains(DESTROY_GENERAL_COUPON);
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.authorities.stream()
+                .map(authority -> (GrantedAuthority) authority::name)
+                .toList();
     }
 
     @Getter

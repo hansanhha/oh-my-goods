@@ -1,11 +1,8 @@
 package co.ohmygoods.auth.web.security.config;
 
-import co.ohmygoods.auth.web.security.HttpErrorExceptionHandleFilter;
-import co.ohmygoods.auth.web.security.JWTBearerAuthenticationFilter;
-import co.ohmygoods.auth.web.security.JsonAccessDeniedHandler;
-import co.ohmygoods.auth.web.security.JsonAuthenticationEntryPoint;
-import co.ohmygoods.auth.web.security.OAuth2AuthenticationSuccessHandler;
-import co.ohmygoods.auth.web.security.oauth2.OAuth2UserPrincipalService;
+import co.ohmygoods.auth.oauth2.service.CacheableOAuth2AuthorizedClientService;
+import co.ohmygoods.auth.oauth2.service.IdentifiedOAuth2UserService;
+import co.ohmygoods.auth.web.security.*;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,13 +22,16 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final IdentifiedOAuth2UserService identifiedOAuth2UserService;
+    private final CacheableOAuth2AuthorizedClientService cacheableOAuth2AuthorizedClientService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
     private final HttpErrorExceptionHandleFilter httpErrorExceptionHandleFilter;
-    private final JWTBearerAuthenticationFilter jwtBearerAuthenticationFilter;
+    private final JwtBearerAuthenticationFilter jwtBearerAuthenticationFilter;
     private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
     private final JsonAccessDeniedHandler jsonAccessDeniedHandler;
-    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    private final OAuth2UserPrincipalService oAuth2UserPrincipalService;
-    private final SecurityConfigProperties.SignUrlProperties signUrlProperties;
+
+    private final SecurityConfigProperties.Whitelist whitelist;
     private final SecurityConfigProperties.CorsProperties corsProperties;
     private final SecurityConfigProperties.WhitelistProperties whitelistProperties;
 
@@ -48,24 +48,26 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(buildCorsConfigurationSource(corsProperties)))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(whitelistProperties.getWhiteServletPathList().toArray(new String[0])).permitAll()
-                        .requestMatchers(signUrlProperties.getOauth2AuthorizationBaseUrl()).permitAll()
-                        .requestMatchers(signUrlProperties.getOauth2LoginProcessingUrl()).permitAll()
+                        .requestMatchers(whitelist.getOauth2AuthorizationBaseUrl()).permitAll()
+                        .requestMatchers(whitelist.getOauth2LoginProcessingUrl()).permitAll()
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2Login -> oauth2Login
-                        .loginProcessingUrl(signUrlProperties.getOauth2LoginProcessingUrl())
-                        .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserPrincipalService))
-                        .authorizationEndpoint(endpoint -> endpoint.baseUri(signUrlProperties.getOauth2AuthorizationBaseUrl()))
+                        .loginProcessingUrl(whitelist.getOauth2LoginProcessingUrl())
+                        .userInfoEndpoint(endpoint -> endpoint.userService(identifiedOAuth2UserService))
+                        .authorizationEndpoint(endpoint -> endpoint.baseUri(whitelist.getOauth2AuthorizationBaseUrl()))
                         .successHandler(oAuth2AuthenticationSuccessHandler))
+                .oauth2Client(oauth2Client -> oauth2Client
+                        .authorizedClientService(cacheableOAuth2AuthorizedClientService))
                 .logout(logout -> logout
-                        .logoutUrl(signUrlProperties.getLogoutUrl())
+                        .logoutUrl(whitelist.getLogoutUrl())
                         .clearAuthentication(true)
-                        .logoutSuccessUrl(signUrlProperties.getLogoutUrl())
+                        .logoutSuccessUrl(whitelist.getLogoutUrl())
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID"))
                 .addFilterBefore(jwtBearerAuthenticationFilter, OAuth2AuthorizationRequestRedirectFilter.class)
-                .addFilterBefore(httpErrorExceptionHandleFilter, JWTBearerAuthenticationFilter.class)
+                .addFilterBefore(httpErrorExceptionHandleFilter, JwtBearerAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(jsonAuthenticationEntryPoint)
                         .accessDeniedHandler(jsonAccessDeniedHandler))

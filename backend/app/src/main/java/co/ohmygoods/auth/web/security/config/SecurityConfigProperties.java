@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
@@ -14,21 +13,12 @@ import java.util.List;
 @Configuration
 public class SecurityConfigProperties {
 
-    @Bean
-    public SignUrlProperties signUrlProperties() {
-        return new SignUrlProperties();
-    }
-
-    @Bean
-    public CorsProperties corsProperties() {
-        return new CorsProperties();
-    }
-
     @Getter
     @Setter
     @Validated
-    @ConfigurationProperties(prefix = "application.security.sign-url")
-    public static class SignUrlProperties {
+    @ConfigurationProperties(prefix = "application.security.whitelist")
+    public static class Whitelist {
+
         @NotEmpty
         private String oauth2AuthorizationBaseUrl;
 
@@ -43,6 +33,8 @@ public class SecurityConfigProperties {
 
         @NotEmpty
         private String logoutRedirectUrl;
+
+        private List<String> servletPathList;
     }
 
     @Getter
@@ -65,16 +57,6 @@ public class SecurityConfigProperties {
 
         @NotNull
         private boolean accessControlAllowCredentials;
-    }
-
-    @Getter
-    @Setter
-    @Validated
-    @ConfigurationProperties(prefix = "application.security.whitelist")
-    public static class WhitelistProperties {
-
-        @NotNull
-        private List<String> whiteServletPathList;
     }
 
 }
