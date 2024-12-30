@@ -1,7 +1,7 @@
 package co.ohmygoods.auth.web.security;
 
 import co.ohmygoods.auth.web.security.config.SecurityConfigProperties;
-import co.ohmygoods.auth.jwt.service.HttpErrorExceptions;
+import co.ohmygoods.auth.jwt.service.AuthExceptions;
 import co.ohmygoods.auth.jwt.service.JWTAuthenticationToken;
 import co.ohmygoods.auth.jwt.service.JwtService;
 import jakarta.annotation.PostConstruct;
@@ -24,12 +24,14 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class JWTBearerAuthenticationFilter extends OncePerRequestFilter {
+public class JwtBearerAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final String BEARER = "Bearer ";
 
     private final JwtService jwtService;
     private final SecurityConfigProperties.SignUrlProperties signUrlProperties;
     private final SecurityConfigProperties.WhitelistProperties whitelistProperties;
-    private final HttpErrorExceptions httpErrorExceptions;
+    private final AuthExceptions authExceptions;
     private final List<RequestMatcher> oauth2ProcessingRequestMatchers;
 
     @PostConstruct
@@ -43,14 +45,14 @@ public class JWTBearerAuthenticationFilter extends OncePerRequestFilter {
         var optionalBearerToken = extractBearerToken(request);
 
         if (optionalBearerToken.isEmpty()) {
-            throw httpErrorExceptions.unauthorized(Map.of("message", "invalid credentials"));
+            throw authExceptions.unauthorized(Map.of("message", "invalid credentials"));
         }
 
         var bearerToken = optionalBearerToken.get();
         var validationResult = jwtService.validateAccessToken(bearerToken);
 
         if (validationResult.isValid()) {
-            throw httpErrorExceptions.unauthorized(Map.of("message", validationResult.invalid().getDescription()));
+            throw authExceptions.unauthorized(Map.of("message", validationResult.invalid().getDescription()));
         }
 
         var jwtAuthenticationToken = JWTAuthenticationToken.authenticated(validationResult.jwtInfo(), null);
@@ -66,11 +68,11 @@ public class JWTBearerAuthenticationFilter extends OncePerRequestFilter {
     private Optional<String> extractBearerToken(HttpServletRequest request) {
         var authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER)) {
             return Optional.empty();
         }
 
-        return Optional.of(authorizationHeader.replace("Bearer ", ""));
+        return Optional.of(authorizationHeader.replace(BEARER, ""));
     }
 
     @Override

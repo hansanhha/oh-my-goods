@@ -20,7 +20,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class HttpErrorExceptions {
+public class AuthExceptions {
 
     private static final String COMMA = ",";
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
