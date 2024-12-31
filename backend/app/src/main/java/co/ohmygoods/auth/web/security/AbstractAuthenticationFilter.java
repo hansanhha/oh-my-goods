@@ -1,13 +1,9 @@
 package co.ohmygoods.auth.web.security;
 
-import co.ohmygoods.auth.jwt.service.AuthenticatedUser;
-import co.ohmygoods.auth.jwt.service.JwtAuthenticationToken;
-import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
