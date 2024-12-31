@@ -13,14 +13,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        Authentication authentication = attemptAuthentication(request, response, filterChain);
 
-        saveAuthentication(authentication);
+        if (Objects.nonNull(SecurityContextHolder.getContext().getAuthentication())) {
+            Authentication authentication = attemptAuthentication(request, response, filterChain);
+            saveAuthentication(authentication);
+        }
 
         filterChain.doFilter(request, response);
     }
