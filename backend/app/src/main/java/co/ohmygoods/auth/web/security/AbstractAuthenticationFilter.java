@@ -16,8 +16,6 @@ import java.io.IOException;
 
 public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter {
 
-    protected final Converter<JwtValidationResult, JwtAuthenticationToken> jwtValidationResultConverter = this::createJwtAuthenticationToken;
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Authentication authentication = attemptAuthentication(request, response, filterChain);
@@ -29,10 +27,6 @@ public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter 
 
     private void saveAuthentication(Authentication authentication) {
         SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    private JwtAuthenticationToken createJwtAuthenticationToken(JwtValidationResult validationResult) {
-        return new JwtAuthenticationToken(new AuthenticatedUser(validationResult.getSubject(), validationResult.getRole()));
     }
 
     protected abstract Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException;

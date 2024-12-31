@@ -2,6 +2,8 @@ package co.ohmygoods.auth.web.security;
 
 import co.ohmygoods.auth.exception.AuthError;
 import co.ohmygoods.auth.exception.JwtAuthenticationException;
+import co.ohmygoods.auth.jwt.service.AuthenticatedUser;
+import co.ohmygoods.auth.jwt.service.JwtAuthenticationToken;
 import co.ohmygoods.auth.jwt.service.JwtValidator;
 import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
 import jakarta.servlet.FilterChain;
@@ -9,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -25,6 +28,7 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
 
     private final JwtValidator jwtValidator;
     private final List<RequestMatcher> permitRequests;
+    private final Converter<JwtValidationResult, JwtAuthenticationToken> jwtValidationResultConverter = this::createJwtAuthenticationToken;
 
     @Override
     protected Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -47,6 +51,10 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
         }
 
         return authorizationHeader.replace(BEARER, "");
+    }
+
+    private JwtAuthenticationToken createJwtAuthenticationToken(JwtValidationResult validationResult) {
+        return new JwtAuthenticationToken(new AuthenticatedUser(validationResult.getSubject(), validationResult.getRole()));
     }
 
     @Override
