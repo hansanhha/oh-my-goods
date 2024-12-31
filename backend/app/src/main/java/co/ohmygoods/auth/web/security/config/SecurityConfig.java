@@ -2,7 +2,10 @@ package co.ohmygoods.auth.web.security.config;
 
 import co.ohmygoods.auth.oauth2.service.CacheableOAuth2AuthorizedClientService;
 import co.ohmygoods.auth.oauth2.service.IdentifiedOAuth2UserService;
-import co.ohmygoods.auth.web.security.*;
+import co.ohmygoods.auth.web.security.JwtBearerAuthenticationFilter;
+import co.ohmygoods.auth.web.security.OAuth2AuthenticationSuccessHandler;
+import co.ohmygoods.auth.web.security.ResponseEntityAccessDeniedHandler;
+import co.ohmygoods.auth.web.security.ResponseEntityAuthenticationEntryPoint;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,18 +25,21 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    // OAuth2
     private final IdentifiedOAuth2UserService identifiedOAuth2UserService;
     private final CacheableOAuth2AuthorizedClientService cacheableOAuth2AuthorizedClientService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
-    private final HttpErrorExceptionHandleFilter httpErrorExceptionHandleFilter;
+    // JWT
     private final JwtBearerAuthenticationFilter jwtBearerAuthenticationFilter;
-    private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
-    private final JsonAccessDeniedHandler jsonAccessDeniedHandler;
 
+    // Authentication/Authorization Exception Processor
+    private final ResponseEntityAuthenticationEntryPoint authenticationEntryPoint;
+    private final ResponseEntityAccessDeniedHandler accessDeniedHandler;
+
+    // Security Properties
     private final SecurityConfigProperties.Whitelist whitelist;
     private final SecurityConfigProperties.CorsProperties corsProperties;
-    private final SecurityConfigProperties.WhitelistProperties whitelistProperties;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -45,32 +51,30 @@ public class SecurityConfig {
                 .rememberMe(RememberMeConfigurer::disable)
                 .anonymous(AnonymousConfigurer::disable)
                 .formLogin(FormLoginConfigurer::disable)
-                .cors(cors -> cors.configurationSource(buildCorsConfigurationSource(corsProperties)))
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers(whitelistProperties.getWhiteServletPathList().toArray(new String[0])).permitAll()
+                .cors(config -> config.configurationSource(buildCorsConfigurationSource(corsProperties)))
+                .authorizeHttpRequests(config -> config
                         .requestMatchers(whitelist.getOauth2AuthorizationBaseUrl()).permitAll()
                         .requestMatchers(whitelist.getOauth2LoginProcessingUrl()).permitAll()
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                         .anyRequest().authenticated())
-                .oauth2Login(oauth2Login -> oauth2Login
+                .oauth2Login(config -> config
                         .loginProcessingUrl(whitelist.getOauth2LoginProcessingUrl())
                         .userInfoEndpoint(endpoint -> endpoint.userService(identifiedOAuth2UserService))
                         .authorizationEndpoint(endpoint -> endpoint.baseUri(whitelist.getOauth2AuthorizationBaseUrl()))
                         .successHandler(oAuth2AuthenticationSuccessHandler))
-                .oauth2Client(oauth2Client -> oauth2Client
+                .oauth2Client(config -> config
                         .authorizedClientService(cacheableOAuth2AuthorizedClientService))
-                .logout(logout -> logout
+                .logout(config -> config
                         .logoutUrl(whitelist.getLogoutUrl())
                         .clearAuthentication(true)
                         .logoutSuccessUrl(whitelist.getLogoutUrl())
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID"))
                 .addFilterBefore(jwtBearerAuthenticationFilter, OAuth2AuthorizationRequestRedirectFilter.class)
-                .addFilterBefore(httpErrorExceptionHandleFilter, JwtBearerAuthenticationFilter.class)
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(jsonAuthenticationEntryPoint)
-                        .accessDeniedHandler(jsonAccessDeniedHandler))
+                .exceptionHandling(config -> config
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler))
                 .build();
     }
 
