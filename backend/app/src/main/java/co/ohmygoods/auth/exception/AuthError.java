@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum AuthError {
 
     EMPTY_BEARER_HEADER("insufficient authorization header"),
+    PARSE_FAILED_JWT("Invalid token"),
     EXPIRED_JWT("Expired token"),
     INVALID_JWT("Invalid token"),
     MALFORMED_JWT("Malformed token"),

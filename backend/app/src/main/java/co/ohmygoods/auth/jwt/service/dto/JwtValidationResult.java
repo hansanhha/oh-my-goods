@@ -12,7 +12,7 @@ public record JwtValidationResult(
         AuthError error) {
 
     public static JwtValidationResult parseFailure() {
-        return new JwtValidationResult(null,false, true, AuthError.INVALID_JWT);
+        return new JwtValidationResult(null,false, true, AuthError.PARSE_FAILED_JWT);
     }
 
     public static JwtValidationResult invalid(AuthError error) {
