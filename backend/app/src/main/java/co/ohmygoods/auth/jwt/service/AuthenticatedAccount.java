@@ -9,7 +9,7 @@ import org.springframework.security.core.AuthenticatedPrincipal;
  * @param memberId 애플리케이션 end-user 식별값
  * @param role 계정 Role (spring security RBAC)
  */
-public record AuthenticatedUser(
+public record AuthenticatedAccount(
         String memberId,
         Role role) implements AuthenticatedPrincipal {
 

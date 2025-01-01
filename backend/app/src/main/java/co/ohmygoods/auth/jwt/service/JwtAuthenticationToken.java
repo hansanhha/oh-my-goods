@@ -4,9 +4,9 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
-    private final AuthenticatedUser principal;
+    private final AuthenticatedAccount principal;
 
-    public JwtAuthenticationToken(AuthenticatedUser principal) {
+    public JwtAuthenticationToken(AuthenticatedAccount principal) {
         super(principal.role().toGrantedAuthorities());
         this.setAuthenticated(true);
         this.principal = principal;

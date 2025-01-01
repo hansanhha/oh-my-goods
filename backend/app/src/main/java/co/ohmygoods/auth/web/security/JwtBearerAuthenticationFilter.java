@@ -2,7 +2,7 @@ package co.ohmygoods.auth.web.security;
 
 import co.ohmygoods.auth.exception.AuthError;
 import co.ohmygoods.auth.exception.JwtAuthenticationException;
-import co.ohmygoods.auth.jwt.service.AuthenticatedUser;
+import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
 import co.ohmygoods.auth.jwt.service.JwtAuthenticationToken;
 import co.ohmygoods.auth.jwt.service.JwtValidator;
 import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
@@ -54,7 +54,7 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
     }
 
     private JwtAuthenticationToken createJwtAuthenticationToken(JwtValidationResult validationResult) {
-        return new JwtAuthenticationToken(new AuthenticatedUser(validationResult.getSubject(), validationResult.getRole()));
+        return new JwtAuthenticationToken(new AuthenticatedAccount(validationResult.getSubject(), validationResult.getRole()));
     }
 
     @Override
