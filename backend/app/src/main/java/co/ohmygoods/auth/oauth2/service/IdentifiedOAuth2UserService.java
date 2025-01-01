@@ -2,12 +2,9 @@ package co.ohmygoods.auth.oauth2.service;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.auth.account.service.dto.OAuth2SignUpRequest;
+import co.ohmygoods.auth.account.service.AccountService;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -32,7 +29,7 @@ import java.util.UUID;
  *
  * <oi>
  *  <li>{@link co.ohmygoods.auth.web.security.OAuth2AuthenticationSuccessHandler#onAuthenticationSuccess}</li>
- *  <li>{@link co.ohmygoods.auth.account.service.OAuth2AccountService#signUp}</li>
+ *  <li>{@link AccountService#signUp}</li>
  *  <li>{@link CacheableOAuth2AuthorizedClientService}</li>
  * </oi>
  */

@@ -2,8 +2,7 @@ package co.ohmygoods.auth.web.security;
 
 import co.ohmygoods.auth.oauth2.service.IdentifiedOAuthUser;
 import co.ohmygoods.auth.oauth2.service.OAuth2AttributeService;
-import co.ohmygoods.auth.account.service.OAuth2AccountService;
-import co.ohmygoods.auth.account.service.dto.AccountResponse;
+import co.ohmygoods.auth.account.service.AccountService;
 import co.ohmygoods.auth.account.service.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.account.service.dto.SignInResponse;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * <p>{@link org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter#successfulAuthentication}에 의해 호출됨</p>
@@ -41,7 +39,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
     private final String redirectBaseUri;
     private final RedirectStrategy redirectService;
-    private final OAuth2AccountService oAuth2AccountService;
+    private final AccountService accountService;
     private final OAuth2AttributeService oAuth2AttributeService;
 
     /**
@@ -60,11 +58,11 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String email = oAuth2AttributeService.getEmail(oAuth2Provider, oauth2Attributes);
 
         if (identifiedOAuthUser.isFirstLogin()) {
-            oAuth2AccountService.signUp(new OAuth2SignUpRequest(
+            accountService.signUp(new OAuth2SignUpRequest(
                     email, oauth2Attributes, oauth2Token.getName(), identifiedOAuthUser.getMemberId(), oAuth2Provider));
         }
 
-        SignInResponse signInResponse = oAuth2AccountService.signIn(identifiedOAuthUser.getMemberId());
+        SignInResponse signInResponse = accountService.signIn(identifiedOAuthUser.getMemberId());
 
         request.setAttribute("accessToken", signInResponse.accessToken());
         request.setAttribute("refreshToken", signInResponse.refreshToken());
