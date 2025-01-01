@@ -5,6 +5,7 @@ public enum ShopStatus {
     ACTIVE,
     INACTIVE,
     ENTIRE_SOLDOUT,
+    DELETE_SCHEDULED,
     DELETED;
 
     public boolean isChangeable(ShopStatus targetStatus) {

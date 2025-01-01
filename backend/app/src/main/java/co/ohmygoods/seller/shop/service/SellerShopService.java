@@ -1,8 +1,10 @@
 package co.ohmygoods.seller.shop.service;
 
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.shop.exception.InvalidShopNameException;
+import co.ohmygoods.shop.exception.InvalidShopOwnerException;
 import co.ohmygoods.shop.exception.NotFoundShopException;
 import co.ohmygoods.seller.shop.service.dto.CreateShopRequest;
 import co.ohmygoods.shop.model.entity.Shop;
@@ -11,6 +13,8 @@ import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -21,36 +25,39 @@ public class SellerShopService {
     private final ShopRepository shopRepository;
 
     public Long createShop(CreateShopRequest request) {
-        var shopName = request.shopName();
+        String shopName = request.shopName();
+        String memberId = request.memberId();
 
         if (shopName == null || shopName.isBlank()) {
             throw InvalidShopNameException.empty();
         }
 
-        var duplicatedName = shopRepository.findByName(shopName);
+        Account account = accountRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new AccountNotFoundException(memberId));
 
-        duplicatedName.ifPresent(shop -> {
+        if (shopRepository.existsByOwner(account)) {
+            throw new InvalidShopOwnerException("");
+        }
+
+        if (shopRepository.existsByName(shopName)) {
             throw InvalidShopNameException.duplicate(shopName);
-        });
+        }
 
-        var ownerId = request.ownerEmail();
-        var owner = accountRepository.findByEmail(ownerId)
-                .orElseThrow(() -> new AccountNotFoundException(ownerId));
-
-        var shop = Shop.toEntity(shopName, owner, request.shopIntroduction(), ShopStatus.INACTIVE);
-        var save = shopRepository.save(shop);
+        Shop shop = Shop.toEntity(shopName, account, request.shopIntroduction(), ShopStatus.INACTIVE);
+        Shop save = shopRepository.save(shop);
         return save.getId();
     }
 
-    public void inactiveShop(Long shopId) {
-        var shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new NotFoundShopException("not found shop"));
+    public void inactiveShop(String ownerMemberId) {
+        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(() -> new NotFoundShopException(""));
 
         shop.changeShopStatus(ShopStatus.INACTIVE);
     }
 
-    public void deleteShop() {
+    public void deleteShop(String ownerMemberId) {
+        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(() -> new NotFoundShopException(""));
 
+        shop.changeShopStatus(ShopStatus.DELETE_SCHEDULED);
     }
 
 }

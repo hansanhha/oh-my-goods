@@ -96,7 +96,7 @@ class SellerShopServiceTest {
         when(shopRepository.findById(anyLong()))
                 .thenReturn(Optional.of(mockShop));
 
-        sellerShopService.inactiveShop(anyLong());
+        sellerShopService.inactiveShop(anyString());
 
         then(shopRepository).should(times(1)).findById(anyLong());
         then(mockShop).should(times(1)).changeShopStatus(expectedShopStatus);
@@ -110,7 +110,7 @@ class SellerShopServiceTest {
         doThrow(new UnchangeableShopStatusException("Shop status cannot be changed"))
                 .when(mockShop).changeShopStatus(ShopStatus.INACTIVE);
 
-        assertThatThrownBy(() -> sellerShopService.inactiveShop(anyLong()))
+        assertThatThrownBy(() -> sellerShopService.inactiveShop(anyString()))
                 .isExactlyInstanceOf(UnchangeableShopStatusException.class);
 
         then(shopRepository).should(times(1)).findById(anyLong());
