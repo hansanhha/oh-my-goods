@@ -52,7 +52,7 @@ public enum Role {
         return this.getAuthorities().contains(DESTROY_GENERAL_COUPON);
     }
 
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<? extends GrantedAuthority> toGrantedAuthorities() {
         return this.authorities.stream()
                 .map(authority -> (GrantedAuthority) authority::name)
                 .toList();
