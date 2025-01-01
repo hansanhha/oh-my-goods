@@ -18,7 +18,7 @@ public class ResponseEntityAccessDeniedHandler extends AbstractSecurityException
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        ResponseEntity<?> accessDeniedResponse = buildSecurityExceptionResponse(
+        ResponseEntity<?> accessDeniedResponse = createSecurityExceptionResponse(
                 accessDeniedException, HttpStatus.FORBIDDEN, URI.create(request.getServletPath()));
 
         sendSecurityExceptionResponse(response, accessDeniedResponse);

@@ -18,7 +18,7 @@ public class ResponseEntityAuthenticationEntryPoint extends AbstractSecurityExce
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        ResponseEntity<?> authenticationExceptionResponse = buildSecurityExceptionResponse(
+        ResponseEntity<?> authenticationExceptionResponse = createSecurityExceptionResponse(
                 authException, HttpStatus.UNAUTHORIZED, URI.create(request.getServletPath()));
 
         sendSecurityExceptionResponse(response, authenticationExceptionResponse);

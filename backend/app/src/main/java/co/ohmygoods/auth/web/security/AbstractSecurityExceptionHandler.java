@@ -26,7 +26,7 @@ import java.util.Objects;
  */
 public abstract class AbstractSecurityExceptionHandler {
 
-    protected ResponseEntity<?> buildSecurityExceptionResponse(Exception e, HttpStatus httpStatus, @Nullable URI servletPath) {
+    protected ResponseEntity<?> createSecurityExceptionResponse(Exception e, HttpStatus httpStatus, @Nullable URI servletPath) {
         if (e instanceof AuthenticationException authException) {
             return buildAuthenticationExceptionResponse(authException, httpStatus, servletPath);
         }
@@ -37,11 +37,8 @@ public abstract class AbstractSecurityExceptionHandler {
     protected void sendSecurityExceptionResponse(HttpServletResponse response, ResponseEntity<?> responseEntity) throws IOException {
         response.setStatus(responseEntity.getStatusCode().value());
 
-        responseEntity.getHeaders().forEach((name, values) -> {
-            for (String value : values) {
-                response.addHeader(name, value);
-            }
-        });
+        responseEntity.getHeaders().forEach((name, values) ->
+                values.forEach(value -> response.addHeader(name, value)));
 
         Object body = responseEntity.getBody();
 
