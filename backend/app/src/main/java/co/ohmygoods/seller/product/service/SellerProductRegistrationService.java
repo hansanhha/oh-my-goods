@@ -1,6 +1,7 @@
 package co.ohmygoods.seller.product.service;
 
 import co.ohmygoods.auth.account.exception.AccountNotFoundException;
+import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.product.exception.InvalidProductCustomCategoryException;
 import co.ohmygoods.product.exception.ProductNotFoundException;
@@ -11,13 +12,15 @@ import co.ohmygoods.product.model.vo.ProductStockStatus;
 import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.seller.product.service.dto.CustomCategoryResponse;
-import co.ohmygoods.seller.product.service.dto.ProductRegisterRequest;
+import co.ohmygoods.seller.product.service.dto.RegisterProductRequest;
 import co.ohmygoods.seller.product.service.dto.SellerProductResponse;
 import co.ohmygoods.seller.product.service.dto.UpdateProductMetadataRequest;
 import co.ohmygoods.shop.exception.ShopNotFoundException;
+import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,49 +37,30 @@ public class SellerProductRegistrationService {
     private final ProductRepository productRepository;
     private final ProductCustomCategoryRepository productCustomCategoryRepository;
 
-    public List<SellerProductResponse> getRegisteredProducts(Long shopId) {
-        return getRegisteredProducts(shopId, Pageable.ofSize(20));
-    }
-
-    public List<SellerProductResponse> getRegisteredProducts(Long shopId, Pageable pageable) {
-        var shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
-        var products = productRepository.findAllByShop(shop, pageable);
+    public List<SellerProductResponse> getRegisteredProducts(String ownerMemberId, Pageable pageable) {
+        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(() -> new ShopNotFoundException(""));
+        Slice<Product> products = productRepository.findAllByShop(shop, pageable);
 
         return products.map(this::convertSellerProductResponse).toList();
     }
 
-    public CustomCategoryResponse registerCustomCategory(Long shopId, String email, String customCategoryName) {
-        var shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+    public CustomCategoryResponse registerCustomCategory(String ownerMemberId, String email, String customCategoryName) {
+        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(() -> new ShopNotFoundException(""));
+        Account account = accountRepository.findByEmail(email).orElseThrow(() -> new AccountNotFoundException(email));
 
-        var account = accountRepository.findByEmail(email)
-                .orElseThrow(() -> new AccountNotFoundException(email));
-
-        shop.ownerCheck(account);
-
-        var customCategory = productCustomCategoryRepository.findByCustomCategoryName(customCategoryName);
-
-        if (customCategory.isPresent()) {
+        if (productCustomCategoryRepository.existsByCustomCategoryName(customCategoryName)) {
             throw InvalidProductCustomCategoryException.duplicateName(customCategoryName);
         }
 
-        var productCustomCategory = ProductCustomCategory.toEntity(shop, customCategoryName);
-        var saved = productCustomCategoryRepository.save(productCustomCategory);
+        ProductCustomCategory productCustomCategory = ProductCustomCategory.toEntity(shop, customCategoryName);
+        ProductCustomCategory saved = productCustomCategoryRepository.save(productCustomCategory);
 
         return new CustomCategoryResponse(saved.getId(), saved.getCustomCategoryName());
     }
 
-    public SellerProductResponse registerProduct(ProductRegisterRequest request) {
-        var shopId = request.shopId();
-        var accountEmail = request.accountEmail();
-
-        var shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
-        var account = accountRepository.findByEmail(accountEmail)
-                .orElseThrow(() -> new AccountNotFoundException(accountEmail));
-
-        shop.ownerCheck(account);
+    public SellerProductResponse registerProduct(RegisterProductRequest request) {
+        var shop = shopRepository.findByOwnerMemberId(request.ownerMemberId())
+                .orElseThrow(() -> new ShopNotFoundException(""));
 
         var product = Product
                 .builder()
@@ -113,18 +97,11 @@ public class SellerProductRegistrationService {
     }
 
     public SellerProductResponse updateProductMetadata(UpdateProductMetadataRequest request) {
-        var shopId = request.shopId();
-        var accountEmail = request.accountEmail();
-        var productId = request.modifyProductId();
+        var shop = shopRepository.findByOwnerMemberId(request.ownerMemberId())
+                .orElseThrow(() -> new ShopNotFoundException(""));
+        var product = productRepository.findById(request.modifyProductId())
+                .orElseThrow(() -> new ProductNotFoundException(""));
 
-        var shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
-        var account = accountRepository.findByEmail(accountEmail)
-                .orElseThrow(() -> new AccountNotFoundException(accountEmail));
-        var product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId.toString()));
-
-        shop.ownerCheck(account);
         product.shopCheck(shop);
 
         var customCategoryIds = request.modifyCustomCategoryIds();
@@ -148,15 +125,12 @@ public class SellerProductRegistrationService {
         return convertSellerProductResponse(product);
     }
 
-    public void delete(Long shopId, String accountEmail, Long productId) {
-        var shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
-        var account = accountRepository.findByEmail(accountEmail)
-                .orElseThrow(() -> new AccountNotFoundException(accountEmail));
+    public void delete(String ownerMemberId, Long productId) {
+        var shop = shopRepository.findByOwnerMemberId(ownerMemberId)
+                .orElseThrow(() -> new ShopNotFoundException(""));
         var product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId.toString()));
+                .orElseThrow(() -> new ProductNotFoundException(""));
 
-        shop.ownerCheck(account);
         product.shopCheck(shop);
 
         productRepository.delete(product);

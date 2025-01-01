@@ -8,7 +8,7 @@ import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.seller.product.service.SellerProductRegistrationService;
 import co.ohmygoods.seller.product.service.dto.UpdateProductMetadataRequest;
-import co.ohmygoods.seller.product.service.dto.ProductRegisterRequest;
+import co.ohmygoods.seller.product.service.dto.RegisterProductRequest;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductType;
@@ -126,8 +126,7 @@ class SellerProductRegistrationServiceTest {
         var stockStatus = ProductStockStatus.ON_SALES;
         var type = ProductType.ANALOGUE;
 
-        var productRegisterRequest = ProductRegisterRequest.builder()
-                .shopId(SHOP_ID)
+        var productRegisterRequest = RegisterProductRequest.builder()
                 .accountEmail(ACCOUNT_EMAIL)
                 .name(name)
                 .mainCategory(mainCategory)
@@ -182,7 +181,7 @@ class SellerProductRegistrationServiceTest {
                 .map(d -> mock(ProductCustomCategory.class))
                 .toList();
 
-        var productRegisterRequest = ProductRegisterRequest.builder()
+        var productRegisterRequest = RegisterProductRequest.builder()
                 .shopId(SHOP_ID)
                 .accountEmail(ACCOUNT_EMAIL)
                 .name(name)
@@ -242,7 +241,7 @@ class SellerProductRegistrationServiceTest {
         var discountStartDate = LocalDateTime.now().plusDays(7);
         var discountEndDate = LocalDateTime.now().plusDays(14);
 
-        var productRegisterRequest = ProductRegisterRequest.builder()
+        var productRegisterRequest = RegisterProductRequest.builder()
                 .shopId(SHOP_ID)
                 .accountEmail(ACCOUNT_EMAIL)
                 .name(name)
@@ -290,12 +289,12 @@ class SellerProductRegistrationServiceTest {
 
     @Test
     void 상점_주인_계정이_아니면_상품을_등록_할수없음() {
-        var mockProductRegisterRequest = mock(ProductRegisterRequest.class);
+        var mockProductRegisterRequest = mock(RegisterProductRequest.class);
 
         given(mockShopRepository.findById(anyLong())).willReturn(Optional.of(mockShop));
         given(mockAccountRepository.findByEmail(anyString())).willReturn(Optional.of(mockAccount));
         given(mockProductRegisterRequest.shopId()).willReturn(SHOP_ID);
-        given(mockProductRegisterRequest.accountEmail()).willReturn(ACCOUNT_EMAIL);
+        given(mockProductRegisterRequest.ownerMemberId()).willReturn(ACCOUNT_EMAIL);
         doThrow(InvalidShopOwnerException.class).when(mockShop).ownerCheck(mockAccount);
 
         assertThatThrownBy(() -> sellerProductRegistrationService.registerProduct(mockProductRegisterRequest))

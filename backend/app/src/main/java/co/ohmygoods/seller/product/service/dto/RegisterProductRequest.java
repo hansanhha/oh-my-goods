@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
-public record ProductRegisterRequest(String accountEmail,
-                                     Long shopId,
+public record RegisterProductRequest(String ownerMemberId,
                                      ProductType type,
                                      ProductMainCategory mainCategory,
                                      String subCategory,

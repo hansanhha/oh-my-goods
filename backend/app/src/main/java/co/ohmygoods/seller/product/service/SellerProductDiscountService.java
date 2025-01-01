@@ -13,24 +13,24 @@ import java.time.LocalDateTime;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ProductDiscountService {
+public class SellerProductDiscountService {
 
     private final ShopRepository shopRepository;
     private final ProductRepository productRepository;
 
-    public void discountOne(Long shopId, Long productId, int discountRate, LocalDateTime discountEndDate) {
-        var shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+    public void discountOne(String ownerMemberId, Long productId, int discountRate, LocalDateTime discountEndDate) {
+        var shop = shopRepository.findByOwnerMemberId(ownerMemberId)
+                .orElseThrow(() -> new ShopNotFoundException(""));
         var product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId.toString()));
+                .orElseThrow(() -> new ProductNotFoundException(""));
 
         product.shopCheck(shop);
         product.discount(Math.max(discountRate, 0), discountEndDate);
     }
 
-    public void discountAll(Long shopId, int discountRate, LocalDateTime discountEndDate) {
-        var shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+    public void discountAll(String ownerMemberId, int discountRate, LocalDateTime discountEndDate) {
+        var shop = shopRepository.findByOwnerMemberId(ownerMemberId)
+                .orElseThrow(() -> new ShopNotFoundException(""));
         var products = productRepository.findAll();
 
         products.forEach(product -> {

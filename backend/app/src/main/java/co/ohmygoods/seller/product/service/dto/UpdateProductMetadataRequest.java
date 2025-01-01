@@ -7,8 +7,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record UpdateProductMetadataRequest(String accountEmail,
-                                           Long shopId,
+public record UpdateProductMetadataRequest(String ownerMemberId,
                                            Long modifyProductId,
                                            String modifyName,
                                            String modifyDescription,

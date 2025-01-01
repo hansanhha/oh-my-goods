@@ -16,4 +16,6 @@ public interface ShopRepository extends CrudRepository<Shop, Long> {
     boolean existsByName(String name);
 
     boolean existsByOwner(Account owner);
+
+    String owner(Account owner);
 }

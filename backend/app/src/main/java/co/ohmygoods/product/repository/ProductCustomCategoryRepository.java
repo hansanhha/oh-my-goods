@@ -25,4 +25,6 @@ public interface ProductCustomCategoryRepository extends CrudRepository<ProductC
             "JOIN pdc.shop on pdc.shop = :shop " +
             "WHERE pdc.id in :ids")
     List<ProductCustomCategory> findAllByIdAndShop(Iterable<Long> ids, Shop shop);
+
+    boolean existsByCustomCategoryName(String customCategoryName);
 }
