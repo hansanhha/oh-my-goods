@@ -118,6 +118,10 @@ public class SellerProductRegistrationService {
 
         product.shopCheck(shop);
 
+        if (!request.updateMainCategory().contains(request.updateSubCategory())) {
+            throw new SellerProductException();
+        }
+
         var customCategoryIds = request.updateCustomCategoryIds();
         List<ProductCustomCategoryMapping> updateProductCustomCategoryMappings = null;
 
@@ -134,6 +138,7 @@ public class SellerProductRegistrationService {
                 request.updateDescription(),
                 request.updateType(),
                 request.updateMainCategory(),
+                request.updateSubCategory(),
                 updateProductCustomCategoryMappings);
 
         if (request.updateAssets() != null && request.updateAssets().length > 0) {

@@ -89,12 +89,14 @@ public class Product extends BaseEntity {
     public void updateMetadata(String name,
                                String description,
                                ProductType type,
-                               ProductMainCategory category,
+                               ProductMainCategory mainCategory,
+                               String subCategory,
                                List<ProductCustomCategoryMapping> productCustomCategoryMappings) {
         this.name = name;
         this.description = description;
         this.type = type;
-        this.mainCategory = category;
+        this.mainCategory = mainCategory;
+        this.subCategory = subCategory;
         this.customCategoriesMappings = productCustomCategoryMappings;
     }
 

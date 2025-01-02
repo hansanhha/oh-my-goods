@@ -14,6 +14,7 @@ public record UpdateProductMetadataRequest(String ownerMemberId,
                                            String updateDescription,
                                            ProductType updateType,
                                            ProductMainCategory updateMainCategory,
+                                           String updateSubCategory,
                                            List<Long> updateCustomCategoryIds,
                                            MultipartFile[] updateAssets) {
 }
