@@ -4,6 +4,7 @@ public enum DomainType {
 
     AUTH,
     SHOP,
+    SELLER,
     PRODUCT,
     REVIEW,
     COMMUNITY;

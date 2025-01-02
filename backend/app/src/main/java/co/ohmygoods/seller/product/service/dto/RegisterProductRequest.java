@@ -4,24 +4,27 @@ import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
 import co.ohmygoods.product.model.vo.ProductType;
 import lombok.Builder;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Builder
 public record RegisterProductRequest(String ownerMemberId,
                                      ProductType type,
                                      ProductMainCategory mainCategory,
                                      String subCategory,
-                                     ProductStockStatus status,
+                                     boolean isImmediatelySale,
                                      List<Long> customCategoryIds,
                                      String name,
+                                     String description,
+                                     MultipartFile[] assets,
                                      int quantity,
                                      int price,
                                      int discountRate,
                                      LocalDateTime discountStartDate,
                                      LocalDateTime discountEndDate,
                                      int purchaseLimitCount,
-                                     String description,
                                      LocalDateTime expectedSaleDate) {
 }

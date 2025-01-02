@@ -11,6 +11,7 @@ import co.ohmygoods.product.model.entity.ProductCustomCategoryMapping;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
 import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
+import co.ohmygoods.seller.product.exception.SellerProductException;
 import co.ohmygoods.seller.product.service.dto.CustomCategoryResponse;
 import co.ohmygoods.seller.product.service.dto.RegisterProductRequest;
 import co.ohmygoods.seller.product.service.dto.SellerProductResponse;
@@ -25,13 +26,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class SellerProductRegistrationService {
 
+    private final SellerProductAssetService sellerProductAssetService;
     private final AccountRepository accountRepository;
     private final ShopRepository shopRepository;
     private final ProductRepository productRepository;
@@ -59,28 +61,35 @@ public class SellerProductRegistrationService {
     }
 
     public SellerProductResponse registerProduct(RegisterProductRequest request) {
-        var shop = shopRepository.findByOwnerMemberId(request.ownerMemberId())
+        Shop shop = shopRepository.findByOwnerMemberId(request.ownerMemberId())
                 .orElseThrow(() -> new ShopNotFoundException(""));
 
-        var product = Product
+        ProductStockStatus stockStatus = request.isImmediatelySale() ? ProductStockStatus.ON_SALES : ProductStockStatus.TO_BE_SOLD;
+        LocalDateTime saleStartDate = stockStatus.equals(ProductStockStatus.ON_SALES) ? LocalDateTime.now() : request.expectedSaleDate();
+
+        if (!request.mainCategory().contains(request.subCategory())) {
+            throw new SellerProductException();
+        }
+
+        Product product = Product
                 .builder()
                 .shop(shop)
                 .name(request.name())
                 .type(request.type())
                 .mainCategory(request.mainCategory())
                 .subCategory(request.subCategory())
-                .stockStatus(request.status())
-                .originalPrice(request.price())
+                .stockStatus(stockStatus)
+                .originalPrice(Math.max(request.price(), 0))
                 .remainingQuantity(Math.max(request.quantity(), 0))
                 .purchaseMaximumQuantity(Math.max(request.purchaseLimitCount(), 1))
                 .description(request.description())
-                .saleStartDate(request.status().equals(ProductStockStatus.TO_BE_SOLD) ? request.expectedSaleDate() : LocalDateTime.now())
+                .saleStartDate(saleStartDate)
                 .discountRate(Math.max(request.discountRate(), 0))
                 .discountStartDate(request.discountStartDate())
                 .discountEndDate(request.discountEndDate())
                 .build();
 
-        var savedProduct = productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
 
         // 커스텀 카테고리를 지정한 경우
         if (request.customCategoryIds() != null && !request.customCategoryIds().isEmpty()) {
@@ -93,34 +102,43 @@ public class SellerProductRegistrationService {
             savedProduct.addCustomCategories(customCategoryMappings);
         }
 
+        // 상품 이미지, 동영상 업로드
+        if (request.assets() != null && request.assets().length > 0) {
+            sellerProductAssetService.upload(savedProduct.getId(), request.ownerMemberId(), request.assets());
+        }
+
         return convertSellerProductResponse(product);
     }
 
     public SellerProductResponse updateProductMetadata(UpdateProductMetadataRequest request) {
         var shop = shopRepository.findByOwnerMemberId(request.ownerMemberId())
                 .orElseThrow(() -> new ShopNotFoundException(""));
-        var product = productRepository.findById(request.modifyProductId())
+        var product = productRepository.findById(request.updateProductId())
                 .orElseThrow(() -> new ProductNotFoundException(""));
 
         product.shopCheck(shop);
 
-        var customCategoryIds = request.modifyCustomCategoryIds();
-        List<ProductCustomCategoryMapping> modifyProductCustomCategoryMappings = null;
+        var customCategoryIds = request.updateCustomCategoryIds();
+        List<ProductCustomCategoryMapping> updateProductCustomCategoryMappings = null;
 
         if (customCategoryIds != null && !customCategoryIds.isEmpty()) {
             var productCustomCategories = (List<ProductCustomCategory>) productCustomCategoryRepository.findAllById(customCategoryIds);
-            modifyProductCustomCategoryMappings = productCustomCategories
+            updateProductCustomCategoryMappings = productCustomCategories
                     .stream()
                     .map(customCategory -> ProductCustomCategoryMapping.create(product, customCategory))
                     .toList();
         }
 
         product.updateMetadata(
-                request.modifyName(),
-                request.modifyDescription(),
-                request.modifyType(),
-                request.modifyTopCategory(),
-                modifyProductCustomCategoryMappings);
+                request.updateName(),
+                request.updateDescription(),
+                request.updateType(),
+                request.updateMainCategory(),
+                updateProductCustomCategoryMappings);
+
+        if (request.updateAssets() != null && request.updateAssets().length > 0) {
+            sellerProductAssetService.replace(product.getId(), request.ownerMemberId(), request.updateAssets());
+        }
 
         return convertSellerProductResponse(product);
     }

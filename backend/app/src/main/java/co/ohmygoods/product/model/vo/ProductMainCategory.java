@@ -41,4 +41,8 @@ public enum ProductMainCategory {
     );
 
     private final Set<String> subCategories;
+
+    public boolean contains(String subCategory) {
+        return this.subCategories.contains(subCategory);
+    }
 }
