@@ -94,11 +94,7 @@ public class Coupon extends BaseEntity {
         }
     }
 
-    public void destroy(Account account) {
-        if (!account.canDestroyShopCoupon()) {
-            CouponException.throwInvalidCouponAuthority();
-        }
-
+    public void destroy() {
         if (status.equals(CouponStatus.DESTROYED) || status.equals(CouponStatus.SOLDOUT)) {
             return;
         }

@@ -2,6 +2,7 @@ package co.ohmygoods.coupon.repository;
 
 import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.shop.model.entity.Shop;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -15,7 +16,7 @@ public interface CouponRepository extends CrudRepository<Coupon, Long> {
             "JOIN CouponShopMapping csm on csm.coupon = c " +
             "JOIN FETCH Account a on c.issuer = a " +
             "WHERE csm.applyTargetShop = :shop")
-    List<Coupon> fetchAllByShop(Shop shop);
+    List<Coupon> fetchAllByShop(Shop shop, Pageable pageable);
 
     @Query("SELECT c " +
             "FROM Coupon c " +

@@ -1,10 +1,12 @@
 package co.ohmygoods.seller.coupon.service.dto;
 
+import lombok.Builder;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record CreateShopCouponRequest(String issuerEmail,
-                                      Long shopId,
+@Builder
+public record CreateShopCouponRequest(String sellerMemberId,
                                       boolean isLimitedMaxIssueCount,
                                       int maxIssueCount,
                                       boolean isLimitedUsageCountPerAccount,

@@ -3,15 +3,12 @@ package co.ohmygoods.seller.product.web.controller;
 import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductType;
-import co.ohmygoods.seller.product.service.SellerProductDiscountService;
 import co.ohmygoods.seller.product.service.SellerProductRegistrationService;
-import co.ohmygoods.seller.product.service.SellerProductStockService;
 import co.ohmygoods.seller.product.service.dto.RegisterProductRequest;
 import co.ohmygoods.seller.product.service.dto.SellerProductResponse;
 import co.ohmygoods.seller.product.service.dto.UpdateProductMetadataRequest;
 import co.ohmygoods.seller.product.web.dto.RegisterProductWebRequest;
 import co.ohmygoods.seller.product.web.dto.UpdateProductMetadataWebRequest;
-import jakarta.servlet.ServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,8 +23,6 @@ import java.util.Map;
 public class SellerProductController {
 
     private final SellerProductRegistrationService registrationService;
-    private final SellerProductStockService stockService;
-    private final SellerProductDiscountService discountService;
 
     @PostMapping
     public ResponseEntity<?> registerProduct(@AuthenticationPrincipal AuthenticatedAccount account,

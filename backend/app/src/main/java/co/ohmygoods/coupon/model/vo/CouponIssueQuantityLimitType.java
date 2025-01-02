@@ -16,11 +16,14 @@ public enum CouponIssueQuantityLimitType {
     public static CouponIssueQuantityLimitType get(boolean limitedMaxIssueCount, boolean limitedUsageCountPerAccount) {
         if (limitedMaxIssueCount && limitedUsageCountPerAccount) {
             return CouponIssueQuantityLimitType.FULL_LIMITED;
-        } else if (limitedMaxIssueCount) {
+        }
+        else if (limitedMaxIssueCount) {
             return CouponIssueQuantityLimitType.MAX_ISSUABLE_LIMITED;
-        } else if (limitedUsageCountPerAccount) {
+        }
+        else if (limitedUsageCountPerAccount) {
             return CouponIssueQuantityLimitType.PER_ACCOUNT_LIMITED;
-        } else {
+        }
+        else {
             return CouponIssueQuantityLimitType.UNLIMITED;
         }
     }

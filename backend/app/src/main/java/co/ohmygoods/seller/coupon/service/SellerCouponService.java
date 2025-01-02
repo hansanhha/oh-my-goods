@@ -20,6 +20,7 @@ import co.ohmygoods.seller.coupon.service.dto.ShopCouponResponse;
 import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,10 +49,8 @@ public class SellerCouponService {
         - 최대 할인 금액 설정
      */
     public ShopCouponResponse createShopCoupon(CreateShopCouponRequest request) {
-        Account issuer = accountRepository.findByEmail(request.issuerEmail()).orElseThrow(CouponException::notFoundIssuer);
-        Shop shop = shopRepository.findById(request.shopId()).orElseThrow(CouponException::notFoundShop);
-
-        shop.validateShopManager(issuer);
+        Account issuer = accountRepository.findByMemberId(request.sellerMemberId()).orElseThrow(CouponException::notFoundIssuer);
+        Shop shop = shopRepository.findByOwnerMemberId(request.sellerMemberId()).orElseThrow(CouponException::notFoundShop);
 
         CouponIssueQuantityLimitType issueQuantityLimitType = CouponIssueQuantityLimitType.get(
                 request.isLimitedMaxIssueCount(), request.isLimitedUsageCountPerAccount());
@@ -94,9 +93,9 @@ public class SellerCouponService {
         return ShopCouponResponse.from(savedCoupon, shop);
     }
 
-    public List<ShopCouponResponse> getShopCouponCreationHistory(Long shopId) {
-        Shop shop = shopRepository.findById(shopId).orElseThrow(CouponException::notFoundShop);
-        List<Coupon> coupons = couponRepository.fetchAllByShop(shop);
+    public List<ShopCouponResponse> getShopCouponCreationHistory(String sellerMemberId, Pageable pageable) {
+        Shop shop = shopRepository.findByOwnerMemberId(sellerMemberId).orElseThrow(CouponException::notFoundShop);
+        List<Coupon> coupons = couponRepository.fetchAllByShop(shop, pageable);
 
         return coupons
                 .stream()
@@ -104,13 +103,11 @@ public class SellerCouponService {
                 .toList();
     }
 
-    public void destroyIssuingShopCoupon(Long shopId, Long couponId, String accountEmail) {
-        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::notFoundAccount);
-        Shop shop = shopRepository.findById(shopId).orElseThrow(CouponException::notFoundShop);
+    public void destroyIssuingShopCoupon(String sellerMemberId, Long couponId) {
+        Shop shop = shopRepository.findByOwnerMemberId(sellerMemberId).orElseThrow(CouponException::notFoundShop);
         Coupon coupon = couponRepository.findByShopAndCouponId(shop, couponId).orElseThrow(CouponException::notFoundCoupon);
 
-        shop.validateShopManager(account);
-        coupon.destroy(account);
+        coupon.destroy();
     }
 
 }
