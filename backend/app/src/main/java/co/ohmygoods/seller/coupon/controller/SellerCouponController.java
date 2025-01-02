@@ -28,8 +28,8 @@ public class SellerCouponController {
                                                   @RequestParam(required = false, defaultValue = "0") int page,
                                                   @RequestParam(required = false, defaultValue = "20") int size) {
 
-        List<ShopCouponResponse> shopCouponCreationHistory = couponService.getShopCouponCreationHistory(account.memberId(), Pageable.ofSize(size).withPage(page));
-        return ResponseEntity.ok(Map.of("data", shopCouponCreationHistory));
+        List<ShopCouponResponse> couponHistory = couponService.getShopCouponCreationHistory(account.memberId(), Pageable.ofSize(size).withPage(page));
+        return ResponseEntity.ok(couponHistory);
     }
 
     @PostMapping

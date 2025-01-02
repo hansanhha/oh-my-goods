@@ -92,7 +92,7 @@ class AwsS3CloudStorageServiceTest {
                 MediaType.IMAGE_JPEG_VALUE, Files.toByteArray(imageFile));
 
         return UploadFileRequest.useLocalFileSystem(
-                "uploaderEmail@email.com", DomainType.SHOP,
+                "uploaderEmail@memberId.com", DomainType.SHOP,
                 Map.of(String.valueOf(1L), mockMultipartFile));
     }
 
@@ -109,7 +109,7 @@ class AwsS3CloudStorageServiceTest {
                 MediaType.IMAGE_JPEG_VALUE, Files.toByteArray(imageFile3));
 
         return UploadFileRequest.useLocalFileSystem(
-                "uploaderEmail@email.com", DomainType.SHOP,
+                "uploaderEmail@memberId.com", DomainType.SHOP,
                 Map.of(String.valueOf(1L), mockMultipartFile, String.valueOf(2L),
                         mockMultipartFile2, String.valueOf(3L), mockMultipartFile3));
     }

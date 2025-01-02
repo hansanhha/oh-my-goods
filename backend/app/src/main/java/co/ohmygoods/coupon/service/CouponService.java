@@ -44,9 +44,9 @@ public class CouponService {
     private final CouponShopMappingRepository couponShopMappingRepository;
 
     // 쿠폰 발급 및 발급 이력 저장
-    public void issueCoupon(Long couponId, String accountEmail) {
+    public void issueCoupon(String memberId, Long couponId) {
         Coupon coupon = couponRepository.findById(couponId).orElseThrow(CouponException::notFoundCoupon);
-        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::notFoundAccount);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(CouponException::notFoundAccount);
         List<CouponUsageHistory> couponAccountHistories = couponUsageHistoryRepository.findAllByCouponAndAccount(coupon, account);
 
         CouponValidationService.validateBeforeIssue(coupon, account, couponAccountHistories.size());

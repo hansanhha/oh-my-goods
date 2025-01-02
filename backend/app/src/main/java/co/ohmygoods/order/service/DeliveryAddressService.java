@@ -26,7 +26,7 @@ public class DeliveryAddressService {
     public List<DeliveryAddressResponse> getDeliveryAddressesByAccount(String accountEmail) {
         List<DeliveryAddress> deliveryAddresses = deliveryAddressRepository.findAllByAccountEmail(accountEmail);
 
-        return deliveryAddresses.stream().map(this::convertAddressResponse).toList();
+        return deliveryAddresses.stream().map(DeliveryAddressResponse::from).toList();
     }
 
     public DeliveryAddressResponse registerAddress(RegisterDeliveryAddressRequest request) {
@@ -49,7 +49,7 @@ public class DeliveryAddressService {
 
         DeliveryAddress saved = deliveryAddressRepository.save(deliveryAddress);
 
-        return convertAddressResponse(saved);
+        return DeliveryAddressResponse.from(saved);
     }
 
     public DeliveryAddressResponse updateAddress(UpdateDeliveryAddressRequest request) {
@@ -60,22 +60,7 @@ public class DeliveryAddressService {
                 request.deliveryAddressZipCode(), request.roadNameAddress(), request.lotNumberAddress(),
                 request.detailAddressInfo(), request.deliveryRequirement(), request.isDefaultDeliveryAddress());
 
-        return convertAddressResponse(deliveryAddress);
+        return DeliveryAddressResponse.from(deliveryAddress);
     }
-
-    private DeliveryAddressResponse convertAddressResponse(DeliveryAddress deliveryAddress) {
-        return DeliveryAddressResponse.builder()
-                .deliveryAddressId(deliveryAddress.getId())
-                .deliveryRecipientName(deliveryAddress.getRecipientName())
-                .deliveryRecipientPhoneNumber(deliveryAddress.getRecipientPhoneNumber())
-                .deliveryAddressZipCode(deliveryAddress.getZipCode())
-                .deliveryRoadNameAddress(deliveryAddress.getRoadNameAddress())
-                .deliveryLotNumberAddress(deliveryAddress.getLotNumberAddress())
-                .deliveryDetailAddress(deliveryAddress.getDetailAddress())
-                .deliveryRequirement(deliveryAddress.getDeliveryRequirement().requirement())
-                .isDefaultDeliveryAddress(deliveryAddress.isDefaultDeliveryAddress())
-                .build();
-    }
-
 
 }

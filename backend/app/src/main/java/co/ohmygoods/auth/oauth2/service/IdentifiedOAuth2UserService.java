@@ -4,6 +4,7 @@ import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.account.service.AccountService;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
+import co.ohmygoods.auth.security.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -28,7 +29,7 @@ import java.util.UUID;
  * </p>
  *
  * <oi>
- *  <li>{@link co.ohmygoods.auth.web.security.OAuth2AuthenticationSuccessHandler#onAuthenticationSuccess}</li>
+ *  <li>{@link OAuth2AuthenticationSuccessHandler#onAuthenticationSuccess}</li>
  *  <li>{@link AccountService#signUp}</li>
  *  <li>{@link CacheableOAuth2AuthorizedClientService}</li>
  * </oi>

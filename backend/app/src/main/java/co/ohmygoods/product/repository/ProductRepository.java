@@ -50,6 +50,13 @@ public interface ProductRepository extends CrudRepository<Product, Long>, Paging
 
     @Query("SELECT p " +
             "FROM Product p " +
+            "JOIN FETCH p.shop ON p.shop = :shop " +
+            "JOIN FETCH p.customCategoriesMappings " +
+            "WHERE p.stockStatus = 'ON_SALES' ")
+    Slice<Product> fetchAllByShopAndStockStatusOnSales(Shop shop, Pageable pageable);
+
+    @Query("SELECT p " +
+            "FROM Product p " +
             "JOIN Shop s ON p.shop = :shop " +
             "WHERE p.id IN :ids")
     List<Product> findAllByShopAndId(Shop shop, List<Long> ids);

@@ -55,8 +55,8 @@ class ShopOwnerChangeServiceTest {
 
     @Test
     void 상점_주인_변경_신청() {
-        var fooEmail = "fooEmail@email.com";
-        var barEmail = "barEmail@email.com";
+        var fooEmail = "fooEmail@memberId.com";
+        var barEmail = "barEmail@memberId.com";
 
         when(accountRepository.findByEmail(fooEmail)).thenReturn(Optional.of(fooMockAccount));
         when(accountRepository.findByEmail(barEmail)).thenReturn(Optional.of(barMockAccount));
@@ -72,8 +72,8 @@ class ShopOwnerChangeServiceTest {
 
     @Test
     void 상점_주인이_아닌_경우_변경_신청_불가() {
-        var fooEmail = "fooEmail@email.com";
-        var barEmail = "barEmail@email.com";
+        var fooEmail = "fooEmail@memberId.com";
+        var barEmail = "barEmail@memberId.com";
         var expectedException = InvalidShopOwnerException.class;
 
         when(accountRepository.findByEmail(fooEmail)).thenReturn(Optional.of(fooMockAccount));
@@ -171,8 +171,8 @@ class ShopOwnerChangeServiceTest {
 
     @Test
     void 상점_주인_변경_내역_조회() {
-        var requestAccountEmail = "fooAccountEmail@email.com";
-        var targetAccountEmail = "barAccountEmail@email.com";
+        var requestAccountEmail = "fooAccountEmail@memberId.com";
+        var targetAccountEmail = "barAccountEmail@memberId.com";
         var shopOwnerStatus = ShopOwnerStatus.OWNER_CHANGE_REQUESTED;
         var createdAt = LocalDateTime.now();
 

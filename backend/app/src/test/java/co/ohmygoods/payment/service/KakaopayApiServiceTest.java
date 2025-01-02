@@ -51,7 +51,7 @@ class KakaopayApiServiceTest {
     @Mock
     private Account mockAccount;
 
-    private static final String ACCOUNT_EMAIL = "test@email.com";
+    private static final String ACCOUNT_EMAIL = "test@memberId.com";
     private static final Long ORDER_ID = 1L;
     private static final String ORDER_TRANSACTION_ID = UUID.randomUUID().toString();
     private static final int ORDER_TOTAL_PRICE = 100_000;

@@ -14,27 +14,27 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OrderPaymentProcessListener implements PaymentProcessListener {
 
-    private final OrderService orderService;
+    private final OrderTransactionService orderTransactionService;
     private final OrderRepository orderRepository;
 
     @Override
     public void onSuccess(Long paymentId) {
         Order order = orderRepository.findByPaymentId(paymentId).orElseThrow(OrderException::new);
 
-        orderService.successOrder(order.getId());
+        orderTransactionService.successOrder(order.getId());
     }
 
     @Override
     public void onCancel(Long paymentId) {
         Order order = orderRepository.findByPaymentId(paymentId).orElseThrow(OrderException::new);
 
-        orderService.cancelOrderByPaymentCancellation(order.getId());
+        orderTransactionService.cancelOrderByPaymentCancellation(order.getId());
     }
 
     @Override
     public void onFailure(Long paymentId, PaymentStatus paymentFailureCause) {
         Order order = orderRepository.findByPaymentId(paymentId).orElseThrow(OrderException::new);
 
-        orderService.failOrderByPaymentFailed(order.getId(), paymentFailureCause);
+        orderTransactionService.failOrderByPaymentFailed(order.getId(), paymentFailureCause);
     }
 }

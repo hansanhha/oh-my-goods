@@ -34,6 +34,14 @@ public class ProductService {
         return products.stream().map(this::convertProductResponse).toList();
     }
 
+    public List<ProductResponse> getProductsByShop(Long shopId, Pageable pageable) {
+        Shop shop = shopRepository.findById(shopId).orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+
+        Slice<Product> products = productRepository.fetchAllByShopAndStockStatusOnSales(shop, pageable);
+
+        return products.stream().map(this::convertProductResponse).toList();
+    }
+
     public List<ProductResponse> getProductsByShopAndMainCategory(Long shopId, ProductMainCategory productMainCategory, Pageable pageable) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
 

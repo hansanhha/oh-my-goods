@@ -15,7 +15,7 @@ public class OAuth2AttributeService {
     @SuppressWarnings("unchecked")
     public String getEmail(OAuth2Provider oAuth2Provider, Map<String, Object> attributes) {
         return switch (oAuth2Provider) {
-            case KAKAO -> (String) ((Map<String, Object>)attributes.get("kakao_account")).get("email");
+            case KAKAO -> (String) ((Map<String, Object>)attributes.get("kakao_account")).get("memberId");
             case NAVER -> null;
         };
     }

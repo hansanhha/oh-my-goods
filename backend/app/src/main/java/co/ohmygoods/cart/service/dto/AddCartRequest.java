@@ -1,5 +1,5 @@
 package co.ohmygoods.cart.service.dto;
 
-public record AddCartRequest(Long productId,
-                             String email) {
+public record AddCartRequest(String memberId,
+                             Long productId) {
 }

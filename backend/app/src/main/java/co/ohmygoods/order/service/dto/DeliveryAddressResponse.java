@@ -1,8 +1,8 @@
 package co.ohmygoods.order.service.dto;
 
+import co.ohmygoods.order.model.entity.DeliveryAddress;
 import lombok.Builder;
 
-@Builder
 public record DeliveryAddressResponse(Long deliveryAddressId,
                                       String deliveryRecipientName,
                                       String deliveryRecipientPhoneNumber,
@@ -12,4 +12,18 @@ public record DeliveryAddressResponse(Long deliveryAddressId,
                                       String deliveryDetailAddress,
                                       String deliveryRequirement,
                                       boolean isDefaultDeliveryAddress) {
+
+    public static DeliveryAddressResponse from(DeliveryAddress deliveryAddress) {
+        return new DeliveryAddressResponse(
+                deliveryAddress.getId(),
+                deliveryAddress.getRecipientName(),
+                deliveryAddress.getRecipientPhoneNumber(),
+                deliveryAddress.getZipCode(),
+                deliveryAddress.getRoadNameAddress(),
+                deliveryAddress.getLotNumberAddress(),
+                deliveryAddress.getDetailAddress(),
+                deliveryAddress.getDeliveryRequirement().requirement(),
+                deliveryAddress.isDefaultDeliveryAddress()
+        );
+    }
 }
