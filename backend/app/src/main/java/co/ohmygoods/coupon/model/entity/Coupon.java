@@ -90,7 +90,7 @@ public class Coupon extends BaseEntity {
         if ((issueQuantityLimitType.equals(CouponIssueQuantityLimitType.FULL_LIMITED)
                 || issueQuantityLimitType.equals(CouponIssueQuantityLimitType.MAX_ISSUABLE_LIMITED))
                 && maxIssuableQuantity < issuedCount) {
-            CouponException.throwExhausted();
+            throw CouponException.EXHAUSTED_COUPON_ISSUANCE;
         }
     }
 
@@ -252,7 +252,7 @@ public class Coupon extends BaseEntity {
             if (issuer == null || name == null || couponCode == null || type == null ||
                     usageProductScope == null || status == null || issuanceTarget == null ||
                     issuedCount == null || discountType == null || validFrom == null || validUntil == null) {
-                CouponException.throwInvalidCouponInfo();
+                throw CouponException.THROW_INVALID_REQUIRED_FIELD;
             }
         }
 
@@ -269,20 +269,20 @@ public class Coupon extends BaseEntity {
 
         private void validateMaxIssuableCount() {
             if (maxIssuableQuantity <= 0) {
-                CouponException.throwBadLimitCondition();
+                throw CouponException.THROW_INVALID_REQUIRED_FIELD;
             }
         }
 
         private void validateMaxUsageCountPerAccount() {
             if (maxUsageQuantityPerAccount <= 0) {
-                CouponException.throwBadLimitCondition();
+                throw CouponException.THROW_INVALID_REQUIRED_FIELD;
             }
         }
 
 
         private static void validateDiscountValue(CouponDiscountType discountType, int discountValue) {
             if (discountValue <= 0 || (discountType.equals(CouponDiscountType.PERCENTAGE) && discountValue > MAX_DISCOUNT_PERCENTAGE)) {
-                CouponException.throwInvalidDiscountValue();
+                throw CouponException.THROW_INVALID_REQUIRED_FIELD;
             }
         }
 
@@ -290,12 +290,12 @@ public class Coupon extends BaseEntity {
             switch (couponType) {
                 case GENERAL_COUPON -> {
                     if (!account.canIssueGeneralCoupon()) {
-                        CouponException.throwInvalidCouponAuthority();
+                        throw CouponException.THROW_INVALID_REQUIRED_FIELD;
                     }
                 }
                 case SHOP_COUPON -> {
                     if (!account.canIssueShopCoupon()) {
-                        CouponException.throwInvalidCouponAuthority();
+                        throw CouponException.THROW_INVALID_REQUIRED_FIELD;
                     }
                 }
                 default -> {}

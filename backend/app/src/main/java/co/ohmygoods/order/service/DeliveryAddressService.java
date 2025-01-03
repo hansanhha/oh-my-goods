@@ -31,10 +31,10 @@ public class DeliveryAddressService {
 
     public DeliveryAddressResponse registerAddress(RegisterDeliveryAddressRequest request) {
         if (!StringUtils.hasText(request.roadNameAddress()) && !StringUtils.hasText(request.lotNumberAddress())) {
-            throw new DeliveryAddressException();
+            throw DeliveryAddressException.INVALID_DELIVERY_ADDRESS;
         }
 
-        Account account = accountRepository.findByEmail(request.accountEmail()).orElseThrow(DeliveryAddressException::new);
+        Account account = accountRepository.findByEmail(request.accountEmail()).orElseThrow(DeliveryAddressException::notFoundDeliveryAddress);
 
         DeliveryAddress deliveryAddress = DeliveryAddress.builder()
                 .account(account)
@@ -54,7 +54,7 @@ public class DeliveryAddressService {
 
     public DeliveryAddressResponse updateAddress(UpdateDeliveryAddressRequest request) {
         DeliveryAddress deliveryAddress = deliveryAddressRepository
-                .findById(request.updateDeliveryAddressId()).orElseThrow(DeliveryAddressException::new);
+                .findById(request.updateDeliveryAddressId()).orElseThrow(DeliveryAddressException::notFoundDeliveryAddress);
 
         deliveryAddress.update(request.deliveryRecipientName(), request.deliveryRecipientPhoneNumber(),
                 request.deliveryAddressZipCode(), request.roadNameAddress(), request.lotNumberAddress(),

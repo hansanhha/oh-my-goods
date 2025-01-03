@@ -64,7 +64,7 @@ public class OrderItem extends BaseEntity {
 
     public void updateOrderItemStatus(OrderStatus orderStatus) {
         if (orderStatus.isNotUpdatableOrderStatus()) {
-            OrderException.throwCauseCannotUpdateStatus(orderStatus);
+            throw OrderException.CANNOT_UPDATE_ORDER_ITEM_STATUS;
         }
 
         if (orderStatus.equals(OrderStatus.ORDER_ITEM_DELIVERED)) {
@@ -76,7 +76,7 @@ public class OrderItem extends BaseEntity {
 
     public void updateDeliveryAddress(DeliveryAddress deliveryAddress) {
         if (orderStatus.isNotUpdatableOrderStatus()) {
-            OrderException.throwCauseInvalidOrderStatus(orderStatus);
+            throw OrderException.CANNOT_UPDATE_ORDER_STATUS;
         }
 
         this.deliveryAddress = deliveryAddress;
@@ -84,11 +84,11 @@ public class OrderItem extends BaseEntity {
 
     public void updatePurchaseQuantity(int quantity) {
         if (quantity <= 0 || getProduct().isValidRequestQuantity(quantity)) {
-            OrderException.throwCauseInvalidPurchaseQuantity(quantity);
+            throw OrderException.INVALID_PURCHASE_QUANTITY;
         }
 
         if (!orderStatus.isNotUpdatableOrderStatus()) {
-            OrderException.throwCauseInvalidOrderStatus(orderStatus);
+            throw OrderException.CANNOT_UPDATE_ORDER_ITEM_STATUS;
         }
 
         this.orderQuantity = quantity;
@@ -96,7 +96,7 @@ public class OrderItem extends BaseEntity {
 
     public void updateCouponApplyingPurchasePrice(int productFinalPrice, int couponDiscountedPrice) {
         if (productFinalPrice < 0 || couponDiscountedPrice < 0)
-            throw new OrderException();
+            throw OrderException.INVALID_PURCHASE_AMOUNT;
 
         this.purchasePrice = productFinalPrice;
         this.couponDiscountPrice = couponDiscountedPrice;

@@ -152,7 +152,7 @@ public abstract class AbstractPaymentExternalRequestService<PreparationResponse,
         try {
             return objectMapper.writeValueAsBytes(requestBody);
         } catch (JsonProcessingException e) {
-            throw PaymentException.invalidExternalRequestBody();
+            throw PaymentException.FAILED_PAYMENT_API_REQUEST;
         }
     }
 

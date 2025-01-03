@@ -1,30 +1,19 @@
 package co.ohmygoods.cart.exception;
 
-public class CartException extends RuntimeException {
-    public CartException() {
+import co.ohmygoods.global.exception.DomainException;
+
+public class CartException extends DomainException {
+
+    public static final CartException NOT_FOUND_CART = new CartException(CartError.NOT_FOUND_CART);
+    public static final CartException ALREADY_EXIST_PRODUCT = new CartException(CartError.ALREADY_EXIST_PRODUCT);
+    public static final CartException EXCEED_CART_MAX_LIMIT = new CartException(CartError.EXCEED_CART_MAX_LIMIT);
+    public static final CartException EXCEED_PRODUCT_MAX_LIMIT = new CartException(CartError.EXCEED_PRODUCT_MAX_LIMIT);
+
+    public CartException(CartError cartError) {
+        super(cartError);
     }
 
-    public CartException(String message) {
-        super(message);
-    }
-
-    public static CartException invalidProductStatus(Long productId) {
-        return new CartException(productId.toString());
-    }
-
-    public static CartException notFound(Long cartId) {
-        return new CartException(cartId.toString());
-    }
-
-    public static CartException exceedProductMaximumQuantity(Long productId, int maximumQuantity) {
-        return new CartException(productId.toString() + maximumQuantity);
-    }
-
-    public static CartException invalidQuantity(Long cartId, int quantity) {
-        return new CartException(cartId.toString() + quantity);
-    }
-
-    public static CartException exceedCartMaximumQuantity() {
-        return new CartException("");
+    public static CartException notFoundCart() {
+        return NOT_FOUND_CART;
     }
 }

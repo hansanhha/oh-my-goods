@@ -110,6 +110,6 @@ public class PaymentGateway {
                 .stream()
                 .filter(service -> service.isSupport(externalPaymentVendor))
                 .findFirst()
-                .orElseThrow(() -> PaymentException.notSupportPaymentVendor(externalPaymentVendor.name()));
+                .orElseThrow(PaymentException::unsupportedPaymentMethod);
     }
 }

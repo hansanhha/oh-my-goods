@@ -1,6 +1,5 @@
 package co.ohmygoods.auth.account.service;
 
-import co.ohmygoods.auth.account.exception.AccountException;
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.model.vo.Role;
 import co.ohmygoods.auth.account.repository.AccountRepository;
@@ -8,6 +7,7 @@ import co.ohmygoods.auth.account.service.dto.AccountMetadataResponse;
 import co.ohmygoods.auth.account.service.dto.OAuth2AuthorizationResponse;
 import co.ohmygoods.auth.account.service.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.account.service.dto.SignInResponse;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.auth.jwt.service.JwtService;
 import co.ohmygoods.auth.jwt.service.dto.Jwts;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
@@ -31,12 +31,12 @@ public class AccountService {
     private final AccountRepository accountRepository;
 
     public AccountMetadataResponse getAccountMetadata(String memberId) {
-        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AccountException::new);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
         return AccountMetadataResponse.from(account);
     }
 
     public SignInResponse signIn(String memberId) {
-        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AccountException::new);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
         Jwts generatedJwts = jwtService.generate(memberId, account.getRole().getAuthorities());
         return new SignInResponse(generatedJwts.accessToken(), generatedJwts.refreshToken());
     }
@@ -47,28 +47,28 @@ public class AccountService {
     }
 
     public void signOut(String memberId) {
-        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AccountException::new);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
         OAuth2AuthorizationService oAuth2AuthorizationService = findSupportOAuth2AuthorizationService(account.getOauth2Provider());
 
         OAuth2AuthorizationResponse oAuth2signOutResponse = oAuth2AuthorizationService.signOut(account.getEmail());
 
         if (!oAuth2signOutResponse.isSuccess()) {
-            throw new AccountException();
+            throw AuthException.failedOAuth2SignOut(oAuth2signOutResponse.oauth2ProviderErrorCode(), oAuth2signOutResponse.oauth2ProviderErrorMsg());
         }
 
         jwtService.removeRefreshToken(memberId);
     }
 
     public void delete(String memberId) {
-        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AccountException::new);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
         OAuth2AuthorizationService oAuth2AuthorizationService = findSupportOAuth2AuthorizationService(account.getOauth2Provider());
 
         OAuth2AuthorizationResponse oAuth2UnlinkResponse = oAuth2AuthorizationService.unlink(account.getEmail());
 
         if (!oAuth2UnlinkResponse.isSuccess()) {
-            throw new AccountException();
+            throw AuthException.failedOAuth2Unlink(oAuth2UnlinkResponse.oauth2ProviderErrorCode(), oAuth2UnlinkResponse.oauth2ProviderErrorMsg());
         }
 
         jwtService.removeRefreshToken(memberId);

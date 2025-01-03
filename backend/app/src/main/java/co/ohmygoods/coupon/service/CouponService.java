@@ -2,17 +2,20 @@ package co.ohmygoods.coupon.service;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.coupon.service.dto.ApplicableIssuedCouponResponse;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.coupon.exception.CouponException;
 import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
 import co.ohmygoods.coupon.model.vo.CouponApplicableProductScope;
-import co.ohmygoods.coupon.repository.CouponUsageHistoryRepository;
 import co.ohmygoods.coupon.repository.CouponProductMappingRepository;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.repository.CouponShopMappingRepository;
+import co.ohmygoods.coupon.repository.CouponUsageHistoryRepository;
+import co.ohmygoods.coupon.service.dto.ApplicableIssuedCouponResponse;
+import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.entity.OrderItem;
 import co.ohmygoods.order.repository.OrderItemRepository;
+import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.shop.model.entity.Shop;
@@ -46,7 +49,7 @@ public class CouponService {
     // 쿠폰 발급 및 발급 이력 저장
     public void issueCoupon(String memberId, Long couponId) {
         Coupon coupon = couponRepository.findById(couponId).orElseThrow(CouponException::notFoundCoupon);
-        Account account = accountRepository.findByMemberId(memberId).orElseThrow(CouponException::notFoundAccount);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
         List<CouponUsageHistory> couponAccountHistories = couponUsageHistoryRepository.findAllByCouponAndAccount(coupon, account);
 
         CouponValidationService.validateBeforeIssue(coupon, account, couponAccountHistories.size());
@@ -59,9 +62,9 @@ public class CouponService {
 
     // 쿠폰 적용 및 최대 할인 금액 계산
     public int applyCoupon(String accountEmail, Long orderItemId, Long couponId, int targetProductPrice) {
-        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::new);
-        OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow(CouponException::new);
-        Coupon coupon = couponRepository.findById(couponId).orElseThrow(CouponException::new);
+        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(AuthException::notFoundAccount);
+        OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow(OrderException::notFoundOrderItem);
+        Coupon coupon = couponRepository.findById(couponId).orElseThrow(CouponException::notFoundCoupon);
 
         CouponUsageHistory couponUsageHistory = couponUsageHistoryRepository.fetchFirstByAccountAndCouponAndCouponUsageStatusIssued(account, coupon)
                 .orElseThrow(CouponException::notFoundCouponIssuanceHistory);
@@ -92,7 +95,7 @@ public class CouponService {
     public Slice<ApplicableIssuedCouponResponse> getAllApplicableIssuedCoupons(String accountEmail, Pageable pageableNullable) {
         Pageable pageable = getNullProcessingPageable(pageableNullable);
 
-        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::notFoundAccount);
+        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(AuthException::notFoundAccount);
         Slice<CouponUsageHistory> couponIssuanceHistories = couponUsageHistoryRepository.fetchIssuedStatusAllByAccount(account, pageable);
 
         List<ApplicableIssuedCouponResponse> issuedCouponResponses = couponIssuanceHistories
@@ -121,8 +124,8 @@ public class CouponService {
     public Slice<ApplicableIssuedCouponResponse> getIssuedCouponsApplicableToProduct(String accountEmail, Long productId, Pageable pageableNullable) {
         Pageable pageable = getNullProcessingPageable(pageableNullable);
 
-        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(CouponException::notFoundAccount);
-        Product targetProduct = productRepository.findById(productId).orElseThrow(CouponException::notFoundProduct);
+        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(AuthException::notFoundAccount);
+        Product targetProduct = productRepository.findById(productId).orElseThrow(ProductException::notFoundProduct);
 
         final int targetProductOriginalPrice = targetProduct.getOriginalPrice();
         Shop targetProductShop = targetProduct.getShop();

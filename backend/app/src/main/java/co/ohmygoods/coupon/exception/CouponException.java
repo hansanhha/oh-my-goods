@@ -1,63 +1,28 @@
 package co.ohmygoods.coupon.exception;
 
-public class CouponException extends RuntimeException {
+import co.ohmygoods.global.exception.DomainException;
 
-    public CouponException() {
-    }
+public class CouponException extends DomainException {
 
-    public CouponException(String message) {
-        super(message);
-    }
+    public static final CouponException NOT_FOUND_COUPON = new CouponException(CouponError.NOT_FOUND_COUPON);
+    public static final CouponException NOT_FOUND_COUPON_ISSUANCE_HISTORY = new CouponException(CouponError.COUPON_ISSUANCE_HISTORY_NOT_FOUND);
+    public static final CouponException COUPON_ALREADY_ISSUED = new CouponException(CouponError.COUPON_ALREADY_USED);
+    public static final CouponException COUPON_EXPIRED = new CouponException(CouponError.COUPON_EXPIRED);
+    public static final CouponException EXCEED_COUPON_ISSUANCE_LIMIT = new CouponException(CouponError.EXCEED_COUPON_ISSUABLE_LIMIT);
+    public static final CouponException EXHAUSTED_COUPON_ISSUANCE = new CouponException(CouponError.EXHAUSTED_COUPON);
+    public static final CouponException THROW_INVALID_REQUIRED_FIELD = new CouponException(CouponError.INVALID_REQUIRED_FIELD);
 
-    public static void throwInvalidCouponAuthority() {
-        throw new CouponException();
-    }
-
-    public static void throwInvalidDiscountValue() {
-        throw new CouponException();
-    }
-
-    public static void throwInvalidCouponInfo() {
-        throw new CouponException();
-    }
-
-    public static CouponException notFoundIssuer() {
-        return new CouponException();
-    }
-
-    public static CouponException notFoundShop() {
-        return new CouponException();
+    public CouponException(CouponError couponError) {
+        super(couponError);
     }
 
     public static CouponException notFoundCoupon() {
-        return new CouponException();
-    }
-
-    public static CouponException notFoundAccount() {
-        return new CouponException();
-    }
-
-    public static void throwBadLimitCondition() {
-        throw new CouponException();
-    }
-
-    public static void throwExceedMaxIssuedCountPerAccount() {
-        throw new CouponException();
-    }
-
-    public static void throwExhausted() {
-        throw new CouponException();
-    }
-
-    public static void throwAlreadyUsedCoupon() {
-        throw new CouponException();
+        return NOT_FOUND_COUPON;
     }
 
     public static CouponException notFoundCouponIssuanceHistory() {
-        return new CouponException();
+        return NOT_FOUND_COUPON_ISSUANCE_HISTORY;
     }
 
-    public static CouponException notFoundProduct() {
-        return new CouponException();
-    }
+
 }

@@ -2,11 +2,13 @@ package co.ohmygoods.seller.product.service;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.file.model.vo.CloudStorageProvider;
 import co.ohmygoods.file.model.vo.DomainType;
 import co.ohmygoods.file.service.FileService;
 import co.ohmygoods.file.service.dto.UploadFileRequest;
 import co.ohmygoods.file.service.dto.UploadFileResponse;
+import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.model.entity.ProductAssetInfo;
 import co.ohmygoods.product.repository.ProductAssetInfoRepository;
@@ -37,9 +39,9 @@ public class SellerProductAssetService {
 
 
     public void upload(Long productId, String sellerMemberId, MultipartFile[] files) {
-        Shop shop = shopRepository.findByOwnerMemberId(sellerMemberId).orElseThrow(SellerProductException::new);
-        Account account = accountRepository.findByMemberId(sellerMemberId).orElseThrow(SellerProductException::new);
-        Product product = productRepository.findById(productId).orElseThrow(SellerProductException::new);
+        Shop shop = shopRepository.findByOwnerMemberId(sellerMemberId).orElseThrow(SellerProductException::notFoundSellerProduct);
+        Account account = accountRepository.findByMemberId(sellerMemberId).orElseThrow(AuthException::notFoundAccount);
+        Product product = productRepository.findById(productId).orElseThrow(ProductException::notFoundProduct);
 
         product.shopCheck(shop);
 
@@ -62,9 +64,9 @@ public class SellerProductAssetService {
     }
 
     public void replace(Long productId, String sellerMemberId, MultipartFile[] replaceFiles) {
-        Shop shop = shopRepository.findByOwnerMemberId(sellerMemberId).orElseThrow(SellerProductException::new);
-        Account account = accountRepository.findByMemberId(sellerMemberId).orElseThrow(SellerProductException::new);
-        Product product = productRepository.findById(productId).orElseThrow(SellerProductException::new);
+        Shop shop = shopRepository.findByOwnerMemberId(sellerMemberId).orElseThrow(SellerProductException::notFoundSellerProduct);
+        Account account = accountRepository.findByMemberId(sellerMemberId).orElseThrow(AuthException::notFoundAccount);
+        Product product = productRepository.findById(productId).orElseThrow(ProductException::notFoundProduct);
         List<ProductAssetInfo> deleteProductAssetInfos = productAssetInfoRepository.findByProduct(product);
 
         product.shopCheck(shop);

@@ -26,7 +26,7 @@ public class OrderManagementService {
     }
 
     public OrderItemDetailResponse getOrder(Long orderItemId) {
-        OrderItem orderItem = orderItemRepository.fetchById(orderItemId).orElseThrow(OrderException::new);
+        OrderItem orderItem = orderItemRepository.fetchById(orderItemId).orElseThrow(OrderException::notFoundOrder);
 
         return OrderItemDetailResponse.from(orderItem);
     }

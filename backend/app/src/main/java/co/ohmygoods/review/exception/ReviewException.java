@@ -1,40 +1,40 @@
 package co.ohmygoods.review.exception;
 
-public class ReviewException extends RuntimeException {
+import co.ohmygoods.global.exception.DomainException;
 
-    public ReviewException() {
-    }
+public class ReviewException extends DomainException {
 
-    public ReviewException(String message) {
-        super(message);
-    }
+    public static final ReviewException NOT_FOUND_REVIEW_IMAGE = new ReviewException(ReviewError.NOT_FOUND_REVIEW_IMAGE);
+    public static final ReviewException NOT_FOUND_REVIEW = new ReviewException(ReviewError.NOT_FOUND_REVIEW);
+    public static final ReviewException NOT_FOUND_REVIEW_COMMENT = new ReviewException(ReviewError.NOT_FOUND_REVIEW_COMMENT);
+    public static final ReviewException NOT_FOUND_REVIEW_REPLY = new ReviewException(ReviewError.NOT_FOUND_REVIEW_REPLY);
 
-    public static ReviewException notFoundAccount() {
-        return new ReviewException();
-    }
+    public static final ReviewException INVALID_REVIEW_SCORE = new ReviewException(ReviewError.INVALID_REVIEW_SCORE);
+    public static final ReviewException INVALID_REVIEW_CONTENT = new ReviewException(ReviewError.INVALID_REVIEW_CONTENT);
+    public static final ReviewException INVALID_REVIEW_STATUS = new ReviewException(ReviewError.INVALID_REVIEW_STATUS);
 
-    public static ReviewException notFoundOrder() {
-        return new ReviewException();
-    }
+    public static final ReviewException INVALID_AUTHORITY_WRITE_REVIEW = new ReviewException(ReviewError.INVALID_AUTHORITY_REVIEW);
+    public static final ReviewException INVALID_AUTHORITY_WRITE_REVIEW_COMMENT = new ReviewException(ReviewError.INVALID_AUTHORITY_REVIEW_COMMENT);
+    public static final ReviewException INVALID_AUTHORITY_WRITE_REVIEW_REPLY = new ReviewException(ReviewError.INVALID_AUTHORITY_REVIEW_REPLY);
+    public static final ReviewException ALREADY_WRITTEN_REVIEW = new ReviewException(ReviewError.ALREADY_WRITTEN_REVIEW);
 
-    public static ReviewException notFoundReviewComment() {
-        return new ReviewException();
+    public ReviewException(ReviewError reviewError) {
+        super(reviewError);
     }
 
     public static ReviewException notFoundReview() {
-        return new ReviewException();
+        return NOT_FOUND_REVIEW;
     }
 
-    public static ReviewException alreadyWriteReview() {
-        return new ReviewException();
+    public static ReviewException notFoundReviewComment() {
+        return NOT_FOUND_REVIEW_COMMENT;
     }
 
-    public static ReviewException invalidReviewAuthority() {
-        return new ReviewException();
+    public static ReviewException notFoundReviewReply() {
+        return NOT_FOUND_REVIEW_REPLY;
     }
 
-    public static ReviewException invalidReviewCommentAuthority() {
-        return new ReviewException();
+    public static ReviewException notFoundReviewImage() {
+        return NOT_FOUND_REVIEW_IMAGE;
     }
-
 }

@@ -58,7 +58,7 @@ public class NimbusJoseJwtValidator implements JwtValidator {
         }
 
         if (isInvalidIssuer(jwt)) {
-            return JwtValidationResult.invalid(AuthError.INVALID_ISSUER_JWT);
+            return JwtValidationResult.invalid(AuthError.INVALID_JWT);
         }
 
         return JwtValidationResult.valid(getClaimsSet(jwt)

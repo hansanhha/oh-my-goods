@@ -2,7 +2,7 @@ package co.ohmygoods.order.model.entity;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
-import co.ohmygoods.order.exception.ExchangeException;
+import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.ExchangeStatus;
 import co.ohmygoods.order.model.vo.OrderStatus;
 import co.ohmygoods.product.model.entity.Product;
@@ -54,7 +54,7 @@ public class ExchangeOrderItem extends BaseEntity {
 
     public void updateRequestReason(String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
-            ExchangeException.throwCauseEmptyText();
+            throw OrderException.ORDER_ALREADY_EXCHANGE_REQUESTED;
         }
 
         this.requestReason = requestReason;
@@ -62,7 +62,7 @@ public class ExchangeOrderItem extends BaseEntity {
 
     public void updateRequestResponse(String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
-            ExchangeException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_REQUEST_REASON;
         }
 
         this.requestResponse = requestResponse;
@@ -70,7 +70,7 @@ public class ExchangeOrderItem extends BaseEntity {
 
     public static ExchangeOrderItem requestByBuyer(Shop shop, OrderItem requestOrderItem, String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
-            ExchangeException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_REQUEST_REASON;
         }
 
         return new ExchangeOrderItem(0L, requestOrderItem, shop, null, null,
@@ -79,7 +79,7 @@ public class ExchangeOrderItem extends BaseEntity {
 
     public void approveByShopManager(Account manager, Product exchangeProduct, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
-            ExchangeException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_RESPONSE;
         }
 
         this.manager = manager;
@@ -92,7 +92,7 @@ public class ExchangeOrderItem extends BaseEntity {
 
     public void rejectByShopManager(Account manager, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
-            ExchangeException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_RESPONSE;
         }
 
         this.manager = manager;

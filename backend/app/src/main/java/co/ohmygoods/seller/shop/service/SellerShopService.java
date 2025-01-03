@@ -2,10 +2,8 @@ package co.ohmygoods.seller.shop.service;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.auth.account.exception.AccountNotFoundException;
-import co.ohmygoods.shop.exception.InvalidShopNameException;
-import co.ohmygoods.shop.exception.InvalidShopOwnerException;
-import co.ohmygoods.shop.exception.NotFoundShopException;
+import co.ohmygoods.auth.exception.AuthException;
+import co.ohmygoods.seller.shop.exception.SellerShopException;
 import co.ohmygoods.seller.shop.service.dto.CreateShopRequest;
 import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.model.vo.ShopStatus;
@@ -13,8 +11,6 @@ import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -29,18 +25,17 @@ public class SellerShopService {
         String memberId = request.memberId();
 
         if (shopName == null || shopName.isBlank()) {
-            throw InvalidShopNameException.empty();
+            throw SellerShopException.INVALID_SHOP_CREATION_INFO;
         }
 
-        Account account = accountRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new AccountNotFoundException(memberId));
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
         if (shopRepository.existsByOwner(account)) {
-            throw new InvalidShopOwnerException("");
+            throw SellerShopException.ALREADY_EXIST_SHOP_OWNER;
         }
 
         if (shopRepository.existsByName(shopName)) {
-            throw InvalidShopNameException.duplicate(shopName);
+            throw SellerShopException.ALREADY_EXIST_SHOP;
         }
 
         Shop shop = Shop.toEntity(shopName, account, request.shopIntroduction(), ShopStatus.INACTIVE);
@@ -49,13 +44,13 @@ public class SellerShopService {
     }
 
     public void inactiveShop(String ownerMemberId) {
-        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(() -> new NotFoundShopException(""));
+        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(SellerShopException::notFoundShop);
 
         shop.changeShopStatus(ShopStatus.INACTIVE);
     }
 
     public void deleteShop(String ownerMemberId) {
-        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(() -> new NotFoundShopException(""));
+        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(SellerShopException::notFoundShop);
 
         shop.changeShopStatus(ShopStatus.DELETE_SCHEDULED);
     }

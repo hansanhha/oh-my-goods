@@ -45,7 +45,7 @@ public class LocalFileStorageService extends AbstractStorageService {
                     try (FileOutputStream fileOutputStream = new FileOutputStream(filePath.toFile())) {
                         fileOutputStream.write(file.getBytes());
                     } catch (IOException e) {
-                        throw new FileException();
+                        throw FileException.FAILED_FILE_UPLOAD;
                     }
 
                     return new UploadFileResponse(domainId, fileName, file.getContentType(), filePath.toString());
@@ -58,13 +58,13 @@ public class LocalFileStorageService extends AbstractStorageService {
         File file = new File(path);
 
         if (isInvalidFile(file)) {
-            throw new FileException();
+            throw FileException.INVALID_FILE;
         }
 
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            throw new FileException();
+            throw FileException.FAILED_FILE_DOWNLOAD;
         }
 
     }
@@ -98,7 +98,7 @@ public class LocalFileStorageService extends AbstractStorageService {
             }
         } catch (
                 IOException e) {
-            throw new FileException();
+            throw FileException.FAILED_CREATE_DIRECTORY;
         }
 
         return directoryPath;

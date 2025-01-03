@@ -2,7 +2,7 @@ package co.ohmygoods.order.model.entity;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
-import co.ohmygoods.order.exception.RefundException;
+import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.OrderStatus;
 import co.ohmygoods.order.model.vo.RefundStatus;
 import co.ohmygoods.shop.model.entity.Shop;
@@ -51,7 +51,7 @@ public class RefundOrderItem extends BaseEntity {
 
     public void updateRequestReason(String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
-            RefundException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_REQUEST_REASON;
         }
 
         this.requestReason = requestReason;
@@ -59,7 +59,7 @@ public class RefundOrderItem extends BaseEntity {
 
     public void updateRequestResponse(String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
-            RefundException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_REQUEST_REASON;
         }
 
         this.requestResponse = requestResponse;
@@ -67,7 +67,7 @@ public class RefundOrderItem extends BaseEntity {
 
     public static RefundOrderItem requestByBuyer(Shop shop, OrderItem requestOrderItem, String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
-            RefundException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_REQUEST_REASON;
         }
 
         return new RefundOrderItem(0L, requestOrderItem, shop, null,
@@ -76,7 +76,7 @@ public class RefundOrderItem extends BaseEntity {
 
     public void approveByShopManager(Account manager, String requestResponse, int refundedPrice) {
         if (!StringUtils.hasText(requestResponse)) {
-            RefundException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_RESPONSE;
         }
 
         this.manager = manager;
@@ -89,7 +89,7 @@ public class RefundOrderItem extends BaseEntity {
 
     public void rejectByShopManager(Account manager, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
-            RefundException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_RESPONSE;
         }
 
         this.manager = manager;

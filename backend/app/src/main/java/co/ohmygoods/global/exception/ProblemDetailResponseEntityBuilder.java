@@ -20,7 +20,7 @@ import java.util.Objects;
  */
 public class ProblemDetailResponseEntityBuilder {
 
-    public static ResponseEntity<?> build(ProblemDetailInfo problemDetailInfo) {
+    public static ResponseEntity<ProblemDetail> build(ProblemDetailInfo problemDetailInfo) {
         ProblemDetail problemDetail = createProblemDetail(problemDetailInfo);
         return new ResponseEntity<>(problemDetail, problemDetailInfo.httpHeaders, problemDetailInfo.httpStatusCode);
     }
@@ -30,6 +30,10 @@ public class ProblemDetailResponseEntityBuilder {
 
         if (Objects.nonNull(problemDetailInfo.type)) {
             problemDetail.setType(problemDetailInfo.type);
+        }
+
+        if (StringUtils.hasText(problemDetailInfo.errorCode)) {
+            problemDetail.setProperty("errorCode", problemDetailInfo.errorCode);
         }
 
         if (StringUtils.hasText(problemDetailInfo.title)) {
@@ -49,6 +53,7 @@ public class ProblemDetailResponseEntityBuilder {
         private final HttpHeaders httpHeaders;
         private final HttpStatusCode httpStatusCode;
         private final URI type;
+        private final String errorCode;
         private final String title;
         private final String detail;
         private final URI instance;

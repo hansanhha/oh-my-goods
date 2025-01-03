@@ -1,32 +1,27 @@
-package co.ohmygoods.auth.jwt.service;
+package co.ohmygoods.global.exception;
 
 import co.ohmygoods.auth.security.config.SecurityConfigProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Map;
 
+/**
+ * HttpServletResponse를 통해 응답을 보내는 경우 http 헤더를 설정하기 위한 클래스
+ */
 @Component
 @RequiredArgsConstructor
-public class AuthExceptions {
+public class HttpServletExceptionResponseHeaders {
 
     private static final String COMMA = ",";
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final SecurityConfigProperties.CorsProperties corsProperties;
+
     @Setter
     private HttpHeaders httpHeaders;
 
@@ -44,21 +39,7 @@ public class AuthExceptions {
         this.httpHeaders = httpHeaders;
     }
 
-    public HttpClientErrorException unauthorized(Map<?, ?> body) {
-        return HttpClientErrorException.create(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase(), httpHeaders, convertBody(body), DEFAULT_CHARSET);
-    }
-
-    public HttpClientErrorException forbidden(Map<?, ?> body) {
-        return HttpClientErrorException.create(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.getReasonPhrase(), httpHeaders, convertBody(body), DEFAULT_CHARSET);
-    }
-
-    private byte[] convertBody(Map<?, ?> body) {
-        byte[] message = null;
-
-        try {
-            message = objectMapper.writeValueAsBytes(body);
-        } catch (JsonProcessingException ignored) {}
-
-        return message;
+    public HttpHeaders get() {
+        return httpHeaders;
     }
 }

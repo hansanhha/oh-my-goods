@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt.service;
 
-import co.ohmygoods.auth.account.exception.AccountException;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.auth.jwt.model.entity.RefreshToken;
 import co.ohmygoods.auth.jwt.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class CacheableRefreshTokenService {
 
     @Cacheable(cacheNames = REDIS_CACHE_NAMES, key = "#memberId")
     public RefreshToken getRefreshToken(String memberId) {
-        return refreshTokenRepository.findByMemberId(memberId).orElseThrow(AccountException::new);
+        return refreshTokenRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
     }
 
     @CacheEvict(cacheNames = REDIS_CACHE_NAMES, key = "#memberId")

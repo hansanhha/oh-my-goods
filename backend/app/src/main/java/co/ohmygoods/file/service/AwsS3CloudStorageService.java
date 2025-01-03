@@ -52,7 +52,7 @@ public class AwsS3CloudStorageService extends AbstractStorageService {
                     try {
                         awsS3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
                     } catch (IOException e) {
-                        throw new FileException();
+                        throw FileException.FAILED_FILE_UPLOAD;
                     }
 
                     return  new UploadFileResponse(domainId, fileName, fileContentType, filePath);

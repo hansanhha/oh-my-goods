@@ -2,8 +2,10 @@ package co.ohmygoods.review.service;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.file.model.vo.StorageStrategy;
 import co.ohmygoods.file.service.FileService;
+import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.entity.OrderItem;
 import co.ohmygoods.order.repository.OrderItemRepository;
 import co.ohmygoods.review.exception.ReviewException;
@@ -63,22 +65,19 @@ public class ReviewService {
     }
 
     public void writeReview(WriteReviewRequest request) {
-        Account account = accountRepository.findByEmail(request.accountEmail())
-                .orElseThrow(ReviewException::notFoundAccount);
-
-        OrderItem orderItem = orderItemRepository.fetchProductByOrderNumber(request.reviewOrderNumber())
-                .orElseThrow(ReviewException::notFoundOrder);
+        Account account = accountRepository.findByEmail(request.accountEmail()).orElseThrow(AuthException::notFoundAccount);
+        OrderItem orderItem = orderItemRepository.fetchProductByOrderNumber(request.reviewOrderNumber()).orElseThrow(OrderException::notFoundOrderItem);
 
         /*
             하나의 주문 건엔 하나의 리뷰만 남길 수 있음
             해당 주문 건에 대해 이미 작성한 리뷰가 있는 경우 예외 발생
          */
         reviewRepository.findReviewByOrder(orderItem).ifPresent(review -> {
-            throw ReviewException.alreadyWriteReview();
+            throw ReviewException.ALREADY_WRITTEN_REVIEW;
         });
 
         if (!orderItem.getOrder().isOrderer(account)) {
-            throw ReviewException.invalidReviewAuthority();
+            throw ReviewException.INVALID_AUTHORITY_WRITE_REVIEW;
         }
 
         Review savedReview = Review.write(orderItem, orderItem.getProduct(), account, request.reviewContent(), request.reviewStarRating());
@@ -92,14 +91,11 @@ public class ReviewService {
     }
 
     public void updateReview(UpdateReviewRequest request) {
-        Review review = reviewRepository.findById(request.updateReviewId())
-                .orElseThrow(ReviewException::notFoundReview);
-
-        Account account = accountRepository.findByEmail(request.reviewerEmail())
-                .orElseThrow(ReviewException::notFoundAccount);
+        Review review = reviewRepository.findById(request.updateReviewId()).orElseThrow(ReviewException::notFoundReview);
+        Account account = accountRepository.findByEmail(request.reviewerEmail()).orElseThrow(AuthException::notFoundAccount);
 
         if (!review.isNotReviewer(account)) {
-            throw ReviewException.invalidReviewAuthority();
+            throw ReviewException.INVALID_AUTHORITY_WRITE_REVIEW;
         }
 
         review.update(request.updateReviewContent());
@@ -117,14 +113,11 @@ public class ReviewService {
     }
 
     public void deleteReview(Long reviewId, String reviewerEmail) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(ReviewException::notFoundReview);
-
-        Account account = accountRepository.findByEmail(reviewerEmail)
-                .orElseThrow(ReviewException::notFoundAccount);
+        Review review = reviewRepository.findById(reviewId).orElseThrow(ReviewException::notFoundReview);
+        Account account = accountRepository.findByEmail(reviewerEmail).orElseThrow(AuthException::notFoundAccount);
 
         if (review.isNotReviewer(account)) {
-            throw ReviewException.invalidReviewAuthority();
+            throw ReviewException.INVALID_AUTHORITY_WRITE_REVIEW;
         }
 
         reviewRepository.delete(review);
@@ -132,11 +125,8 @@ public class ReviewService {
     }
 
     public void writeReviewComment(Long reviewId, String accountEmail, String reviewCommentContent) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(ReviewException::notFoundReview);
-
-        Account account = accountRepository.findByEmail(accountEmail)
-                .orElseThrow(ReviewException::notFoundAccount);
+        Review review = reviewRepository.findById(reviewId).orElseThrow(ReviewException::notFoundReview);
+        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(AuthException::notFoundAccount);
 
         ReviewComment reviewComment = ReviewComment.write(review, account, reviewCommentContent);
 
@@ -144,39 +134,31 @@ public class ReviewService {
     }
 
     public void modifyReviewComment(Long reviewCommentId, String reviewCommenterEmail, String modifyReviewCommentContent) {
-        ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId)
-                .orElseThrow(ReviewException::notFoundReview);
+        ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId).orElseThrow(ReviewException::notFoundReview);
 
-        Account account = accountRepository.findByEmail(reviewCommenterEmail)
-                .orElseThrow(ReviewException::notFoundAccount);
+        Account account = accountRepository.findByEmail(reviewCommenterEmail).orElseThrow(AuthException::notFoundAccount);
 
         if (!reviewComment.isNotReviewCommenter(account)) {
-            throw ReviewException.invalidReviewCommentAuthority();
+            throw ReviewException.INVALID_AUTHORITY_WRITE_REVIEW_COMMENT;
         }
 
         reviewComment.update(modifyReviewCommentContent);
     }
 
     public void deleteReviewComment(Long reviewCommentId, String reviewCommenterEmail) {
-        ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId)
-                .orElseThrow(ReviewException::notFoundReview);
-
-        Account account = accountRepository.findByEmail(reviewCommenterEmail)
-                .orElseThrow(ReviewException::notFoundAccount);
+        ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId).orElseThrow(ReviewException::notFoundReview);
+        Account account = accountRepository.findByEmail(reviewCommenterEmail).orElseThrow(AuthException::notFoundAccount);
 
         if (reviewComment.isNotReviewCommenter(account)) {
-            throw ReviewException.invalidReviewAuthority();
+            throw ReviewException.INVALID_AUTHORITY_WRITE_REVIEW_COMMENT;
         }
 
         reviewCommentRepository.delete(reviewComment);
     }
 
     public void writeReviewReplyComment(Long reviewCommentId, String accountEmail, String reviewReplyCommentContent) {
-        ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId)
-                .orElseThrow(ReviewException::notFoundReviewComment);
-
-        Account account = accountRepository.findByEmail(accountEmail)
-                .orElseThrow(ReviewException::notFoundAccount);
+        ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId).orElseThrow(ReviewException::notFoundReviewComment);
+        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(AuthException::notFoundAccount);
 
         ReviewComment reply = ReviewComment.reply(reviewComment, account, reviewReplyCommentContent);
 

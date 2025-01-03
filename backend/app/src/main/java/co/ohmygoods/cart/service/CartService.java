@@ -31,15 +31,15 @@ public class CartService {
     }
 
     public void add(AddCartRequest request) {
-        Product product = productRepository.findById(request.productId()).orElseThrow(CartException::new);
-        Account account = accountRepository.findByMemberId(request.memberId()).orElseThrow(CartException::new);
+        Product product = productRepository.findById(request.productId()).orElseThrow(CartException::notFoundCart);
+        Account account = accountRepository.findByMemberId(request.memberId()).orElseThrow(CartException::notFoundCart);
 
         product.validateSaleStatus();
 
         int totalKeepCartCount = cartRepository.countAllByAccount(account);
 
         if (totalKeepCartCount > CART_MAXIMUM_COUNT) {
-            throw CartException.exceedCartMaximumQuantity();
+            throw CartException.EXCEED_CART_MAX_LIMIT;
         }
 
         Cart cart = Cart.toEntity(product, account);
@@ -47,18 +47,18 @@ public class CartService {
     }
 
     public void updateQuantity(UpdateCartQuantityRequest request) {
-        Cart cart = cartRepository.findById(request.cartId()).orElseThrow(CartException::new);
+        Cart cart = cartRepository.findById(request.cartId()).orElseThrow(CartException::notFoundCart);
         Product product = cart.getProduct();
 
         if (product.isValidRequestQuantity(request.updateQuantity())) {
-            throw CartException.exceedProductMaximumQuantity(product.getId(), product.getPurchaseMaximumQuantity());
+            throw CartException.EXCEED_PRODUCT_MAX_LIMIT;
         }
 
         cart.updateQuantity(request.updateQuantity());
     }
 
     public void delete(Long cartId) {
-        var cart = cartRepository.findById(cartId).orElseThrow(CartException::new);
+        var cart = cartRepository.findById(cartId).orElseThrow(CartException::notFoundCart);
 
         cartRepository.delete(cart);
     }

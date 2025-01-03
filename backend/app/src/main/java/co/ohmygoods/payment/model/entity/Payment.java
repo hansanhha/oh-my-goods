@@ -50,7 +50,7 @@ public class Payment extends BaseEntity {
 
     public static Payment start(Account account, Order order, ExternalPaymentVendor vendor, int paymentAmount) {
         if (paymentAmount < 0) {
-            PaymentException.throwCauseInvalidPaymentPrice(paymentAmount);
+            throw PaymentException.INVALID_PURCHASE_AMOUNT;
         }
 
         return new Payment(0L, account, order, PaymentStatus.PAYMENT_START, vendor,

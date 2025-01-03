@@ -1,7 +1,6 @@
 package co.ohmygoods.auth.security;
 
-import co.ohmygoods.auth.exception.AuthError;
-import co.ohmygoods.auth.exception.JwtAuthenticationException;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
 import co.ohmygoods.auth.jwt.service.JwtAuthenticationToken;
 import co.ohmygoods.auth.jwt.service.JwtValidator;
@@ -37,7 +36,7 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
         JwtValidationResult validationResult = jwtValidator.validate(jwt);
 
         if (!validationResult.isValid()) {
-            throw new JwtAuthenticationException(validationResult.error());
+            throw AuthException.of(validationResult.error());
         }
 
         return jwtValidationResultConverter.convert(validationResult);
@@ -47,7 +46,7 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
         var authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER)) {
-            throw new JwtAuthenticationException(AuthError.EMPTY_BEARER_HEADER);
+            throw AuthException.EMPTY_BEARER_HEADER;
         }
 
         return authorizationHeader.replace(BEARER, "");

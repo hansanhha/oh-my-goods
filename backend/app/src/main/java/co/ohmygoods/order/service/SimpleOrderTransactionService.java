@@ -2,9 +2,11 @@ package co.ohmygoods.order.service;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.service.CouponService;
+import co.ohmygoods.order.exception.DeliveryAddressException;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.entity.DeliveryAddress;
 import co.ohmygoods.order.model.entity.Order;
@@ -15,13 +17,12 @@ import co.ohmygoods.order.repository.OrderItemRepository;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.order.service.dto.OrderCheckoutRequest;
 import co.ohmygoods.order.service.dto.OrderCheckoutResponse;
+import co.ohmygoods.payment.model.vo.PaymentStatus;
 import co.ohmygoods.payment.model.vo.UserAgent;
 import co.ohmygoods.payment.service.PaymentGateway;
 import co.ohmygoods.payment.service.dto.PaymentStartResponse;
 import co.ohmygoods.payment.service.dto.PreparePaymentRequest;
-import co.ohmygoods.payment.model.vo.PaymentStatus;
 import co.ohmygoods.product.exception.ProductException;
-import co.ohmygoods.product.exception.ProductStockStatusException;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,8 +53,8 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
     @Override
     public OrderCheckoutResponse checkout(OrderCheckoutRequest request) {
         // 엔티티 조회
-        Account account = accountRepository.findByEmail(request.orderAccountEmail()).orElseThrow(OrderException::new);
-        DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(request.deliveryAddressId()).orElseThrow(OrderException::new);
+        Account account = accountRepository.findByEmail(request.orderAccountEmail()).orElseThrow(AuthException::notFoundAccount);
+        DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(request.deliveryAddressId()).orElseThrow(DeliveryAddressException::notFoundDeliveryAddress);
         List<Product> orderProducts = (List<Product>) productRepository.findAllById(request.orderDetails().stream()
                 .map(OrderCheckoutRequest.OrderProductDetail::productId).toList());
 
@@ -64,7 +65,7 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
                                 .stream()
                                 .filter(detail -> detail.productId().equals(product.getId()))
                                 .findFirst()
-                                .orElseThrow(OrderException::new)));
+                                .orElseThrow(OrderException::notFoundOrderItem)));
 
         // 매핑된 정보를 기반으로 주문 아이템 엔티티 생성
         // 구매 개수 검증 (Product.isValidRequestQuantity(int))
@@ -76,7 +77,7 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
                     OrderCheckoutRequest.OrderProductDetail orderDetail = entry.getValue();
 
                     if (product.isValidRequestQuantity(orderDetail.purchaseQuantity())) {
-                        throw new OrderException();
+                        throw OrderException.INVALID_PURCHASE_QUANTITY;
                     }
 
                     int originalPrice = product.getOriginalPrice();
@@ -162,7 +163,7 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
 
     @Override
     public void successOrder(Long orderId) {
-        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::new);
+        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::notFoundOrder);
 
         List<OrderItem> orderItems = order.getOrderItems();
 
@@ -175,11 +176,15 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
             try {
                 product.decrease(orderQuantity);
             } catch (ProductException e) {
-                order.fail(OrderStatus.ORDER_FAILED_OUT_OF_STOCK, PaymentStatus.PAID);
-                return;
-            } catch (ProductStockStatusException e) {
-                order.fail(OrderStatus.ORDER_FAILED_INVALID_PRODUCT_STOCK_STATUS, PaymentStatus.PAID);
-                return;
+                if (ProductException.isOutOfStockException(e)) {
+                    order.fail(OrderStatus.ORDER_FAILED_OUT_OF_STOCK, PaymentStatus.PAID);
+                }
+                else if (ProductException.isNotSalesStatusException(e)) {
+                    order.fail(OrderStatus.ORDER_FAILED_INVALID_PRODUCT_STOCK_STATUS, PaymentStatus.PAID);
+                }
+                else {
+                    order.fail(OrderStatus.ORDER_FAILED_UNKNOWN, PaymentStatus.PAID);
+                }
             }
         }
 
@@ -188,7 +193,7 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
 
     @Override
     public void cancelOrderByPaymentCancellation(Long orderId) {
-        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::new);
+        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::notFoundOrder);
 
         List<Long> couponUsageHistoryIds = order.getOrderItems().stream()
                 .map(OrderItem::getCouponUsageHistory)
@@ -203,7 +208,7 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
 
     @Override
     public void failOrderByPaymentFailed(Long orderId, PaymentStatus paymentFailureCause) {
-        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::new);
+        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::notFoundOrder);
 
         List<Long> couponUsageHistoryIds = order.getOrderItems().stream()
                 .map(OrderItem::getCouponUsageHistory)

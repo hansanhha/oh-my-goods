@@ -2,6 +2,8 @@ package co.ohmygoods.payment.service;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
+import co.ohmygoods.auth.exception.AuthException;
+import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.config.PaymentServiceConfig;
@@ -60,16 +62,16 @@ public class KakaopayApiService
 
     @Override
     protected Object getPreparationRequestBody(String accountEmail, String orderTransactionId, int paymentAmount, String paymentName) {
-        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(() -> PaymentException.notFoundAccount(accountEmail));
-        Order order = orderRepository.fetchAccountByTransactionId(orderTransactionId).orElseThrow(() -> PaymentException.notFoundOrder(orderTransactionId));
+        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(AuthException::notFoundAccount);
+        Order order = orderRepository.fetchAccountByTransactionId(orderTransactionId).orElseThrow(OrderException::notFoundOrder);
 
         return KakaopayPreparationRequest.create(paymentAmount, account, order.getTransactionId(), paymentName, kakaopayProperties);
     }
 
     @Override
     protected Object getApprovalRequestBody(String orderTransactionId, Map<String, String> properties) {
-        Order order = orderRepository.fetchAccountByTransactionId(orderTransactionId).orElseThrow(() -> PaymentException.notFoundOrder(orderTransactionId));
-        Payment payment = paymentRepository.findByOrder(order).orElseThrow(() -> PaymentException.notFoundPayment(order.getId()));
+        Order order = orderRepository.fetchAccountByTransactionId(orderTransactionId).orElseThrow(OrderException::notFoundOrder);
+        Payment payment = paymentRepository.findByOrder(order).orElseThrow(PaymentException::notFoundPayment);
         Account account = order.getAccount();
 
         return new KakaopayApprovalRequest(kakaopayProperties.getCid(), payment.getTransactionId(),

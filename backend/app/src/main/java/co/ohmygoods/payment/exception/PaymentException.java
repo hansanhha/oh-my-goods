@@ -1,52 +1,27 @@
 package co.ohmygoods.payment.exception;
 
-import co.ohmygoods.order.model.vo.OrderStatus;
+import co.ohmygoods.global.exception.DomainException;
 
-public class PaymentException extends RuntimeException {
-    public PaymentException() {
+public class PaymentException extends DomainException {
+
+    public static final PaymentException NOT_FOUND_PAYMENT = new PaymentException(PaymentError.NOT_FOUND_PAYMENT);
+
+    public static final PaymentException INVALID_PAYMENT_METHOD = new PaymentException(PaymentError.INVALID_PAYMENT_METHOD);
+    public static final PaymentException INVALID_PURCHASE_AMOUNT = new PaymentException(PaymentError.INVALID_PURCHASE_AMOUNT);
+    public static final PaymentException CANNOT_UPDATE_PAYMENT_METHOD = new PaymentException(PaymentError.CANNOT_UPDATE_PAYMENT_METHOD);
+    public static final PaymentException NOT_SUPPORTED_PAYMENT_METHOD = new PaymentException(PaymentError.NOT_SUPPORTED_PAYMENT_METHOD);
+
+    public static final PaymentException FAILED_PAYMENT_API_REQUEST = new PaymentException(PaymentError.FAILED_PAYMENT_API_REQUEST);
+
+    public PaymentException(PaymentError paymentError) {
+        super(paymentError);
     }
 
-    public PaymentException(String message) {
-        super(message);
+    public static PaymentException notFoundPayment() {
+        return NOT_FOUND_PAYMENT;
     }
 
-    public static void throwCauseInvalidPaymentPrice(int price) {
-        throw new PaymentException(String.valueOf(price));
-    }
-
-    public static void throwCauseInvalidOrderStatus(OrderStatus status) {
-        throw new PaymentException(status.getMessage());
-    }
-
-    public static PaymentException notFoundShop(Long shopId) {
-        return new PaymentException(String.valueOf(shopId));
-    }
-
-    public static PaymentException notFoundAccount(String buyerEmail) {
-        return new PaymentException(buyerEmail);
-    }
-
-    public static PaymentException notFoundOrder(Long orderId) {
-        return new PaymentException(String.valueOf(orderId));
-    }
-
-    public static PaymentException notFoundOrder(String orderNumber) {
-        return new PaymentException(String.valueOf(orderNumber));
-    }
-
-    public static PaymentException notFoundPayment(String transactionId) {
-        return new PaymentException(transactionId);
-    }
-
-    public static PaymentException notFoundPayment(Long orderId) {
-        return new PaymentException(String.valueOf(orderId));
-    }
-
-    public static PaymentException notSupportPaymentVendor(String vendorName) {
-        return new PaymentException(vendorName);
-    }
-
-    public static PaymentException invalidExternalRequestBody() {
-        return new PaymentException();
+    public static PaymentException unsupportedPaymentMethod() {
+        return NOT_SUPPORTED_PAYMENT_METHOD;
     }
 }

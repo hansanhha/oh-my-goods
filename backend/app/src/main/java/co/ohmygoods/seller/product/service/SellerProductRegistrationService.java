@@ -1,10 +1,9 @@
 package co.ohmygoods.seller.product.service;
 
-import co.ohmygoods.auth.account.exception.AccountNotFoundException;
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.product.exception.InvalidProductCustomCategoryException;
-import co.ohmygoods.product.exception.ProductNotFoundException;
+import co.ohmygoods.auth.exception.AuthException;
+import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.model.entity.ProductCustomCategory;
 import co.ohmygoods.product.model.entity.ProductCustomCategoryMapping;
@@ -16,7 +15,7 @@ import co.ohmygoods.seller.product.service.dto.CustomCategoryResponse;
 import co.ohmygoods.seller.product.service.dto.RegisterProductRequest;
 import co.ohmygoods.seller.product.service.dto.SellerProductResponse;
 import co.ohmygoods.seller.product.service.dto.UpdateProductMetadataRequest;
-import co.ohmygoods.shop.exception.ShopNotFoundException;
+import co.ohmygoods.shop.exception.ShopException;
 import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
 @Service
 @Transactional
@@ -40,18 +39,18 @@ public class SellerProductRegistrationService {
     private final ProductCustomCategoryRepository productCustomCategoryRepository;
 
     public List<SellerProductResponse> getRegisteredProducts(String ownerMemberId, Pageable pageable) {
-        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(() -> new ShopNotFoundException(""));
+        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(ShopException::notFoundShop);
         Slice<Product> products = productRepository.findAllByShop(shop, pageable);
 
         return products.map(this::convertSellerProductResponse).toList();
     }
 
     public CustomCategoryResponse registerCustomCategory(String ownerMemberId, String email, String customCategoryName) {
-        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(() -> new ShopNotFoundException(""));
-        Account account = accountRepository.findByEmail(email).orElseThrow(() -> new AccountNotFoundException(email));
+        Shop shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(ShopException::notFoundShop);
+        Account account = accountRepository.findByEmail(email).orElseThrow(AuthException::notFoundAccount);
 
         if (productCustomCategoryRepository.existsByCustomCategoryName(customCategoryName)) {
-            throw InvalidProductCustomCategoryException.duplicateName(customCategoryName);
+            throw SellerProductException.DUPLICATE_CUSTOM_CATEGORY_NAME;
         }
 
         ProductCustomCategory productCustomCategory = ProductCustomCategory.toEntity(shop, customCategoryName);
@@ -61,14 +60,13 @@ public class SellerProductRegistrationService {
     }
 
     public SellerProductResponse registerProduct(RegisterProductRequest request) {
-        Shop shop = shopRepository.findByOwnerMemberId(request.ownerMemberId())
-                .orElseThrow(() -> new ShopNotFoundException(""));
+        Shop shop = shopRepository.findByOwnerMemberId(request.ownerMemberId()).orElseThrow(ShopException::notFoundShop);
 
         ProductStockStatus stockStatus = request.isImmediatelySale() ? ProductStockStatus.ON_SALES : ProductStockStatus.TO_BE_SOLD;
         LocalDateTime saleStartDate = stockStatus.equals(ProductStockStatus.ON_SALES) ? LocalDateTime.now() : request.expectedSaleDate();
 
         if (!request.mainCategory().contains(request.subCategory())) {
-            throw new SellerProductException();
+            throw SellerProductException.INVALID_SUB_CATEGORY;
         }
 
         Product product = Product
@@ -111,15 +109,13 @@ public class SellerProductRegistrationService {
     }
 
     public SellerProductResponse updateProductMetadata(UpdateProductMetadataRequest request) {
-        var shop = shopRepository.findByOwnerMemberId(request.ownerMemberId())
-                .orElseThrow(() -> new ShopNotFoundException(""));
-        var product = productRepository.findById(request.updateProductId())
-                .orElseThrow(() -> new ProductNotFoundException(""));
+        var shop = shopRepository.findByOwnerMemberId(request.ownerMemberId()).orElseThrow(ShopException::notFoundShop);
+        var product = productRepository.findById(request.updateProductId()).orElseThrow(ProductException::notFoundProduct);
 
         product.shopCheck(shop);
 
         if (!request.updateMainCategory().contains(request.updateSubCategory())) {
-            throw new SellerProductException();
+            throw SellerProductException.INVALID_SUB_CATEGORY;
         }
 
         var customCategoryIds = request.updateCustomCategoryIds();
@@ -149,10 +145,8 @@ public class SellerProductRegistrationService {
     }
 
     public void delete(String ownerMemberId, Long productId) {
-        var shop = shopRepository.findByOwnerMemberId(ownerMemberId)
-                .orElseThrow(() -> new ShopNotFoundException(""));
-        var product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(""));
+        var shop = shopRepository.findByOwnerMemberId(ownerMemberId).orElseThrow(ShopException::notFoundShop);
+        var product = productRepository.findById(productId).orElseThrow(ProductException::notFoundProduct);
 
         product.shopCheck(shop);
 

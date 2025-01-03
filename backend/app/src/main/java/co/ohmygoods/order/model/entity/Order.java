@@ -12,7 +12,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 @Table(name = "orders")
 @Entity
@@ -76,7 +79,7 @@ public class Order extends BaseEntity {
 
     public void updateEntireOrderStatus(OrderStatus orderStatus) {
         if (entireOrderStatus.isNotUpdatableOrderStatus()) {
-            OrderException.throwCauseCannotUpdateStatus(orderStatus);
+            throw OrderException.CANNOT_UPDATE_ORDER_STATUS;
         }
 
         entireOrderStatus = orderStatus;

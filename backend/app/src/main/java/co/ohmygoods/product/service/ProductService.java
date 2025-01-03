@@ -1,6 +1,6 @@
 package co.ohmygoods.product.service;
 
-import co.ohmygoods.product.exception.CustomCategoryNotFoundException;
+import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.model.entity.ProductCustomCategoryMapping;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
@@ -8,8 +8,8 @@ import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.service.dto.ProductCustomCategoryResponse;
 import co.ohmygoods.product.service.dto.ProductResponse;
+import co.ohmygoods.shop.exception.ShopException;
 import co.ohmygoods.shop.model.entity.Shop;
-import co.ohmygoods.shop.exception.ShopNotFoundException;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +35,7 @@ public class ProductService {
     }
 
     public List<ProductResponse> getProductsByShop(Long shopId, Pageable pageable) {
-        Shop shop = shopRepository.findById(shopId).orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+        Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
 
         Slice<Product> products = productRepository.fetchAllByShopAndStockStatusOnSales(shop, pageable);
 
@@ -43,7 +43,7 @@ public class ProductService {
     }
 
     public List<ProductResponse> getProductsByShopAndMainCategory(Long shopId, ProductMainCategory productMainCategory, Pageable pageable) {
-        Shop shop = shopRepository.findById(shopId).orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+        Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
 
         Slice<Product> products = productRepository.fetchAllByShopAndMainCategoryAndStockStatusOnSales(shop, productMainCategory, pageable);
 
@@ -51,7 +51,7 @@ public class ProductService {
     }
 
     public List<ProductResponse> getProductsByShopAndSubCategory(Long shopId, String productSubCategory, Pageable pageable) {
-        Shop shop = shopRepository.findById(shopId).orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+        Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
 
         Slice<Product> products = productRepository.fetchAllByShopAndSubCategoryAndStockStatusOnSales(shop, productSubCategory, pageable);
 
@@ -59,11 +59,10 @@ public class ProductService {
     }
 
     public List<ProductResponse> getProductsByShopAndCustomCategory(Long shopId, Long detailCategoryId, Pageable pageable) {
-        var shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+        Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
 
         var customCategoryId = customCategoryRepository.findById(detailCategoryId)
-                .orElseThrow(CustomCategoryNotFoundException::new);
+                .orElseThrow(ProductException::notFoundCategory);
 
         var products = productRepository.fetchAllByShopAndCustomCategoryAndStockStatusOnSales(shop, customCategoryId, pageable);
 

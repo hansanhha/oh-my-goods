@@ -64,7 +64,7 @@ public class FileService {
         Optional<StorageService> supportStorageService = findSupportStorageService(request.storageStrategy(), request.cloudStorageProvider());
 
         if (supportStorageService.isEmpty()) {
-            throw new FileException();
+            throw FileException.INVALID_FILE;
         }
 
         List<UploadFileResponse> uploadResponse = supportStorageService.get().upload(request);

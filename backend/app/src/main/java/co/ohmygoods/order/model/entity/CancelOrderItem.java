@@ -2,7 +2,7 @@ package co.ohmygoods.order.model.entity;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
-import co.ohmygoods.order.exception.CancelOrderException;
+import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.CancelOrderStatus;
 import co.ohmygoods.order.model.vo.OrderStatus;
 import co.ohmygoods.shop.model.entity.Shop;
@@ -48,7 +48,7 @@ public class CancelOrderItem extends BaseEntity {
 
     public void updateRequestReason(String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
-            CancelOrderException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_REQUEST_REASON;
         }
 
         this.requestReason = requestReason;
@@ -56,7 +56,7 @@ public class CancelOrderItem extends BaseEntity {
 
     public void updateRequestResponse(String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
-            CancelOrderException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_REQUEST_REASON;
         }
 
         this.requestResponse = requestResponse;
@@ -64,7 +64,7 @@ public class CancelOrderItem extends BaseEntity {
 
     public static CancelOrderItem requestByBuyer(Shop shop, OrderItem requestOrderItem, String requestReason) {
         if (!StringUtils.hasText(requestReason)) {
-            CancelOrderException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_REQUEST_REASON;
         }
 
         return new CancelOrderItem(0L, requestOrderItem,shop, null,
@@ -73,7 +73,7 @@ public class CancelOrderItem extends BaseEntity {
 
     public static CancelOrderItem forceCancelByShopManager(Shop shop, OrderItem cancelTargetOrderItem, Account manager, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
-            CancelOrderException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_RESPONSE;
         }
 
         return new CancelOrderItem(0L, cancelTargetOrderItem, shop, manager,
@@ -82,7 +82,7 @@ public class CancelOrderItem extends BaseEntity {
 
     public void approveByShopManager(Account manager, String requestResponse, CancelOrderStatus status) {
         if (!StringUtils.hasText(requestResponse)) {
-            CancelOrderException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_RESPONSE;
         }
 
         this.manager = manager;
@@ -94,7 +94,7 @@ public class CancelOrderItem extends BaseEntity {
 
     public void rejectByShopManager(Account manager, String requestResponse) {
         if (!StringUtils.hasText(requestResponse)) {
-            CancelOrderException.throwCauseEmptyText();
+            throw OrderException.INVALID_CS_RESPONSE;
         }
 
         this.manager = manager;

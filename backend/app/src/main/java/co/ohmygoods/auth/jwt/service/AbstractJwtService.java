@@ -1,9 +1,9 @@
 package co.ohmygoods.auth.jwt.service;
 
-import co.ohmygoods.auth.account.exception.AccountException;
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.model.vo.Role;
 import co.ohmygoods.auth.account.repository.AccountRepository;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.auth.jwt.model.entity.RefreshToken;
 import co.ohmygoods.auth.jwt.service.dto.Jwts;
 import co.ohmygoods.auth.jwt.service.dto.TokenDTO;
@@ -51,10 +51,10 @@ public abstract class AbstractJwtService implements JwtService {
         // 토큰 탈취 감지
         if (!refreshTokenValue.equals(refreshTokenInDB.getTokenValue())) {
             refreshTokenService.removeAllRefreshToken(memberId);
-            throw new AccountException();
+            throw AuthException.INVALID_JWT;
         }
 
-        Account account = accountRepository.findByEmail(memberId).orElseThrow(AccountException::new);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
         TokenDTO accessToken = generateAccessToken(memberId, account.getRole().getAuthorities());
         TokenDTO refreshToken = generateRefreshToken(memberId);

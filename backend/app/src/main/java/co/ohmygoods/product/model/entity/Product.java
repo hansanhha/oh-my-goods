@@ -1,10 +1,7 @@
 package co.ohmygoods.product.model.entity;
 
 import co.ohmygoods.global.entity.BaseEntity;
-import co.ohmygoods.product.exception.InvalidProductUpdateParameterException;
 import co.ohmygoods.product.exception.ProductException;
-import co.ohmygoods.product.exception.ProductShopCheckException;
-import co.ohmygoods.product.exception.ProductStockStatusException;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
 import co.ohmygoods.product.model.vo.ProductType;
@@ -78,7 +75,7 @@ public class Product extends BaseEntity {
 
     public void shopCheck(Shop shop) {
         if (this.shop.getId().equals(shop.getId())) {
-            throw new ProductShopCheckException(shop.getId().toString());
+            throw ProductException.NOT_SALES_STATUS;
         }
     }
 
@@ -108,7 +105,7 @@ public class Product extends BaseEntity {
 
     public void updateRemainingQuantity(int remainingQuantity) {
         if (remainingQuantity < REMAINING_QUANTITY_MINIMUM) {
-            throw new InvalidProductUpdateParameterException();
+            throw ProductException.INVALID_PRODUCT_QUANTITY;
         }
 
         this.remainingQuantity = remainingQuantity;
@@ -116,7 +113,7 @@ public class Product extends BaseEntity {
 
     public void updatePurchaseMaximumQuantity(int purchaseMaximumQuantity) {
         if (purchaseMaximumQuantity < PURCHASE_QUANTITY_MINIMUM) {
-            throw new InvalidProductUpdateParameterException();
+            throw ProductException.INVALID_PURCHASE_QUANTITY;
         }
 
         this.purchaseMaximumQuantity = purchaseMaximumQuantity;
@@ -126,17 +123,17 @@ public class Product extends BaseEntity {
         switch (stockStatus) {
             case ProductStockStatus.SOLDOUT -> {
                 if (this.remainingQuantity > REMAINING_QUANTITY_MINIMUM) {
-                    throw new InvalidProductUpdateParameterException();
+                    throw ProductException.CANNOT_UPDATE_PRODUCT_STATUS;
                 }
             }
             case ProductStockStatus.TO_BE_RESTOCKED -> {
                 if (!this.stockStatus.equals(ProductStockStatus.SOLDOUT)) {
-                    throw new InvalidProductUpdateParameterException();
+                    throw ProductException.CANNOT_UPDATE_PRODUCT_STATUS;
                 }
             }
             case ProductStockStatus.RESTOCKED -> {
                 if (!this.stockStatus.equals(ProductStockStatus.TO_BE_RESTOCKED)) {
-                    throw new InvalidProductUpdateParameterException();
+                    throw ProductException.CANNOT_UPDATE_PRODUCT_STATUS;
                 }
             }
         }
@@ -154,26 +151,26 @@ public class Product extends BaseEntity {
 
     public void validateSaleStatus() {
         if (stockStatus.equals(ProductStockStatus.ON_SALES))
-            ProductStockStatusException.throwInvalidStatus(stockStatus);
+            throw ProductException.NOT_SALES_STATUS;
     }
 
     public void decrease(int quantity) {
         validateSaleStatus();
 
         if (!isValidRequestQuantity(quantity)) {
-            ProductException.throwCauseInvalidDecreaseQuantity(purchaseMaximumQuantity, remainingQuantity, quantity);
+            throw ProductException.EXCEED_PURCHASE_PRODUCT_MAX_LIMIT;
         }
 
         remainingQuantity -= quantity;
 
         if (remainingQuantity < 0) {
-            ProductException.throwCauseInvalidDecreaseQuantity(purchaseMaximumQuantity, remainingQuantity, quantity);
+            throw ProductException.EXCEED_PURCHASE_PRODUCT_MAX_LIMIT;
         }
     }
 
     public void increase(int quantity) {
         if (quantity < 0) {
-            ProductException.throwCauseInvalidIncreaseQuantity(quantity);
+            throw ProductException.INVALID_PRODUCT_QUANTITY;
         }
 
         remainingQuantity += quantity;
