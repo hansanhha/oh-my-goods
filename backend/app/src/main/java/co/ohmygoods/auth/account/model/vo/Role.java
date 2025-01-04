@@ -18,7 +18,7 @@ public enum Role {
             PURCHASE_PRODUCT
     )),
 
-    BUSINESS("ROLE_BUSINESS", Set.of(
+    SELLER("ROLE_SELLER", Set.of(
             MANAGE_PRODUCT,
             MANAGE_CONTENT,
             ISSUE_SHOP_COUPON,

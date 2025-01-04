@@ -17,9 +17,11 @@ public interface CouponUsageHistoryRepository extends CrudRepository<CouponUsage
 
     @Query("SELECT cuh " +
             "FROM CouponUsageHistory cuh " +
-            "JOIN FETCH cuh.account a ON a = :account " +
-            "JOIN FETCH cuh.coupon c ON c = :coupon " +
-            "WHERE cuh.couponUsageStatus = 'ISSUED' ")
+            "JOIN FETCH cuh.account a " +
+            "JOIN FETCH cuh.coupon c " +
+            "WHERE a = :account " +
+            "AND c = :coupon " +
+            "AND cuh.couponUsageStatus = 'ISSUED' ")
     Optional<CouponUsageHistory> fetchFirstByAccountAndCouponAndCouponUsageStatusIssued(Account account, Coupon coupon);
 
     @Query("SELECT cuh " +

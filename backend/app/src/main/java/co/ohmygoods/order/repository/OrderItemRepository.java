@@ -19,10 +19,10 @@ public interface OrderItemRepository extends CrudRepository<OrderItem, Long> {
 
     @Query("SELECT oi " +
             "FROM OrderItem oi " +
-            "JOIN oi.product " +
-            "JOIN oi.order " +
+            "JOIN FETCH oi.product " +
+            "JOIN FETCH oi.order " +
             "JOIN FETCH oi.deliveryAddress " +
-            "WHERE oi.id = :orderItemId")
+            "WHERE oi.order.account = :memberId")
     Slice<OrderItem> findAllByOrderAccountMemberId(String memberId, Pageable pageable);
 
     @Query("SELECT oi " +

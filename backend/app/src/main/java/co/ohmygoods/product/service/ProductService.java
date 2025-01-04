@@ -2,6 +2,7 @@ package co.ohmygoods.product.service;
 
 import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
+import co.ohmygoods.product.model.entity.ProductCustomCategory;
 import co.ohmygoods.product.model.entity.ProductCustomCategoryMapping;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
@@ -61,10 +62,10 @@ public class ProductService {
     public List<ProductResponse> getProductsByShopAndCustomCategory(Long shopId, Long detailCategoryId, Pageable pageable) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
 
-        var customCategoryId = customCategoryRepository.findById(detailCategoryId)
+        ProductCustomCategory customCategory = customCategoryRepository.findById(detailCategoryId)
                 .orElseThrow(ProductException::notFoundCategory);
 
-        var products = productRepository.fetchAllByShopAndCustomCategoryAndStockStatusOnSales(shop, customCategoryId, pageable);
+        Slice<Product> products = productRepository.fetchAllByCustomCategoryAndStockStatusOnSales(customCategory, pageable);
 
         return products.stream().map(this::convertProductResponse).toList();
     }

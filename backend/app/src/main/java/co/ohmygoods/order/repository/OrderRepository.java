@@ -9,7 +9,11 @@ import java.util.Optional;
 
 public interface OrderRepository extends CrudRepository<Order, Long> {
 
-    Optional<Order> fetchAccountByTransactionId(String orderTransactionId);
+    @Query("SELECT o " +
+            "FROM Order o " +
+            "JOIN FETCH Account " +
+            "WHERE o.transactionId = :transactionId")
+    Optional<Order> fetchAccountByTransactionId(String transactionId);
 
     @Query("SELECT o " +
             "FROM Order o " +
@@ -22,5 +26,4 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
     @Query("SELECT o FROM Order o JOIN o.payment p WHERE p.id = :paymentId")
     Optional<Order> findByPaymentId(Long paymentId);
 
-    Optional<Order> findByAccountMemberId(String memberId, Pageable pageable);
 }

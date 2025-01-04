@@ -1,5 +1,6 @@
 package co.ohmygoods.auth.security.config;
 
+import co.ohmygoods.auth.account.model.vo.Role;
 import co.ohmygoods.auth.oauth2.service.CacheableOAuth2AuthorizedClientService;
 import co.ohmygoods.auth.oauth2.service.IdentifiedOAuth2UserService;
 import co.ohmygoods.auth.security.JwtBearerAuthenticationFilter;
@@ -16,6 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.*;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -50,11 +52,11 @@ public class SecurityConfig {
                 .formLogin(FormLoginConfigurer::disable)
                 .cors(config -> config.configurationSource(buildCorsConfigurationSource(corsProperties)))
                 .authorizeHttpRequests(config -> config
-                        .requestMatchers(whitelist.getOauth2AuthorizationBaseUrl()).permitAll()
-                        .requestMatchers(whitelist.getOauth2LoginProcessingUrl()).permitAll()
+                        .requestMatchers(oAuth2LoginProcessingUrlString()).permitAll()
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().authenticated()
+                        .requestMatchers(sellerRequestMatcher()).hasRole(Role.SELLER.name()))
                 .oauth2Login(config -> config
                         .loginProcessingUrl(whitelist.getOauth2LoginProcessingUrl())
                         .userInfoEndpoint(endpoint -> endpoint.userService(identifiedOAuth2UserService))
@@ -82,6 +84,16 @@ public class SecurityConfig {
             config.setExposedHeaders(corsProperties.getAccessControlExposeHeaders());
             config.setAllowCredentials(corsProperties.isAccessControlAllowCredentials());
             return config;
+        };
+    }
+
+    private RequestMatcher sellerRequestMatcher() {
+        return request -> request.getServletPath().startsWith("/api/seller");
+    }
+
+    private String[] oAuth2LoginProcessingUrlString() {
+        return new String[] {
+                whitelist.getOauth2AuthorizationBaseUrl(), whitelist.getOauth2LoginProcessingUrl()
         };
     }
 }
