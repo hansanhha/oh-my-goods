@@ -1,18 +1,25 @@
 package co.ohmygoods.global.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 
 import java.net.URI;
 
-@RequiredArgsConstructor
-@AllArgsConstructor
 public abstract class DomainException extends RuntimeException {
 
     private final DomainError domainError;
-    private DomainErrorAdditionalAttributes additionalAttributes;
+    private final DomainErrorAdditionalAttributes additionalAttributes;
+
+    public DomainException(DomainError domainError) {
+        this(domainError, null);
+    }
+
+    public DomainException(DomainError domainError, DomainErrorAdditionalAttributes additionalAttributes) {
+        super(domainError.getErrorDetailMessage() + ", exception source: " + Thread.currentThread().getStackTrace()[5]);
+        this.domainError = domainError;
+        this.additionalAttributes = additionalAttributes;
+        setStackTrace(new StackTraceElement[]{Thread.currentThread().getStackTrace()[5]});
+    }
 
     public HttpStatus getHttpStatus() {
         return domainError.getHttpStatus();
