@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 public enum AuthError implements DomainError {
 
     NOT_FOUND_ACCOUNT(HttpStatus.NOT_FOUND, "A000", "Account not found"),
-    DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST, "A001", "Duplicated Account Nickname"),
+    NOT_FOUND_OAUTH2_AUTHORIZED_CLIENT(HttpStatus.NOT_FOUND, "A001", "OAuth2 authorized client not found"),
+
+    DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST, "A050", "Duplicated Account Nickname"),
 
     EMPTY_BEARER_HEADER(HttpStatus.UNAUTHORIZED, "A102", "insufficient authorization header"),
     EXPIRED_JWT(HttpStatus.UNAUTHORIZED, "A103","Expired token, please refresh token"),

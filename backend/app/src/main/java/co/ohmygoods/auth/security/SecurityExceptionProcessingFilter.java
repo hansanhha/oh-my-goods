@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -31,6 +32,7 @@ import java.util.Optional;
  * </p>
  * {@link ProblemDetailResponseEntityBuilder}
  */
+@Component
 @RequiredArgsConstructor
 public class SecurityExceptionProcessingFilter extends OncePerRequestFilter {
 

@@ -1,6 +1,7 @@
 package co.ohmygoods.auth.jwt.service.nimbus;
 
 import co.ohmygoods.auth.exception.AuthError;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.auth.jwt.service.JwtParser;
 import co.ohmygoods.auth.jwt.service.JwtValidator;
 import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
@@ -54,11 +55,11 @@ public class NimbusJoseJwtValidator implements JwtValidator {
 
     private JwtValidationResult attemptValidate(JWT jwt) {
         if (isExpired(jwt)) {
-            return JwtValidationResult.invalid(AuthError.EXPIRED_JWT);
+            return JwtValidationResult.invalid(AuthException.EXPIRED_JWT);
         }
 
         if (isInvalidIssuer(jwt)) {
-            return JwtValidationResult.invalid(AuthError.INVALID_JWT);
+            return JwtValidationResult.invalid(AuthException.INVALID_JWT);
         }
 
         return JwtValidationResult.valid(getClaimsSet(jwt)

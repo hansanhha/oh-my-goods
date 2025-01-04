@@ -4,9 +4,13 @@ import co.ohmygoods.global.exception.DomainError;
 import co.ohmygoods.global.exception.DomainException;
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
+
 public class AuthException extends DomainException {
 
     public static final AuthException NOT_FOUND_ACCOUNT = new AuthException(AuthError.NOT_FOUND_ACCOUNT);
+    public static final AuthException NOT_FOUND_OAUTH2_AUTHORIZED_CLIENT = new AuthException(AuthError.NOT_FOUND_OAUTH2_AUTHORIZED_CLIENT);
+
     public static final AuthException DUPLICATED_NICKNAME = new AuthException(AuthError.DUPLICATED_NICKNAME);
 
     public static final AuthException EMPTY_BEARER_HEADER = new AuthException(AuthError.EMPTY_BEARER_HEADER);
@@ -72,15 +76,7 @@ public class AuthException extends DomainException {
         });
     }
 
-    public static AuthException of(AuthError error) {
-        return switch (error) {
-            case AuthError.NOT_FOUND_ACCOUNT -> NOT_FOUND_ACCOUNT;
-            case AuthError.DUPLICATED_NICKNAME -> DUPLICATED_NICKNAME;
-            case AuthError.EMPTY_BEARER_HEADER -> EMPTY_BEARER_HEADER;
-            case AuthError.INVALID_JWT -> INVALID_JWT;
-            case AuthError.EXPIRED_JWT -> EXPIRED_JWT;
-            case AuthError.FAILED_OAUTH2_SIGN_OUT -> FAILED_OAUTH2_SIGN_OUT;
-            case AuthError.FAILED_OAUTH2_UNLINK -> FAILED_OAUTH2_UNLINK;
-        };
+    public static AuthException notFoundOAuth2AuthorizedClient() {
+        return NOT_FOUND_OAUTH2_AUTHORIZED_CLIENT;
     }
 }

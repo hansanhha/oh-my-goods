@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.oauth2.service;
 
-import co.ohmygoods.auth.account.exception.AccountException;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.auth.oauth2.model.entity.SimpleOAuth2AuthorizedClient;
 import co.ohmygoods.auth.oauth2.repository.SimpleOAuth2AuthorizedClientRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class CacheableOAuth2AuthorizedClientService implements OAuth2AuthorizedC
     @Cacheable(cacheNames = REDIS_CACHE_NAMES, key = "#memberId")
     public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, String memberId) {
         SimpleOAuth2AuthorizedClient simpleOAuth2AuthorizedClient = oAuth2AuthorizedClientRepository
-                .findByMemberId(memberId).orElseThrow(AccountException::new);
+                .findByMemberId(memberId).orElseThrow(AuthException::notFoundOAuth2AuthorizedClient);
 
         ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
 

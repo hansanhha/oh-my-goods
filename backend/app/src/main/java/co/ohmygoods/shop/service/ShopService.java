@@ -3,9 +3,9 @@ package co.ohmygoods.shop.service;
 import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.product.model.entity.ProductCustomCategory;
+import co.ohmygoods.shop.exception.ShopException;
 import co.ohmygoods.shop.repository.ShopRepository;
 import co.ohmygoods.shop.service.dto.ShopOverviewResponse;
-import co.ohmygoods.shop.exception.ShopNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class ShopService {
 
     public ShopOverviewResponse getShopOverview(Long shopId) {
         var shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ShopNotFoundException(shopId.toString()));
+                .orElseThrow(ShopException::notFoundShop);
         var productCategoriesMap = productCustomCategoryRepository.findAllByShop(shop).stream()
                 .collect(Collectors.toMap(ProductCustomCategory::getId, ProductCustomCategory::getCustomCategoryName));
         var products = productRepository.findAll(Pageable.ofSize(20));

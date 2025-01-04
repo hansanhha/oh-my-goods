@@ -49,8 +49,9 @@ public class JWTProperties {
     }
 
     public void setRefreshTokenAlgorithm(@NotNull String refreshTokenAlgorithm) {
-        this.accessTokenAlgorithm = JWSAlgorithm.parse(refreshTokenAlgorithm);
+        this.refreshTokenAlgorithm = JWSAlgorithm.parse(refreshTokenAlgorithm);
     }
+
 
     public void setAccessTokenKey(@NotNull String key) {
         var jwk = new OctetSequenceKey.Builder(key.getBytes())
@@ -62,7 +63,7 @@ public class JWTProperties {
 
     public void setRefreshTokenKey(@NotNull String key) {
         var jwk = new OctetSequenceKey.Builder(key.getBytes())
-                .algorithm(accessTokenAlgorithm)
+                .algorithm(refreshTokenAlgorithm)
                 .build();
 
         this.refreshTokenKey= jwk.toSecretKey();

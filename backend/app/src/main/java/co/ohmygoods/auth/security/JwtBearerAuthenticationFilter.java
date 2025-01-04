@@ -36,7 +36,7 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
         JwtValidationResult validationResult = jwtValidator.validate(jwt);
 
         if (!validationResult.isValid()) {
-            throw AuthException.of(validationResult.error());
+            throw validationResult.error();
         }
 
         return jwtValidationResultConverter.convert(validationResult);

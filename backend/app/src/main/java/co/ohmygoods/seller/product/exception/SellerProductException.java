@@ -10,7 +10,7 @@ public class SellerProductException extends DomainException {
     public static final SellerProductException INVALID_PRODUCT_STATUS = new SellerProductException(SellerProductError.INVALID_PRODUCT_STATUS);
     public static final SellerProductException INVALID_PRODUCT_PRICE = new SellerProductException(SellerProductError.INVALID_PRODUCT_PRICE);
     public static final SellerProductException INVALID_SUB_CATEGORY = new SellerProductException(SellerProductError.INVALID_SUB_CATEGORY);
-    public static final SellerShopException DUPLICATE_CUSTOM_CATEGORY_NAME = new SellerShopException(SellerProductError.DUPLICATE_CUSTOM_CATEGORY_NAME);
+    public static final SellerProductException DUPLICATE_CUSTOM_CATEGORY_NAME = new SellerProductException(SellerProductError.DUPLICATE_CUSTOM_CATEGORY_NAME);
 
     public SellerProductException(SellerProductError error) {
         super(error);

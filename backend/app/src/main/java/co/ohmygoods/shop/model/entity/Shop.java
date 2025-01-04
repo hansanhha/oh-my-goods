@@ -2,8 +2,7 @@ package co.ohmygoods.shop.model.entity;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.global.entity.BaseEntity;
-import co.ohmygoods.shop.exception.InvalidShopOwnerException;
-import co.ohmygoods.shop.exception.UnchangeableShopStatusException;
+import co.ohmygoods.shop.exception.ShopException;
 import co.ohmygoods.shop.model.vo.ShopStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -47,7 +46,7 @@ public class Shop extends BaseEntity {
 
     public void changeShopStatus(ShopStatus status) {
         if (!this.status.isChangeable(status)) {
-            throw UnchangeableShopStatusException.unchangeable(this.status.name(), status.name());
+            throw ShopException.INVALID_SHOP_STATUS;
         }
 
         this.status = status;
@@ -59,7 +58,7 @@ public class Shop extends BaseEntity {
 
     public void ownerCheck(Account account) {
         if (!owner.getId().equals(account.getId())) {
-            throw InvalidShopOwnerException.isNotOwner(account.getEmail(), name);
+            throw ShopException.INVALID_SHOP_OWNER;
         }
     }
 

@@ -52,7 +52,7 @@ public class DeliveryAddress extends BaseEntity {
         if (!StringUtils.hasText(recipientName) || !StringUtils.hasText(recipientPhoneNumber)
                 || !StringUtils.hasText(zipCode) || !StringUtils.hasText(detailAddress)
                 || (!StringUtils.hasText(roadNameAddress) && !StringUtils.hasText(lotNumberAddress))) {
-            throw new DeliveryAddressException();
+            throw DeliveryAddressException.INVALID_DELIVERY_ADDRESS;
         }
 
         this.recipientName = recipientName;

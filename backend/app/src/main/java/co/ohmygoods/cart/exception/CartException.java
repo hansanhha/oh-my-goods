@@ -8,6 +8,7 @@ public class CartException extends DomainException {
     public static final CartException ALREADY_EXIST_PRODUCT = new CartException(CartError.ALREADY_EXIST_PRODUCT);
     public static final CartException EXCEED_CART_MAX_LIMIT = new CartException(CartError.EXCEED_CART_MAX_LIMIT);
     public static final CartException EXCEED_PRODUCT_MAX_LIMIT = new CartException(CartError.EXCEED_PRODUCT_MAX_LIMIT);
+    public static final CartException INVALID_QUANTITY = new CartException(CartError.INVALID_QUANTITY);
 
     public CartException(CartError cartError) {
         super(cartError);

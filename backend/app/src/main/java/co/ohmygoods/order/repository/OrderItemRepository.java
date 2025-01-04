@@ -6,7 +6,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-import java.lang.ScopedValue;
 import java.util.Optional;
 
 public interface OrderItemRepository extends CrudRepository<OrderItem, Long> {

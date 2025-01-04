@@ -38,7 +38,7 @@ public class Cart extends BaseEntity {
 
     public void updateQuantity(int quantity) {
         if (quantity <= 0) {
-            throw CartException.invalidQuantity(id, quantity);
+            throw CartException.INVALID_QUANTITY;
         }
 
         this.quantity = quantity;

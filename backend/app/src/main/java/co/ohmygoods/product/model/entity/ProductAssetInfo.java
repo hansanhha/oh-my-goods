@@ -18,7 +18,7 @@ public class ProductAssetInfo {
 
     private UUID assetId;
 
-    private int order;
+    private int assetOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")

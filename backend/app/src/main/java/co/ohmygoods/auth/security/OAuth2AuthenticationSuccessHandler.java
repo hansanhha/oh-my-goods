@@ -9,6 +9,7 @@ import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.RedirectStrategy;
@@ -37,8 +38,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final String redirectBaseUri;
-    private final RedirectStrategy redirectService;
+    private final OAuth2LoginSuccessRedirectHandler redirectHandler;
     private final AccountService accountService;
     private final OAuth2AttributeService oAuth2AttributeService;
 
@@ -67,8 +67,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         request.setAttribute("accessToken", signInResponse.accessToken());
         request.setAttribute("refreshToken", signInResponse.refreshToken());
 
-        redirectService.sendRedirect(request, response, redirectBaseUri);
+        redirectHandler.sendRedirect(request, response);
     }
-
 
 }

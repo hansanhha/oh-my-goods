@@ -15,11 +15,7 @@ class CouponValidationService {
 
     public static void validateBeforeUse(CouponUsageStatus status, int minimumPurchasePrice, int productPrice) {
         if (status.equals(CouponUsageStatus.USED)) {
-            CouponException.throwAlreadyUsedCoupon();
-        }
-
-        if (minimumPurchasePrice < productPrice) {
-            throw new CouponException();
+            throw CouponException.COUPON_ALREADY_USED;
         }
     }
 
@@ -51,13 +47,13 @@ class CouponValidationService {
 
     private static void validateMaxIssuedCountPerAccount(int issuedSameCouponCountToAccount, int maxIssuedCountPerAccount) {
         if (issuedSameCouponCountToAccount >= maxIssuedCountPerAccount) {
-            CouponException.throwExceedMaxIssuedCountPerAccount();
+            throw CouponException.EXCEED_COUPON_ISSUANCE_LIMIT;
         }
     }
 
     private static void validateOverTotalIssueCount(Coupon coupon) {
         if (coupon.getIssuedCount() >= coupon.getMaxIssuableQuantity()) {
-            CouponException.throwExhausted();
+            throw CouponException.EXHAUSTED_COUPON_ISSUANCE;
         }
     }
 

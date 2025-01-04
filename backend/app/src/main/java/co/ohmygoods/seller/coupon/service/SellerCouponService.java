@@ -2,6 +2,7 @@ package co.ohmygoods.seller.coupon.service;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.coupon.exception.CouponException;
 import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.coupon.model.entity.CouponProductMapping;
@@ -9,14 +10,15 @@ import co.ohmygoods.coupon.model.entity.CouponShopMapping;
 import co.ohmygoods.coupon.model.vo.CouponDiscountType;
 import co.ohmygoods.coupon.model.vo.CouponIssuanceTarget;
 import co.ohmygoods.coupon.model.vo.CouponIssueQuantityLimitType;
-import co.ohmygoods.coupon.repository.CouponUsageHistoryRepository;
 import co.ohmygoods.coupon.repository.CouponProductMappingRepository;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.repository.CouponShopMappingRepository;
+import co.ohmygoods.coupon.repository.CouponUsageHistoryRepository;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.seller.coupon.service.dto.CreateShopCouponRequest;
 import co.ohmygoods.seller.coupon.service.dto.ShopCouponResponse;
+import co.ohmygoods.shop.exception.ShopException;
 import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,8 +51,8 @@ public class SellerCouponService {
         - 최대 할인 금액 설정
      */
     public ShopCouponResponse createShopCoupon(CreateShopCouponRequest request) {
-        Account issuer = accountRepository.findByMemberId(request.sellerMemberId()).orElseThrow(CouponException::notFoundIssuer);
-        Shop shop = shopRepository.findByOwnerMemberId(request.sellerMemberId()).orElseThrow(CouponException::notFoundShop);
+        Account issuer = accountRepository.findByMemberId(request.sellerMemberId()).orElseThrow(AuthException::notFoundAccount);
+        Shop shop = shopRepository.findByOwnerMemberId(request.sellerMemberId()).orElseThrow(ShopException::notFoundShop);
 
         CouponIssueQuantityLimitType issueQuantityLimitType = CouponIssueQuantityLimitType.get(
                 request.isLimitedMaxIssueCount(), request.isLimitedUsageCountPerAccount());
@@ -94,7 +96,7 @@ public class SellerCouponService {
     }
 
     public List<ShopCouponResponse> getShopCouponCreationHistory(String sellerMemberId, Pageable pageable) {
-        Shop shop = shopRepository.findByOwnerMemberId(sellerMemberId).orElseThrow(CouponException::notFoundShop);
+        Shop shop = shopRepository.findByOwnerMemberId(sellerMemberId).orElseThrow(ShopException::notFoundShop);
         List<Coupon> coupons = couponRepository.fetchAllByShop(shop, pageable);
 
         return coupons
@@ -104,7 +106,7 @@ public class SellerCouponService {
     }
 
     public void destroyIssuingShopCoupon(String sellerMemberId, Long couponId) {
-        Shop shop = shopRepository.findByOwnerMemberId(sellerMemberId).orElseThrow(CouponException::notFoundShop);
+        Shop shop = shopRepository.findByOwnerMemberId(sellerMemberId).orElseThrow(ShopException::notFoundShop);
         Coupon coupon = couponRepository.findByShopAndCouponId(shop, couponId).orElseThrow(CouponException::notFoundCoupon);
 
         coupon.destroy();
