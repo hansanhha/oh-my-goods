@@ -19,22 +19,22 @@ public class OrderPaymentProcessListener implements PaymentProcessListener {
 
     @Override
     public void onSuccess(Long paymentId) {
-        Order order = orderRepository.findByPaymentId(paymentId).orElseThrow(OrderException::notFoundOrder);
-
-        orderTransactionService.successOrder(order.getId());
+//        Order order = orderRepository.findByPaymentId(paymentId).orElseThrow(OrderException::notFoundOrder);
+//
+//        orderTransactionService.successOrder(order.getId());
     }
 
     @Override
     public void onCancel(Long paymentId) {
-        Order order = orderRepository.findByPaymentId(paymentId).orElseThrow(OrderException::notFoundOrder);
-
-        orderTransactionService.cancelOrderByPaymentCancellation(order.getId());
+//        Order order = orderRepository.findByPaymentId(paymentId).orElseThrow(OrderException::notFoundOrder);
+//
+//        orderTransactionService.cancelOrderByPaymentCancellation(order.getId());
     }
 
     @Override
     public void onFailure(Long paymentId, PaymentStatus paymentFailureCause) {
-        Order order = orderRepository.findByPaymentId(paymentId).orElseThrow(OrderException::notFoundOrder);
-
-        orderTransactionService.failOrderByPaymentFailed(order.getId(), paymentFailureCause);
+//        Order order = orderRepository.findByPaymentId(paymentId).orElseThrow(OrderException::notFoundOrder);
+//
+//        orderTransactionService.failOrderByPaymentFailed(order.getId(), paymentFailureCause);
     }
 }

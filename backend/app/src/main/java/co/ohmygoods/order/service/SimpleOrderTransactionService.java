@@ -17,6 +17,9 @@ import co.ohmygoods.order.repository.OrderItemRepository;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.order.service.dto.OrderCheckoutRequest;
 import co.ohmygoods.order.service.dto.OrderCheckoutResponse;
+import co.ohmygoods.payment.model.event.PaymentCancelEvent;
+import co.ohmygoods.payment.model.event.PaymentFailureEvent;
+import co.ohmygoods.payment.model.event.PaymentSuccessEvent;
 import co.ohmygoods.payment.model.vo.PaymentStatus;
 import co.ohmygoods.payment.model.vo.UserAgent;
 import co.ohmygoods.payment.service.PaymentGateway;
@@ -26,6 +29,7 @@ import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -161,9 +165,10 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
                 order.getTransactionId(), order.getCreatedAt());
     }
 
+    @EventListener(PaymentSuccessEvent.class)
     @Override
-    public void successOrder(Long orderId) {
-        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::notFoundOrder);
+    public void successOrder(PaymentSuccessEvent event) {
+        Order order = orderRepository.findByPaymentId(event.paymentId()).orElseThrow(OrderException::notFoundOrder);
 
         List<OrderItem> orderItems = order.getOrderItems();
 
@@ -191,9 +196,10 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
         order.ordered();
     }
 
+    @EventListener(PaymentCancelEvent.class)
     @Override
-    public void cancelOrderByPaymentCancellation(Long orderId) {
-        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::notFoundOrder);
+    public void cancelOrderByPaymentCancellation(PaymentCancelEvent event) {
+        Order order = orderRepository.findByPaymentId(event.paymentId()).orElseThrow(OrderException::notFoundOrder);
 
         List<Long> couponUsageHistoryIds = order.getOrderItems().stream()
                 .map(OrderItem::getCouponUsageHistory)
@@ -206,9 +212,10 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
         order.cancel();
     }
 
+    @EventListener(PaymentFailureEvent.class)
     @Override
-    public void failOrderByPaymentFailed(Long orderId, PaymentStatus paymentFailureCause) {
-        Order order = orderRepository.fetchOrderItemsAndProductById(orderId).orElseThrow(OrderException::notFoundOrder);
+    public void failOrderByPaymentFailed(PaymentFailureEvent event) {
+        Order order = orderRepository.findByPaymentId(event.paymentId()).orElseThrow(OrderException::notFoundOrder);
 
         List<Long> couponUsageHistoryIds = order.getOrderItems().stream()
                 .map(OrderItem::getCouponUsageHistory)
@@ -218,7 +225,7 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
 
         couponService.restoreAppliedCoupon(order.getAccount().getEmail(), couponUsageHistoryIds);
 
-        order.fail(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE, paymentFailureCause);
+        order.fail(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE, event.paymentFailureCause());
     }
 
     private String generatePaymentName(Order order) {

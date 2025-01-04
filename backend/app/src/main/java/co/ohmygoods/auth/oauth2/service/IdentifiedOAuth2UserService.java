@@ -51,9 +51,11 @@ public class IdentifiedOAuth2UserService extends DefaultOAuth2UserService {
 
         Optional<Account> account = accountRepository.findByOauth2MemberId(combinedOAuth2MemberId);
 
+        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+
         return account
-                .map(account_ -> new IdentifiedOAuthUser(oAuth2User, account_.getMemberId(), false))
-                .orElseGet(() -> new IdentifiedOAuthUser(oAuth2User, UUID.randomUUID().toString(), true));
+                .map(account_ -> new IdentifiedOAuthUser(oAuth2User, account_.getMemberId(), false, userNameAttributeName))
+                .orElseGet(() -> new IdentifiedOAuthUser(oAuth2User, UUID.randomUUID().toString(), true, userNameAttributeName));
     }
 
 }

@@ -3,6 +3,7 @@ package co.ohmygoods.auth.oauth2.service;
 import co.ohmygoods.auth.account.service.AccountService;
 import co.ohmygoods.auth.security.OAuth2AuthenticationSuccessHandler;
 import lombok.Getter;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 
 /**
@@ -25,8 +26,8 @@ public class IdentifiedOAuthUser extends DefaultOAuth2User {
     private final String memberId;
     private final boolean firstLogin;
 
-    public IdentifiedOAuthUser(DefaultOAuth2User defaultOAuth2User, String memberId, boolean firstLogin) {
-        super(defaultOAuth2User.getAuthorities(), defaultOAuth2User.getAttributes(), null);
+    public IdentifiedOAuthUser(DefaultOAuth2User defaultOAuth2User, String memberId, boolean firstLogin, String usernameAttributeName) {
+        super(defaultOAuth2User.getAuthorities(), defaultOAuth2User.getAttributes(), usernameAttributeName);
         this.memberId = memberId;
         this.firstLogin = firstLogin;
     }

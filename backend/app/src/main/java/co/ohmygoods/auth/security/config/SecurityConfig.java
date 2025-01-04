@@ -53,10 +53,9 @@ public class SecurityConfig {
                 .cors(config -> config.configurationSource(buildCorsConfigurationSource(corsProperties)))
                 .authorizeHttpRequests(config -> config
                         .requestMatchers(oAuth2LoginProcessingUrlString()).permitAll()
-                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                        .anyRequest().authenticated()
-                        .requestMatchers(sellerRequestMatcher()).hasRole(Role.SELLER.name()))
+                        .requestMatchers(sellerRequestMatcher()).hasRole(Role.SELLER.name())
+                        .dispatcherTypeMatchers(permitDispatcherTypes()).permitAll()
+                        .anyRequest().authenticated())
                 .oauth2Login(config -> config
                         .loginProcessingUrl(whitelist.getOauth2LoginProcessingUrl())
                         .userInfoEndpoint(endpoint -> endpoint.userService(identifiedOAuth2UserService))
@@ -84,6 +83,12 @@ public class SecurityConfig {
             config.setExposedHeaders(corsProperties.getAccessControlExposeHeaders());
             config.setAllowCredentials(corsProperties.isAccessControlAllowCredentials());
             return config;
+        };
+    }
+
+    private DispatcherType[] permitDispatcherTypes() {
+        return new DispatcherType[] {
+                DispatcherType.ERROR, DispatcherType.FORWARD
         };
     }
 

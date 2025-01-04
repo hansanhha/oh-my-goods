@@ -1,18 +1,16 @@
 package co.ohmygoods.auth.security;
 
-import co.ohmygoods.auth.oauth2.service.IdentifiedOAuthUser;
-import co.ohmygoods.auth.oauth2.service.OAuth2AttributeService;
 import co.ohmygoods.auth.account.service.AccountService;
 import co.ohmygoods.auth.account.service.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.account.service.dto.SignInResponse;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
+import co.ohmygoods.auth.oauth2.service.IdentifiedOAuthUser;
+import co.ohmygoods.auth.oauth2.service.OAuth2AttributeService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +35,9 @@ import java.util.Map;
 @Transactional
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
+    public static final String ACCESS_TOKEN_REQUEST_ATTRIBUTE_NAME = "accessToken";
+    public static final String REFRESH_TOKEN_REQUEST_ATTRIBUTE_NAME = "refreshToken";
 
     private final OAuth2LoginSuccessRedirectHandler redirectHandler;
     private final AccountService accountService;
@@ -64,8 +65,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         SignInResponse signInResponse = accountService.signIn(identifiedOAuthUser.getMemberId());
 
-        request.setAttribute("accessToken", signInResponse.accessToken());
-        request.setAttribute("refreshToken", signInResponse.refreshToken());
+        request.setAttribute(ACCESS_TOKEN_REQUEST_ATTRIBUTE_NAME, signInResponse.accessToken().tokenValue());
+        request.setAttribute(REFRESH_TOKEN_REQUEST_ATTRIBUTE_NAME, signInResponse.refreshToken().tokenValue());
 
         redirectHandler.sendRedirect(request, response);
     }

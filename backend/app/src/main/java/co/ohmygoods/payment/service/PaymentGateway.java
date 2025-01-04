@@ -1,9 +1,13 @@
 package co.ohmygoods.payment.service;
 
 import co.ohmygoods.payment.exception.PaymentException;
-import co.ohmygoods.payment.service.dto.*;
+import co.ohmygoods.payment.model.event.PaymentCancelEvent;
+import co.ohmygoods.payment.model.event.PaymentFailureEvent;
+import co.ohmygoods.payment.model.event.PaymentSuccessEvent;
 import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
+import co.ohmygoods.payment.service.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +33,7 @@ public class PaymentGateway {
 
     private final PaymentService paymentService;
     private final List<PaymentExternalRequestService> paymentExternalRequestServices;
-    private final List<PaymentProcessListener> paymentProcessListeners;
+    private final ApplicationEventPublisher paymentEventPublisher;
 
     public PaymentStartResponse startPayment(PreparePaymentRequest request) {
         Long paymentId = paymentService.createPayment(request.externalPaymentVendor(),
@@ -47,8 +51,7 @@ public class PaymentGateway {
 
             paymentService.failPayment(request.orderTransactionId(), externalResponse.externalError().paymentFailureCause(), failedAt);
 
-            paymentProcessListeners.forEach(listener ->
-                    listener.onFailure(paymentId, externalResponse.externalError().paymentFailureCause()));
+            paymentEventPublisher.publishEvent(new PaymentFailureEvent(paymentId, externalResponse.externalError().paymentFailureCause()));
 
             return PaymentStartResponse.fail(request.accountEmail(), request.paymentAmount(), request.externalPaymentVendor(),
                     externalResponse.externalError().paymentFailureCause(), startedAt, failedAt);
@@ -72,8 +75,7 @@ public class PaymentGateway {
 
             Long paymentId = paymentService.failPayment(request.orderTransactionId(), externalResponse.externalError().paymentFailureCause(), failedAt);
 
-            paymentProcessListeners.forEach(listener ->
-                    listener.onFailure(paymentId, externalResponse.externalError().paymentFailureCause()));
+            paymentEventPublisher.publishEvent(new PaymentFailureEvent(paymentId, externalResponse.externalError().paymentFailureCause()));
 
             return PaymentEndResponse.fail(externalResponse.accountEmail(), paymentId, request.orderTransactionId(),
                     externalResponse.paymentAmount(), request.externalPaymentVendor(), externalResponse.externalError().paymentFailureCause(),
@@ -82,7 +84,7 @@ public class PaymentGateway {
 
         Long paymentId = paymentService.successPayment(externalResponse.externalTransactionId(), externalResponse.approvedAt());
 
-        paymentProcessListeners.forEach(listener -> listener.onSuccess(paymentId));
+        paymentEventPublisher.publishEvent(new PaymentSuccessEvent(paymentId));
 
         return PaymentEndResponse.success(externalResponse.accountEmail(), paymentId, request.orderTransactionId(),
                 externalResponse.paymentAmount(), request.externalPaymentVendor(), externalResponse.startedAt(), externalResponse.approvedAt());
@@ -91,7 +93,7 @@ public class PaymentGateway {
     public void cancelPayment(ExternalPaymentVendor vendor, String orderTransactionId) {
         Long paymentId = paymentService.cancelPayment(orderTransactionId, LocalDateTime.now());
 
-        paymentProcessListeners.forEach(listener -> listener.onCancel(paymentId));
+        paymentEventPublisher.publishEvent(new PaymentCancelEvent(paymentId));
     }
 
     public void failPayment(ExternalPaymentVendor vendor, String orderTransactionId, Object failureInfo) {
@@ -101,8 +103,7 @@ public class PaymentGateway {
 
         Long paymentId = paymentService.failPayment(orderTransactionId, externalPaymentError.paymentFailureCause(), LocalDateTime.now());
 
-        paymentProcessListeners.forEach(listener ->
-                listener.onFailure(paymentId, externalPaymentError.paymentFailureCause()));
+        paymentEventPublisher.publishEvent(new PaymentFailureEvent(paymentId, externalPaymentError.paymentFailureCause()));
     }
 
     private PaymentExternalRequestService findSupportPaymentExternalApiService(ExternalPaymentVendor externalPaymentVendor) {

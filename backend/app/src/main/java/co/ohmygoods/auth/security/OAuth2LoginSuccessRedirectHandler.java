@@ -10,6 +10,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
+import static co.ohmygoods.auth.security.OAuth2AuthenticationSuccessHandler.ACCESS_TOKEN_REQUEST_ATTRIBUTE_NAME;
+import static co.ohmygoods.auth.security.OAuth2AuthenticationSuccessHandler.REFRESH_TOKEN_REQUEST_ATTRIBUTE_NAME;
+
 @Component
 public class OAuth2LoginSuccessRedirectHandler implements RedirectStrategy {
 
@@ -24,11 +27,21 @@ public class OAuth2LoginSuccessRedirectHandler implements RedirectStrategy {
 
     @Override
     public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url) throws IOException {
-        String uriString = UriComponentsBuilder.fromUriString(successRedirectBaseUrl)
-                .queryParam("access_token", request.getAttribute("access_token"))
-                .queryParam("refresh_token", request.getAttribute("refresh_token"))
+//        String uriString = UriComponentsBuilder.newInstance()
+//                .scheme("http")
+//                .host("localhost")
+//                .port(8080)
+//                .path("/oauth2/redirect")
+//                .queryParam("access_token", request.getAttribute(ACCESS_TOKEN_REQUEST_ATTRIBUTE_NAME))
+//                .queryParam("refresh_token", request.getAttribute(REFRESH_TOKEN_REQUEST_ATTRIBUTE_NAME))
+//                .build().toUriString();
+        String uriString = UriComponentsBuilder.fromUriString(url)
+                .queryParam("access_token", request.getAttribute(ACCESS_TOKEN_REQUEST_ATTRIBUTE_NAME))
+                .queryParam("refresh_token", request.getAttribute(REFRESH_TOKEN_REQUEST_ATTRIBUTE_NAME))
                 .build().toUriString();
 
         redirectStrategy.sendRedirect(request, response, uriString);
+
     }
+
 }

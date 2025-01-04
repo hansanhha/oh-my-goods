@@ -72,7 +72,7 @@ public class ReviewService {
             하나의 주문 건엔 하나의 리뷰만 남길 수 있음
             해당 주문 건에 대해 이미 작성한 리뷰가 있는 경우 예외 발생
          */
-        reviewRepository.findReviewByOrder(orderItem).ifPresent(review -> {
+        reviewRepository.findReviewByOrderItem(orderItem).ifPresent(review -> {
             throw ReviewException.ALREADY_WRITTEN_REVIEW;
         });
 

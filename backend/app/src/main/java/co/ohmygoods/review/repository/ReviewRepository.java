@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface ReviewRepository extends CrudRepository<Review, Long> {
 
-    Optional<Review> findReviewByOrder(OrderItem orderItem);
+    Optional<Review> findReviewByOrderItem(OrderItem orderItem);
 
     @Query("SELECT r " +
             "FROM Review r " +
