@@ -14,7 +14,11 @@ public abstract class DomainException extends RuntimeException {
         this(domainError, null);
     }
 
-    public DomainException(DomainError domainError, DomainErrorAdditionalAttributes additionalAttributes) {
+    public DomainException(DomainError domainError, URI type, URI instance) {
+        this(domainError, new DomainErrorAdditionalAttributes(type, instance));
+    }
+
+    private DomainException(DomainError domainError, DomainErrorAdditionalAttributes additionalAttributes) {
         super(domainError.getErrorDetailMessage() + ", exception source: " + Thread.currentThread().getStackTrace()[5]);
         this.domainError = domainError;
         this.additionalAttributes = additionalAttributes;

@@ -1,6 +1,7 @@
 package co.ohmygoods.order.controller;
 
 import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
+import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.order.controller.dto.OrderCheckoutWebRequest;
 import co.ohmygoods.order.service.OrderManagementService;
 import co.ohmygoods.order.service.OrderTransactionService;
@@ -19,6 +20,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static co.ohmygoods.global.idempotency.service.IdempotencyService.IDEMPOTENCY_HEADER_NAME;
 
 @RequestMapping("/api/orders")
 @RestController
@@ -44,6 +47,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<?> checkout(@AuthenticationPrincipal AuthenticatedAccount account,
+                                      @RequestHeader(IDEMPOTENCY_HEADER_NAME) String idempotencyKey,
                                       @RequestBody OrderCheckoutWebRequest request) {
 
         List<OrderCheckoutRequest.OrderProductDetail> orderProductDetails = request.orderDetails().stream()

@@ -27,7 +27,6 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
 
     private final JwtValidator jwtValidator;
     private final List<RequestMatcher> permitRequests;
-    private final Converter<JwtValidationResult, JwtAuthenticationToken> jwtValidationResultConverter = this::createJwtAuthenticationToken;
 
     @Override
     protected Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -39,7 +38,7 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
             throw validationResult.error();
         }
 
-        return jwtValidationResultConverter.convert(validationResult);
+        return createJwtAuthenticationToken(validationResult, jwt);
     }
 
     private String extractBearerToken(HttpServletRequest request) {
@@ -52,8 +51,8 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
         return authorizationHeader.replace(BEARER, "");
     }
 
-    private JwtAuthenticationToken createJwtAuthenticationToken(JwtValidationResult validationResult) {
-        return new JwtAuthenticationToken(new AuthenticatedAccount(validationResult.getSubject(), validationResult.getRole()));
+    private JwtAuthenticationToken createJwtAuthenticationToken(JwtValidationResult validationResult, String jwt) {
+        return new JwtAuthenticationToken(new AuthenticatedAccount(jwt, validationResult.getSubject(), validationResult.getRole()));
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.springframework.security.core.AuthenticatedPrincipal;
  * @param role 계정 Role (spring security RBAC)
  */
 public record AuthenticatedAccount(
+        String jwt,
         String memberId,
         Role role) implements AuthenticatedPrincipal {
 
