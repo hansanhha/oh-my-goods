@@ -5,12 +5,15 @@ import co.ohmygoods.cart.model.entity.Cart;
 import co.ohmygoods.cart.service.CartService;
 import co.ohmygoods.cart.service.dto.AddCartRequest;
 import co.ohmygoods.cart.service.dto.UpdateCartQuantityRequest;
+import co.ohmygoods.global.idempotency.aop.Idempotent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
 
 @RequestMapping("/api/carts")
 @RestController
@@ -28,7 +31,9 @@ public class CartController {
     }
 
     @PostMapping
+    @Idempotent
     public void addCart(@AuthenticationPrincipal AuthenticatedAccount account,
+                        @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                         @RequestParam Long productId) {
         cartService.add(new AddCartRequest(account.memberId(), productId));
     }

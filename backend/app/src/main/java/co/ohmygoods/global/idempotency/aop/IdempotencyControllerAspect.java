@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import static co.ohmygoods.global.idempotency.service.IdempotencyService.IDEMPOTENCY_HEADER_NAME;
+import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
 
 @Aspect
 @Component
@@ -109,7 +109,7 @@ public class IdempotencyControllerAspect {
             Parameter param = params[i];
 
             if (param.isAnnotationPresent(RequestHeader.class) &&
-                    param.getAnnotation(RequestHeader.class).value().equals(IDEMPOTENCY_HEADER_NAME)) {
+                    param.getAnnotation(RequestHeader.class).value().equals(IDEMPOTENCY_HEADER)) {
                 info.setIdempotencyKey((String) joinPoint.getArgs()[i]);
             }
 

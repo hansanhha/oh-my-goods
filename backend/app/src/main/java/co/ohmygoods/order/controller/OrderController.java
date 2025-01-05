@@ -10,9 +10,7 @@ import co.ohmygoods.order.service.dto.OrderCheckoutResponse;
 import co.ohmygoods.order.service.dto.OrderItemDetailResponse;
 import co.ohmygoods.order.service.dto.OrderItemResponse;
 import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static co.ohmygoods.global.idempotency.service.IdempotencyService.IDEMPOTENCY_HEADER_NAME;
+import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
 
 @RequestMapping("/api/orders")
 @RestController
@@ -46,8 +44,9 @@ public class OrderController {
     }
 
     @PostMapping
+    @Idempotent
     public ResponseEntity<?> checkout(@AuthenticationPrincipal AuthenticatedAccount account,
-                                      @RequestHeader(IDEMPOTENCY_HEADER_NAME) String idempotencyKey,
+                                      @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                                       @RequestBody OrderCheckoutWebRequest request) {
 
         List<OrderCheckoutRequest.OrderProductDetail> orderProductDetails = request.orderDetails().stream()

@@ -1,6 +1,7 @@
 package co.ohmygoods.seller.product.controller;
 
 import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
+import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductType;
 import co.ohmygoods.seller.product.service.SellerProductRegistrationService;
@@ -19,6 +20,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
+
 @RequestMapping("/api/seller/product")
 @RestController
 @RequiredArgsConstructor
@@ -36,7 +39,9 @@ public class SellerProductController {
     }
 
     @PostMapping
+    @Idempotent
     public ResponseEntity<?> registerProduct(@AuthenticationPrincipal AuthenticatedAccount account,
+                                             @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                                              @RequestBody RegisterProductWebRequest request) {
 
         RegisterProductRequest registerProductRequest = RegisterProductRequest.builder()
@@ -62,7 +67,9 @@ public class SellerProductController {
     }
 
     @PatchMapping("/{productId}/metadata")
+    @Idempotent
     public ResponseEntity<?> updateProductMetadata(@AuthenticationPrincipal AuthenticatedAccount account,
+                                                   @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                                                    @PathVariable Long productId,
                                                    @RequestBody UpdateProductMetadataWebRequest request) {
 

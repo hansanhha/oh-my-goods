@@ -1,6 +1,7 @@
 package co.ohmygoods.seller.coupon.controller;
 
 import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
+import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.seller.coupon.controller.dto.CreateShopCouponWebRequest;
 import co.ohmygoods.seller.coupon.service.SellerCouponService;
 import co.ohmygoods.seller.coupon.service.dto.CreateShopCouponRequest;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+
+import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
 
 @RequestMapping("/api/seller/coupon")
 @RestController
@@ -33,7 +36,9 @@ public class SellerCouponController {
     }
 
     @PostMapping
+    @Idempotent
     public ResponseEntity<?> createShopCoupon(@AuthenticationPrincipal AuthenticatedAccount account,
+                                              @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                                               @RequestBody CreateShopCouponWebRequest request) {
 
         CreateShopCouponRequest createShopCouponRequest = CreateShopCouponRequest.builder()

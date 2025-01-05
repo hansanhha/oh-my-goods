@@ -1,9 +1,9 @@
 package co.ohmygoods.global.idempotency.service;
 
-import co.ohmygoods.global.idempotency.service.dto.IdempotencyRequest;
-import co.ohmygoods.global.idempotency.service.dto.IdempotencyResponse;
 import co.ohmygoods.global.idempotency.entity.Idempotency;
 import co.ohmygoods.global.idempotency.exception.IdempotencyException;
+import co.ohmygoods.global.idempotency.service.dto.IdempotencyRequest;
+import co.ohmygoods.global.idempotency.service.dto.IdempotencyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatusCode;
@@ -14,8 +14,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class IdempotencyService {
-
-    public static final String IDEMPOTENCY_HEADER_NAME = "Idempotency-Key";
 
     private final RedisTemplate<String, Idempotency> redisTemplate;
     private final IdempotencyCacheKeyGenerator cacheKeyGenerator;
