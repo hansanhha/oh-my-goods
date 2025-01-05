@@ -35,7 +35,7 @@ import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class IdempotencyControllerAspect {
+public class ControllerIdempotencyAspect {
 
     private final IdempotencyService idempotencyService;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -43,7 +43,8 @@ public class IdempotencyControllerAspect {
     @Around("@annotation(org.springframework.stereotype.Controller) && " +
             "@annotation(co.ohmygoods.global.idempotency.aop.Idempotent)")
     public Object processIdempotency(ProceedingJoinPoint controller) throws Throwable {
-        IdempotencyRequest request = getIdempotencyRequest(controller);
+
+        IdempotencyRequest request = extractIdempotencyRequest(controller);
 
         if (idempotencyService.isCached(request)) {
             if (idempotencyService.isProcessing(request)) {
@@ -89,19 +90,19 @@ public class IdempotencyControllerAspect {
         throw IdempotencyException.FAILED_PARSE_IDEMPOTENCY_RESPONSE;
     }
 
-    private IdempotencyRequest getIdempotencyRequest(JoinPoint joinPoint) {
+    private IdempotencyRequest extractIdempotencyRequest(JoinPoint controller) {
         ExtractingIdempotencyInfo info = new ExtractingIdempotencyInfo();
 
-        extractRequireKey(info, joinPoint);
-        extractHttpInfo(info, joinPoint);
+        extractRequireKey(info, controller);
+        extractHttpInfo(info, controller);
 
         info.validate();
 
         return new IdempotencyRequest(info.idempotencyKey, info.httpMethod, info.servletPath, info.accessToken);
     }
 
-    private void extractRequireKey(ExtractingIdempotencyInfo info, JoinPoint joinPoint) {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+    private void extractRequireKey(ExtractingIdempotencyInfo info, JoinPoint controller) {
+        MethodSignature signature = (MethodSignature) controller.getSignature();
         Method method = signature.getMethod();
         Parameter[] params = method.getParameters();
 
@@ -110,12 +111,12 @@ public class IdempotencyControllerAspect {
 
             if (param.isAnnotationPresent(RequestHeader.class) &&
                     param.getAnnotation(RequestHeader.class).value().equals(IDEMPOTENCY_HEADER)) {
-                info.setIdempotencyKey((String) joinPoint.getArgs()[i]);
+                info.setIdempotencyKey((String) controller.getArgs()[i]);
             }
 
             if (param.isAnnotationPresent(AuthenticationPrincipal.class) &&
                     param.getType().equals(AuthenticatedAccount.class)) {
-                AuthenticatedAccount principal = (AuthenticatedAccount) joinPoint.getArgs()[i];
+                AuthenticatedAccount principal = (AuthenticatedAccount) controller.getArgs()[i];
                 info.setAccessToken(principal.jwt());
             }
         }
