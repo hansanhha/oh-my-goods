@@ -65,7 +65,7 @@ public class ReviewService {
     }
 
     public void writeReview(WriteReviewRequest request) {
-        Account account = accountRepository.findByEmail(request.accountEmail()).orElseThrow(AuthException::notFoundAccount);
+        Account account = accountRepository.findByMemberId(request.memberId()).orElseThrow(AuthException::notFoundAccount);
         OrderItem orderItem = orderItemRepository.fetchProductByOrderNumber(request.reviewOrderNumber()).orElseThrow(OrderException::notFoundOrderItem);
 
         /*
@@ -92,13 +92,13 @@ public class ReviewService {
 
     public void updateReview(UpdateReviewRequest request) {
         Review review = reviewRepository.findById(request.updateReviewId()).orElseThrow(ReviewException::notFoundReview);
-        Account account = accountRepository.findByEmail(request.reviewerEmail()).orElseThrow(AuthException::notFoundAccount);
+        Account account = accountRepository.findByMemberId(request.memberId()).orElseThrow(AuthException::notFoundAccount);
 
         if (!review.isNotReviewer(account)) {
             throw ReviewException.INVALID_AUTHORITY_WRITE_REVIEW;
         }
 
-        review.update(request.updateReviewContent());
+        review.update(request.reviewStarRating(), request.updateReviewContent());
 
         if (request.isUpdatedReviewImages()) {
 
@@ -124,25 +124,25 @@ public class ReviewService {
         reviewImageService.delete(reviewId);
     }
 
-    public void writeReviewComment(Long reviewId, String accountEmail, String reviewCommentContent) {
+    public void writeReviewComment(Long reviewId, String memberId, String reviewCommentContent) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(ReviewException::notFoundReview);
-        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(AuthException::notFoundAccount);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
         ReviewComment reviewComment = ReviewComment.write(review, account, reviewCommentContent);
 
         reviewCommentRepository.save(reviewComment);
     }
 
-    public void modifyReviewComment(Long reviewCommentId, String reviewCommenterEmail, String modifyReviewCommentContent) {
+    public void updateReviewComment(Long reviewCommentId, String memberId, String updateCommentContent) {
         ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId).orElseThrow(ReviewException::notFoundReview);
 
-        Account account = accountRepository.findByEmail(reviewCommenterEmail).orElseThrow(AuthException::notFoundAccount);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
         if (!reviewComment.isNotReviewCommenter(account)) {
             throw ReviewException.INVALID_AUTHORITY_WRITE_REVIEW_COMMENT;
         }
 
-        reviewComment.update(modifyReviewCommentContent);
+        reviewComment.update(updateCommentContent);
     }
 
     public void deleteReviewComment(Long reviewCommentId, String reviewCommenterEmail) {
@@ -156,9 +156,9 @@ public class ReviewService {
         reviewCommentRepository.delete(reviewComment);
     }
 
-    public void writeReviewReplyComment(Long reviewCommentId, String accountEmail, String reviewReplyCommentContent) {
+    public void writeReviewReplyComment(Long reviewCommentId, String memberId, String reviewReplyCommentContent) {
         ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId).orElseThrow(ReviewException::notFoundReviewComment);
-        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(AuthException::notFoundAccount);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
         ReviewComment reply = ReviewComment.reply(reviewComment, account, reviewReplyCommentContent);
 

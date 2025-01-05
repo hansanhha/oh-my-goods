@@ -6,7 +6,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public record UpdateReviewRequest(Long  updateReviewId,
-                                  String reviewerEmail,
+                                  String memberId,
+                                  int reviewStarRating,
                                   String updateReviewContent,
                                   boolean isUpdatedReviewImages,
                                   List<MultipartFile> updateReviewImages,

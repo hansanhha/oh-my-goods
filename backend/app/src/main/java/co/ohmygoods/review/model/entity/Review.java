@@ -52,7 +52,8 @@ public class Review extends LikeBaseEntity {
         return !reviewer.getEmail().equals(account.getEmail());
     }
 
-    public void update(String content) {
+    public void update(int starRating, String content) {
+        this.starRating = starRating;
         this.content = content;
     }
 
