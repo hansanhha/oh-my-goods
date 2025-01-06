@@ -91,7 +91,7 @@ public class SellerProductController {
 
     @DeleteMapping("/{productId}")
     public void delete(@AuthenticationPrincipal AuthenticatedAccount account,
-                                    @PathVariable Long productId) {
+                       @PathVariable Long productId) {
 
         registrationService.delete(account.memberId(), productId);
     }

@@ -2,7 +2,9 @@ package co.ohmygoods.review.controller;
 
 import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
 import co.ohmygoods.global.idempotency.aop.Idempotent;
+import co.ohmygoods.review.controller.dto.UpdateReviewCommentWebRequest;
 import co.ohmygoods.review.controller.dto.UpdateReviewWebRequest;
+import co.ohmygoods.review.controller.dto.WriteReviewCommentWebRequest;
 import co.ohmygoods.review.controller.dto.WriteReviewWebRequest;
 import co.ohmygoods.review.service.ReviewService;
 import co.ohmygoods.review.service.dto.UpdateReviewRequest;
@@ -22,7 +24,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/products/{productId}")
-    public void getReviews(@RequestParam("productId") Long productId,
+    public void getReviews(@PathVariable("productId") Long productId,
                            @RequestParam(required = false, defaultValue = "0") int page,
                            @RequestParam(required = false, defaultValue = "20") int size) {
 
@@ -30,7 +32,7 @@ public class ReviewController {
     }
 
     @GetMapping("/{reviewId}/comments")
-    public void getReviewComments(@RequestParam("reviewId") Long reviewId,
+    public void getReviewComments(@PathVariable("reviewId") Long reviewId,
                                   @RequestParam(required = false, defaultValue = "0") int page,
                                   @RequestParam(required = false, defaultValue = "20") int size) {
 
@@ -38,10 +40,10 @@ public class ReviewController {
     }
 
     @GetMapping("/{reviewId}/comments/{commentId}/replies")
-    public void getReviewReplyComments(@RequestParam("reviewId") Long reviewId,
-                                      @RequestParam("commentId") Long commentId,
-                                      @RequestParam(required = false, defaultValue = "0") int page,
-                                      @RequestParam(required = false, defaultValue = "20") int size) {
+    public void getReviewReplyComments(@PathVariable("reviewId") Long reviewId,
+                                       @RequestParam("commentId") Long commentId,
+                                       @RequestParam(required = false, defaultValue = "0") int page,
+                                       @RequestParam(required = false, defaultValue = "20") int size) {
 
         reviewService.getReviewReplyComments(reviewId, commentId, Pageable.ofSize(size).withPage(page));
     }
@@ -62,28 +64,28 @@ public class ReviewController {
     @Idempotent
     public void writeReviewComment(@AuthenticationPrincipal AuthenticatedAccount account,
                                    @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                                   @RequestParam("reviewId") Long reviewId,
-                                   @RequestBody String commentContent) {
+                                   @PathVariable("reviewId") Long reviewId,
+                                   @RequestBody WriteReviewCommentWebRequest request) {
 
-        reviewService.writeReviewComment(reviewId, account.memberId(), commentContent);
+        reviewService.writeReviewComment(reviewId, account.memberId(), request.reviewCommentContent());
     }
 
     @PostMapping("/{reviewId}/comments/{commentId}/reply")
     @Idempotent
     public void writeReviewCommentReply(@AuthenticationPrincipal AuthenticatedAccount account,
                                         @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                                        @RequestParam("reviewId") Long reviewId,
-                                        @RequestParam("commentId") Long commentId,
-                                        @RequestBody String replyContent) {
+                                        @PathVariable("reviewId") Long reviewId,
+                                        @PathVariable("commentId") Long commentId,
+                                        @RequestBody WriteReviewCommentWebRequest request) {
 
-        reviewService.writeReviewReplyComment(commentId, account.memberId(), replyContent);
+        reviewService.writeReviewReplyComment(commentId, account.memberId(), request.reviewCommentContent());
     }
 
     @PatchMapping("/{reviewId}")
     @Idempotent
     public void updateReview(@AuthenticationPrincipal AuthenticatedAccount account,
                              @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                             @RequestParam("reviewId") Long reviewId,
+                             @PathVariable("reviewId") Long reviewId,
                              @RequestBody UpdateReviewWebRequest request) {
 
         UpdateReviewRequest updateReviewRequest = new UpdateReviewRequest(reviewId, account.memberId(),
@@ -97,24 +99,24 @@ public class ReviewController {
     @Idempotent
     public void updateReviewComment(@AuthenticationPrincipal AuthenticatedAccount account,
                                     @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                                    @RequestParam("reviewId") Long reviewId,
-                                    @RequestParam("commentId") Long commentId,
-                                    @RequestBody String updateCommentContent) {
+                                    @PathVariable("reviewId") Long reviewId,
+                                    @PathVariable("commentId") Long commentId,
+                                    @RequestBody UpdateReviewCommentWebRequest request) {
 
-        reviewService.updateReviewComment(commentId, account.memberId(), updateCommentContent);
+        reviewService.updateReviewComment(commentId, account.memberId(), request.updateReviewCommentContent());
     }
 
     @DeleteMapping("/{reviewId}")
     public void deleteReview(@AuthenticationPrincipal AuthenticatedAccount account,
-                             @RequestParam("reviewId") Long reviewId) {
+                             @PathVariable("reviewId") Long reviewId) {
 
         reviewService.deleteReview(reviewId, account.memberId());
     }
 
     @DeleteMapping("/{reviewId}/comments/{commentId}")
     public void deleteReviewComment(@AuthenticationPrincipal AuthenticatedAccount account,
-                                   @RequestParam("reviewId") Long reviewId,
-                                   @RequestParam("commentId") Long commentId) {
+                                    @PathVariable("reviewId") Long reviewId,
+                                    @PathVariable("commentId") Long commentId) {
 
         reviewService.deleteReviewComment(commentId, account.memberId());
     }

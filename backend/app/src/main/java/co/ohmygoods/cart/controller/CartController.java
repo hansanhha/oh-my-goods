@@ -1,6 +1,7 @@
 package co.ohmygoods.cart.controller;
 
 import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
+import co.ohmygoods.cart.controller.dto.AddCartWebRequest;
 import co.ohmygoods.cart.model.entity.Cart;
 import co.ohmygoods.cart.service.CartService;
 import co.ohmygoods.cart.service.dto.AddCartRequest;
@@ -34,8 +35,8 @@ public class CartController {
     @Idempotent
     public void addCart(@AuthenticationPrincipal AuthenticatedAccount account,
                         @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                        @RequestParam Long productId) {
-        cartService.add(new AddCartRequest(account.memberId(), productId));
+                        @RequestBody AddCartWebRequest request) {
+        cartService.add(new AddCartRequest(account.memberId(), request.productId()));
     }
 
     @PutMapping("/{cartId}")

@@ -41,7 +41,7 @@ public class CouponController {
     @Idempotent
     public void issueCoupon(@AuthenticationPrincipal AuthenticatedAccount account,
                             @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                            @PathVariable Long couponId) {
+                            @PathVariable("couponId") Long couponId) {
         couponService.issueCoupon(account.memberId(), couponId);
     }
 }
