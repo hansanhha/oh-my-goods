@@ -9,6 +9,7 @@ import co.ohmygoods.seller.shop.controller.dto.CreateShopWebRequest;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
@@ -24,13 +25,13 @@ public class SellerShopController {
     @Idempotent
     public Long createShop(@AuthenticationPrincipal AuthenticatedAccount account,
                            @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                           @RequestBody CreateShopWebRequest request) {
+                           @RequestBody @Validated CreateShopWebRequest request) {
 
         return sellerShopService.createShop(new CreateShopRequest(account.memberId(),
                 request.createShopName(), request.createShopIntroduction()));
     }
 
-    @PatchMapping("/status")
+    @PatchMapping("/inactive")
     @Idempotent
     public void inactiveShop(@AuthenticationPrincipal AuthenticatedAccount account,
                              @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey) {

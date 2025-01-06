@@ -4,6 +4,7 @@ import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
 import co.ohmygoods.coupon.service.CouponService;
 import co.ohmygoods.coupon.service.dto.ApplicableIssuedCouponResponse;
 import co.ohmygoods.global.idempotency.aop.Idempotent;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -41,7 +42,7 @@ public class CouponController {
     @Idempotent
     public void issueCoupon(@AuthenticationPrincipal AuthenticatedAccount account,
                             @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                            @PathVariable("couponId") Long couponId) {
+                            @PathVariable("couponId") @Positive("올바르지 않은 쿠폰 id입니다") Long couponId) {
         couponService.issueCoupon(account.memberId(), couponId);
     }
 }

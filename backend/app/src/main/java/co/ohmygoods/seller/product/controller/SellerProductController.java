@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -42,7 +43,7 @@ public class SellerProductController {
     @Idempotent
     public ResponseEntity<?> registerProduct(@AuthenticationPrincipal AuthenticatedAccount account,
                                              @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                                             @RequestBody RegisterProductWebRequest request) {
+                                             @RequestBody @Validated RegisterProductWebRequest request) {
 
         RegisterProductRequest registerProductRequest = RegisterProductRequest.builder()
                 .ownerMemberId(account.memberId())
@@ -71,7 +72,7 @@ public class SellerProductController {
     public ResponseEntity<?> updateProductMetadata(@AuthenticationPrincipal AuthenticatedAccount account,
                                                    @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                                                    @PathVariable Long productId,
-                                                   @RequestBody UpdateProductMetadataWebRequest request) {
+                                                   @RequestBody @Validated UpdateProductMetadataWebRequest request) {
 
         UpdateProductMetadataRequest updateProductMetadataRequest = UpdateProductMetadataRequest.builder()
                 .ownerMemberId(account.memberId())

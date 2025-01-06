@@ -1,6 +1,7 @@
 package co.ohmygoods.review.controller;
 
 import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
+import co.ohmygoods.file.model.vo.StorageStrategy;
 import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.review.controller.dto.UpdateReviewCommentWebRequest;
 import co.ohmygoods.review.controller.dto.UpdateReviewWebRequest;
@@ -12,6 +13,7 @@ import co.ohmygoods.review.service.dto.WriteReviewRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
@@ -41,7 +43,7 @@ public class ReviewController {
 
     @GetMapping("/{reviewId}/comments/{commentId}/replies")
     public void getReviewReplyComments(@PathVariable("reviewId") Long reviewId,
-                                       @RequestParam("commentId") Long commentId,
+                                       @PathVariable("commentId") Long commentId,
                                        @RequestParam(required = false, defaultValue = "0") int page,
                                        @RequestParam(required = false, defaultValue = "20") int size) {
 
@@ -52,10 +54,11 @@ public class ReviewController {
     @Idempotent
     public void writeReview(@AuthenticationPrincipal AuthenticatedAccount account,
                             @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                            @RequestBody WriteReviewWebRequest request) {
+                            @RequestBody @Validated WriteReviewWebRequest request) {
 
         WriteReviewRequest writeReviewRequest = new WriteReviewRequest(request.reviewOrderNumber(),
-                account.memberId(), request.reviewContent(), request.reviewStarRating(), request.reviewImages(), request.storageStrategy());
+                account.memberId(), request.reviewContent(), request.reviewStarRating(), request.reviewImages(),
+                request.storageStrategy() != null ? request.storageStrategy() : StorageStrategy.CLOUD_STORAGE_API);
 
         reviewService.writeReview(writeReviewRequest);
     }
@@ -65,7 +68,7 @@ public class ReviewController {
     public void writeReviewComment(@AuthenticationPrincipal AuthenticatedAccount account,
                                    @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                                    @PathVariable("reviewId") Long reviewId,
-                                   @RequestBody WriteReviewCommentWebRequest request) {
+                                   @RequestBody @Validated WriteReviewCommentWebRequest request) {
 
         reviewService.writeReviewComment(reviewId, account.memberId(), request.reviewCommentContent());
     }
@@ -76,7 +79,7 @@ public class ReviewController {
                                         @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                                         @PathVariable("reviewId") Long reviewId,
                                         @PathVariable("commentId") Long commentId,
-                                        @RequestBody WriteReviewCommentWebRequest request) {
+                                        @RequestBody @Validated WriteReviewCommentWebRequest request) {
 
         reviewService.writeReviewReplyComment(commentId, account.memberId(), request.reviewCommentContent());
     }
@@ -86,11 +89,12 @@ public class ReviewController {
     public void updateReview(@AuthenticationPrincipal AuthenticatedAccount account,
                              @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                              @PathVariable("reviewId") Long reviewId,
-                             @RequestBody UpdateReviewWebRequest request) {
+                             @RequestBody @Validated UpdateReviewWebRequest request) {
 
         UpdateReviewRequest updateReviewRequest = new UpdateReviewRequest(reviewId, account.memberId(),
-                request.updateReviewStarRating(), request.updateReviewContent(), request.isUpdatedReviewImages(),
-                request.updateReviewImages(), request.storageStrategy());
+                request.updateReviewStarRating(), request.updateReviewContent(),
+                (request.updateReviewImages() != null && !request.updateReviewImages().isEmpty()) || request.isUpdatedReviewImages(),
+                request.updateReviewImages(), request.storageStrategy() != null ? request.storageStrategy() : StorageStrategy.CLOUD_STORAGE_API);
 
         reviewService.updateReview(updateReviewRequest);
     }
@@ -101,7 +105,7 @@ public class ReviewController {
                                     @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                                     @PathVariable("reviewId") Long reviewId,
                                     @PathVariable("commentId") Long commentId,
-                                    @RequestBody UpdateReviewCommentWebRequest request) {
+                                    @RequestBody @Validated UpdateReviewCommentWebRequest request) {
 
         reviewService.updateReviewComment(commentId, account.memberId(), request.updateReviewCommentContent());
     }

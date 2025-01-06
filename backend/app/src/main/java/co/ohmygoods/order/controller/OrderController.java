@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,15 +48,17 @@ public class OrderController {
     @Idempotent
     public ResponseEntity<?> checkout(@AuthenticationPrincipal AuthenticatedAccount account,
                                       @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                                      @RequestBody OrderCheckoutWebRequest request) {
+                                      @RequestBody @Validated OrderCheckoutWebRequest request) {
 
         List<OrderCheckoutRequest.OrderProductDetail> orderProductDetails = request.orderDetails().stream()
-                .map(detail -> new OrderCheckoutRequest.OrderProductDetail(detail.productId(),
-                        detail.PurchaseQuantity(), detail.isAppliedCoupon(), detail.appliedCouponId()))
+                .map(detail -> new OrderCheckoutRequest.OrderProductDetail(
+                        detail.productId(), detail.PurchaseQuantity(),
+                        detail.isAppliedCoupon() != null ? detail.isAppliedCoupon() : false,
+                        detail.appliedCouponId() != null ? detail.appliedCouponId() : -1))
                 .toList();
 
         OrderCheckoutRequest orderCheckoutRequest = new OrderCheckoutRequest(account.memberId(), orderProductDetails,
-                ExternalPaymentVendor.valueOf(request.orderPaymentMethod().toUpperCase()), request.deliveryAddressId(), request.totalOrderPrice());
+                ExternalPaymentVendor.valueOf(request.orderPaymentMethod().name().toUpperCase()), request.deliveryAddressId(), request.totalOrderPrice());
 
         OrderCheckoutResponse checkoutResponse = orderTransactionService.checkout(orderCheckoutRequest);
         return ResponseEntity.ok(checkoutResponse);

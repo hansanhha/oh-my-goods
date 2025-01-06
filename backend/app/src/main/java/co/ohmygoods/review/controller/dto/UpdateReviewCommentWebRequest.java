@@ -1,4 +1,6 @@
 package co.ohmygoods.review.controller.dto;
 
-public record UpdateReviewCommentWebRequest(String updateReviewCommentContent) {
+import jakarta.validation.constraints.NotEmpty;
+
+public record UpdateReviewCommentWebRequest(@NotEmpty String updateReviewCommentContent) {
 }

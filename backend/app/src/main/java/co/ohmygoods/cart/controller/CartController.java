@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
@@ -35,7 +36,7 @@ public class CartController {
     @Idempotent
     public void addCart(@AuthenticationPrincipal AuthenticatedAccount account,
                         @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                        @RequestBody AddCartWebRequest request) {
+                        @RequestBody @Validated AddCartWebRequest request) {
         cartService.add(new AddCartRequest(account.memberId(), request.productId()));
     }
 
