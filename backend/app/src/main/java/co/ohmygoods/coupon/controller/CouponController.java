@@ -42,7 +42,7 @@ public class CouponController {
     @Idempotent
     public void issueCoupon(@AuthenticationPrincipal AuthenticatedAccount account,
                             @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                            @PathVariable("couponId") @Positive("올바르지 않은 쿠폰 id입니다") Long couponId) {
+                            @PathVariable("couponId") @Positive(message = "올바르지 않은 쿠폰 id입니다") Long couponId) {
         couponService.issueCoupon(account.memberId(), couponId);
     }
 }

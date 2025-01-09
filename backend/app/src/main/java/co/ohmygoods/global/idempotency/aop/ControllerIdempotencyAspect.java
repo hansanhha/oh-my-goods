@@ -138,7 +138,6 @@ public class ControllerIdempotencyAspect {
     }
 
     @NoArgsConstructor
-    @RequiredArgsConstructor
     @Setter
     private static class ExtractingIdempotencyInfo {
         private String idempotencyKey;
