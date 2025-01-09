@@ -9,40 +9,20 @@ import java.util.Set;
 @RequiredArgsConstructor
 public enum ProductMainCategory {
 
-    MOVIE (
-            Set.of()
-    ),
-    SPORTS (
-            Set.of()
-    ),
-    IDOL (
-            Set.of()
-    ),
-    INFLUENCER (
-            Set.of()
-    ),
-    GAME (
-            Set.of()
-    ),
-    MUSIC (
-            Set.of()
-    ),
-    CONCERT_ART (
-            Set.of()
-    ),
-    ANIMATION (
-            Set.of()
-    ),
-    FASHION (
-            Set.of()
-    ),
-    STATIONERY (
-            Set.of()
-    );
+    MOVIE("영화"),
+    SPORTS("스포츠"),
+    IDOL("아이돌"),
+    INFLUENCER("인플루언서"),
+    GAME("게임"),
+    MUSIC("음악"),
+    CONCERT_ART("공연/예술"),
+    ANIMATION("애니메이션"),
+    FASHION("의류"),
+    STATIONERY("문구");
 
-    private final Set<String> subCategories;
+    private final String displayName;
 
-    public boolean contains(String subCategory) {
-        return this.subCategories.contains(subCategory);
+    public boolean contains(ProductSubCategory subCategory) {
+        return subCategory.getParentCategory().equals(this);
     }
 }
