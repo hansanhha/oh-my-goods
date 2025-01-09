@@ -15,6 +15,7 @@ public enum ProductError implements DomainError {
     INVALID_PURCHASE_QUANTITY(HttpStatus.BAD_REQUEST, "P200", "유효하지 않은 구매 수량입니다"),
     INVALID_PRODUCT_QUANTITY(HttpStatus.BAD_REQUEST, "P201", "유효하지 않은 상품 수량입니다"),
     INVALID_PRODUCT_STATUS(HttpStatus.BAD_REQUEST, "P202", "유효하지 않은 상품 상태입니다"),
+    INVALID_METADATA(HttpStatus.BAD_REQUEST, "P203", "유효하지 않은 상품 정보입니다"),
 
     NOT_SALES_STATUS(HttpStatus.BAD_REQUEST, "P300", "판매 중이 아닌 상품입니다"),
     NOT_ENOUGH_STOCK(HttpStatus.BAD_REQUEST, "P301", "상품 재고가 부족합니다"),

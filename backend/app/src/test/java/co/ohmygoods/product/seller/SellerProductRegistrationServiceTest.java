@@ -159,7 +159,7 @@ class SellerProductRegistrationServiceTest {
         assertThat(product.getShop()).isEqualTo(mockShop);
         assertThat(product.getSaleStartDate()).isNotNull();
         assertThat(product.getSaleEndDate()).isNull();
-        assertThat(product.getCustomCategoriesMappings()).isNull();
+        assertThat(product.getCustomCategories()).isNull();
 
         assertThat(response).isEqualTo(tempProductId);
     }
@@ -277,7 +277,7 @@ class SellerProductRegistrationServiceTest {
         assertThat(product.getRemainingQuantity()).isEqualTo(quantity);
         assertThat(product.getOriginalPrice()).isEqualTo(price);
         assertThat(product.getShop()).isEqualTo(mockShop);
-        assertThat(product.getCustomCategoriesMappings()).isNull();
+        assertThat(product.getCustomCategories()).isNull();
         assertThat(product.getSaleStartDate()).isNotNull();
         assertThat(product.getSaleEndDate()).isNull();
         assertThat(product.getDiscountRate()).isEqualTo(discountRate);

@@ -5,6 +5,7 @@ import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
+import co.ohmygoods.product.model.entity.ProductCategory;
 import co.ohmygoods.product.model.entity.ProductCustomCategory;
 import co.ohmygoods.product.model.entity.ProductCustomCategoryMapping;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
@@ -74,8 +75,7 @@ public class SellerProductRegistrationService {
                 .shop(shop)
                 .name(request.name())
                 .type(request.type())
-                .mainCategory(request.mainCategory())
-                .subCategory(request.subCategory())
+                .category(ProductCategory.of(request.mainCategory(), request.subCategory()))
                 .stockStatus(stockStatus)
                 .originalPrice(Math.max(request.price(), 0))
                 .remainingQuantity(Math.max(request.quantity(), 0))
@@ -133,8 +133,7 @@ public class SellerProductRegistrationService {
                 request.updateName(),
                 request.updateDescription(),
                 request.updateType(),
-                request.updateMainCategory(),
-                request.updateSubCategory(),
+                ProductCategory.of(request.updateMainCategory(), request.updateSubCategory()),
                 updateProductCustomCategoryMappings);
 
         if (request.updateAssets() != null && request.updateAssets().length > 0) {
@@ -154,7 +153,7 @@ public class SellerProductRegistrationService {
     }
 
     private SellerProductResponse convertSellerProductResponse(Product product) {
-        var customCategoryResponses = product.getCustomCategoriesMappings()
+        var customCategoryResponses = product.getCustomCategories()
                 .stream()
                 .map(ProductCustomCategoryMapping::getCustomCategory)
                 .map(CustomCategoryResponse::from)
@@ -164,8 +163,8 @@ public class SellerProductRegistrationService {
                 .shopId(product.getShop().getId())
                 .productId(product.getId())
                 .productDescription(product.getDescription())
-                .productMainCategory(product.getMainCategory())
-                .productSubCategory(product.getSubCategory())
+                .productMainCategory(product.getCategory().getMainCategory())
+                .productSubCategory(product.getCategory().getSubCategory())
                 .productStockStatus(product.getStockStatus())
                 .productCustomCategories(customCategoryResponses)
                 .productQuantity(product.getRemainingQuantity())

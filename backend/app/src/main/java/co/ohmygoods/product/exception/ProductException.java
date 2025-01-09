@@ -13,6 +13,7 @@ public class ProductException extends DomainException {
     public static final ProductException INVALID_PURCHASE_QUANTITY = new ProductException(ProductError.INVALID_PURCHASE_QUANTITY);
     public static final ProductException INVALID_PRODUCT_STATUS = new ProductException(ProductError.INVALID_PRODUCT_STATUS);
     public static final ProductException INVALID_PRODUCT_QUANTITY = new ProductException(ProductError.INVALID_PRODUCT_QUANTITY);
+    public static final ProductException INVALID_METADATA = new ProductException(ProductError.INVALID_METADATA);
 
     public static final ProductException NOT_SALES_STATUS = new ProductException(ProductError.NOT_SALES_STATUS);
     public static final ProductException NOT_ENOUGH_STOCK = new ProductException(ProductError.NOT_ENOUGH_STOCK);

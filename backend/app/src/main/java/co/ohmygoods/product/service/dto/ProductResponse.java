@@ -2,6 +2,7 @@ package co.ohmygoods.product.service.dto;
 
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
+import co.ohmygoods.product.model.vo.ProductSubCategory;
 import co.ohmygoods.product.model.vo.ProductType;
 import lombok.Builder;
 
@@ -15,7 +16,7 @@ public record ProductResponse(Long shopId,
                               String productDescription,
                               ProductType productType,
                               ProductMainCategory productMainCategory,
-                              String productSubCategory,
+                              ProductSubCategory productSubCategory,
                               ProductStockStatus productStockStatus,
                               List<ProductCustomCategoryResponse> productCustomCategories,
                               int productQuantity,

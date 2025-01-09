@@ -71,7 +71,7 @@ public class ProductService {
     }
 
     private ProductResponse convertProductResponse(Product product) {
-        List<ProductCustomCategoryResponse> customCategoryResponses = product.getCustomCategoriesMappings()
+        List<ProductCustomCategoryResponse> customCategoryResponses = product.getCustomCategories()
                 .stream()
                 .map(ProductCustomCategoryMapping::getCustomCategory)
                 .map(ProductCustomCategoryResponse::from)
@@ -81,8 +81,8 @@ public class ProductService {
                 .shopId(product.getShop().getId())
                 .productId(product.getId())
                 .productDescription(product.getDescription())
-                .productMainCategory(product.getMainCategory())
-                .productSubCategory(product.getSubCategory())
+                .productMainCategory(product.getCategory().getMainCategory())
+                .productSubCategory(product.getCategory().getSubCategory())
                 .productStockStatus(product.getStockStatus())
                 .productCustomCategories(customCategoryResponses)
                 .productQuantity(product.getRemainingQuantity())

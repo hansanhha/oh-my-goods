@@ -3,6 +3,7 @@ package co.ohmygoods.seller.product.controller;
 import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
 import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
+import co.ohmygoods.product.model.vo.ProductSubCategory;
 import co.ohmygoods.product.model.vo.ProductType;
 import co.ohmygoods.seller.product.service.SellerProductRegistrationService;
 import co.ohmygoods.seller.product.service.dto.RegisterProductRequest;
@@ -48,8 +49,8 @@ public class SellerProductController {
         RegisterProductRequest registerProductRequest = RegisterProductRequest.builder()
                 .ownerMemberId(account.memberId())
                 .type(ProductType.valueOf(request.productType()))
-                .mainCategory(ProductMainCategory.valueOf(request.productMainCategory()))
-                .subCategory(request.productSubCategory())
+                .mainCategory(ProductMainCategory.valueOf(request.productMainCategory().toUpperCase()))
+                .subCategory(ProductSubCategory.valueOf(request.productSubCategory().toUpperCase()))
                 .customCategoryIds(request.productCustomCategoryIds())
                 .name(request.productName())
                 .description(request.productDescription())
@@ -80,8 +81,8 @@ public class SellerProductController {
                 .updateName(request.updateProductName())
                 .updateDescription(request.updateDescription())
                 .updateType(ProductType.valueOf(request.updateProductType()))
-                .updateMainCategory(ProductMainCategory.valueOf(request.updateProductMainCategory()))
-                .updateSubCategory(request.updateProductSubCategory())
+                .updateMainCategory(ProductMainCategory.valueOf(request.updateProductMainCategory().toUpperCase()))
+                .updateSubCategory(ProductSubCategory.valueOf(request.updateProductSubCategory().toUpperCase()))
                 .updateCustomCategoryIds(request.updateProductCustomCategoryIds())
                 .updateAssets(request.updateProductImages())
                 .build();

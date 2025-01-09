@@ -20,7 +20,7 @@ public interface ProductRepository extends CrudRepository<Product, Long>, Paging
     @Query("SELECT p " +
             "FROM Product p " +
             "JOIN FETCH p.shop " +
-            "JOIN FETCH p.customCategoriesMappings " +
+            "JOIN FETCH p.customCategories " +
             "WHERE p.mainCategory = :mainCategory " +
             "AND p.stockStatus = 'ON_SALES' ")
     Slice<Product> fetchAllByMainCategoryAndStockStatusOnSales(ProductMainCategory mainCategory, Pageable pageable);
@@ -28,7 +28,7 @@ public interface ProductRepository extends CrudRepository<Product, Long>, Paging
     @Query("SELECT p " +
             "FROM Product p " +
             "JOIN FETCH p.shop "+
-            "JOIN FETCH p.customCategoriesMappings " +
+            "JOIN FETCH p.customCategories " +
             "WHERE p.shop = :shop " +
             "AND p.mainCategory = :mainCategory " +
             "AND p.stockStatus = 'ON_SALES' ")
@@ -37,7 +37,7 @@ public interface ProductRepository extends CrudRepository<Product, Long>, Paging
     @Query("SELECT p " +
             "FROM Product p " +
             "JOIN FETCH p.shop " +
-            "JOIN FETCH p.customCategoriesMappings " +
+            "JOIN FETCH p.customCategories " +
             "WHERE p.shop = :shop " +
             "AND p.subCategory = :subCategory " +
             "AND p.stockStatus = 'ON_SALES' ")
@@ -52,7 +52,7 @@ public interface ProductRepository extends CrudRepository<Product, Long>, Paging
     @Query("SELECT p " +
             "FROM Product p " +
             "JOIN FETCH p.shop " +
-            "JOIN FETCH p.customCategoriesMappings " +
+            "JOIN FETCH p.customCategories " +
             "WHERE p.shop = :shop " +
             "AND p.stockStatus = 'ON_SALES' ")
     Slice<Product> fetchAllByShopAndStockStatusOnSales(Shop shop, Pageable pageable);

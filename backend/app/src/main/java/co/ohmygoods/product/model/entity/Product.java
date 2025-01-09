@@ -4,6 +4,7 @@ import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
+import co.ohmygoods.product.model.vo.ProductSubCategory;
 import co.ohmygoods.product.model.vo.ProductType;
 import co.ohmygoods.shop.model.entity.Shop;
 import jakarta.persistence.*;
@@ -40,16 +41,13 @@ public class Product extends BaseEntity {
     private ProductType type;
 
     @Enumerated(EnumType.STRING)
-    private ProductMainCategory mainCategory;
-
-    @Column(nullable = false)
-    private String subCategory;
-
-    @Enumerated(EnumType.STRING)
     private ProductStockStatus stockStatus;
 
+    @Embedded
+    private ProductCategory category;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductCustomCategoryMapping> customCategoriesMappings = new ArrayList<>();
+    private List<ProductCustomCategoryMapping> customCategories = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -80,21 +78,20 @@ public class Product extends BaseEntity {
     }
 
     public void addCustomCategories(List<ProductCustomCategoryMapping> customCategoriesMappings) {
-        this.customCategoriesMappings.addAll(customCategoriesMappings);
+        this.customCategories.addAll(customCategoriesMappings);
     }
 
     public void updateMetadata(String name,
                                String description,
                                ProductType type,
-                               ProductMainCategory mainCategory,
-                               String subCategory,
+                               ProductCategory category,
                                List<ProductCustomCategoryMapping> productCustomCategoryMappings) {
+
         this.name = name;
         this.description = description;
         this.type = type;
-        this.mainCategory = mainCategory;
-        this.subCategory = subCategory;
-        this.customCategoriesMappings = productCustomCategoryMappings;
+        this.category = category;
+        this.customCategories = productCustomCategoryMappings;
     }
 
     public int calculateActualPrice() {
