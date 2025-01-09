@@ -23,6 +23,11 @@ dependencies {
     implementation(libs.spring.security)
     implementation(libs.spring.oauth2.client)
 
+    implementation(libs.querydsl.jpa)
+    annotationProcessor(libs.querydsl.apt)
+    annotationProcessor(libs.jakarta.annotation.api)
+    annotationProcessor(libs.jakarta.persistence.api)
+
     implementation(platform(libs.awssdk.bom))
     implementation(libs.awssdk.sso)
     implementation(libs.awssdk.ssooidc)
