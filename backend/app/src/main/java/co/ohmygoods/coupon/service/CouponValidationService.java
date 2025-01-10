@@ -5,7 +5,7 @@ import co.ohmygoods.coupon.exception.CouponException;
 import co.ohmygoods.coupon.model.entity.Coupon;
 import co.ohmygoods.coupon.model.vo.CouponIssuanceTarget;
 import co.ohmygoods.coupon.model.vo.CouponIssueQuantityLimitType;
-import co.ohmygoods.coupon.model.vo.CouponUsageStatus;
+import co.ohmygoods.coupon.model.vo.CouponHistoryStatus;
 
 /*
 todo
@@ -13,8 +13,8 @@ todo
  */
 class CouponValidationService {
 
-    public static void validateBeforeUse(CouponUsageStatus status, int minimumPurchasePrice, int productPrice) {
-        if (status.equals(CouponUsageStatus.USED)) {
+    public static void validateBeforeUse(CouponHistoryStatus status, int minimumPurchasePrice, int productPrice) {
+        if (status.equals(CouponHistoryStatus.USED)) {
             throw CouponException.COUPON_ALREADY_USED;
         }
     }

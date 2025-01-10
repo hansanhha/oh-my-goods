@@ -1,6 +1,6 @@
 package co.ohmygoods.order.model.entity;
 
-import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
+import co.ohmygoods.coupon.model.entity.CouponHistory;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.OrderStatus;
@@ -35,7 +35,7 @@ public class OrderItem extends BaseEntity {
     private DeliveryAddress deliveryAddress;
 
     @OneToOne(mappedBy = "orderItem", orphanRemoval = true)
-    private CouponUsageHistory couponUsageHistory;
+    private CouponHistory couponHistory;
 
     @Column(nullable = false)
     private int orderQuantity;

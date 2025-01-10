@@ -12,13 +12,6 @@ import java.util.List;
 
 public interface CouponProductMappingRepository extends CrudRepository<CouponProductMapping, Long> {
 
-    @Query("SELECT cpm " +
-            "FROM CouponProductMapping cpm " +
-            "JOIN FETCH Coupon c " +
-            "WHERE cpm.coupon in :coupons AND " +
-            "cpm.applyTargetProduct = :product")
-    Slice<CouponProductMapping> fetchAllByCouponsAndProduct(List<Coupon> coupons, Product product, Pageable pageable);
-
     @Query("SELECT c " +
             "FROM Coupon c " +
             "JOIN CouponProductMapping cpm ON cpm.applyTargetProduct = :product " +

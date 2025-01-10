@@ -3,7 +3,7 @@ package co.ohmygoods.order.service;
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.exception.AuthException;
-import co.ohmygoods.coupon.model.entity.CouponUsageHistory;
+import co.ohmygoods.coupon.model.entity.CouponHistory;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.service.CouponService;
 import co.ohmygoods.order.exception.DeliveryAddressException;
@@ -201,13 +201,13 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
     public void cancelOrderByPaymentCancellation(PaymentCancelEvent event) {
         Order order = orderRepository.findByPaymentId(event.paymentId()).orElseThrow(OrderException::notFoundOrder);
 
-        List<Long> couponUsageHistoryIds = order.getOrderItems().stream()
-                .map(OrderItem::getCouponUsageHistory)
+        List<Long> couponHistoryIds = order.getOrderItems().stream()
+                .map(OrderItem::getCouponHistory)
                 .filter(Objects::nonNull)
-                .map(CouponUsageHistory::getId)
+                .map(CouponHistory::getId)
                 .toList();
 
-        couponService.restoreAppliedCoupon(order.getAccount().getEmail(), couponUsageHistoryIds);
+        couponService.restoreAppliedCoupon(order.getAccount().getEmail(), couponHistoryIds);
 
         order.cancel();
     }
@@ -217,13 +217,13 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
     public void failOrderByPaymentFailed(PaymentFailureEvent event) {
         Order order = orderRepository.findByPaymentId(event.paymentId()).orElseThrow(OrderException::notFoundOrder);
 
-        List<Long> couponUsageHistoryIds = order.getOrderItems().stream()
-                .map(OrderItem::getCouponUsageHistory)
+        List<Long> couponHistoryIds = order.getOrderItems().stream()
+                .map(OrderItem::getCouponHistory)
                 .filter(Objects::nonNull)
-                .map(CouponUsageHistory::getId)
+                .map(CouponHistory::getId)
                 .toList();
 
-        couponService.restoreAppliedCoupon(order.getAccount().getEmail(), couponUsageHistoryIds);
+        couponService.restoreAppliedCoupon(order.getAccount().getEmail(), couponHistoryIds);
 
         order.fail(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE, event.paymentFailureCause());
     }

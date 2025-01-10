@@ -13,7 +13,7 @@ import co.ohmygoods.coupon.model.vo.CouponIssueQuantityLimitType;
 import co.ohmygoods.coupon.repository.CouponProductMappingRepository;
 import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.repository.CouponShopMappingRepository;
-import co.ohmygoods.coupon.repository.CouponUsageHistoryRepository;
+import co.ohmygoods.coupon.repository.CouponHistoryRepository;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import co.ohmygoods.seller.coupon.service.dto.CreateShopCouponRequest;
@@ -23,6 +23,7 @@ import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,7 @@ public class SellerCouponService {
     private final AccountRepository accountRepository;
     private final CouponRepository couponRepository;
     private final ProductRepository productRepository;
-    private final CouponUsageHistoryRepository couponUsageHistoryRepository;
+    private final CouponHistoryRepository couponHistoryRepository;
     private final CouponProductMappingRepository couponProductMappingRepository;
     private final CouponShopMappingRepository couponShopMappingRepository;
     private final ShopRepository shopRepository;
@@ -95,14 +96,11 @@ public class SellerCouponService {
         return ShopCouponResponse.from(savedCoupon, shop);
     }
 
-    public List<ShopCouponResponse> getShopCouponCreationHistory(String sellerMemberId, Pageable pageable) {
+    public Slice<ShopCouponResponse> getShopCouponCreationHistory(String sellerMemberId, Pageable pageable) {
         Shop shop = shopRepository.findByOwnerMemberId(sellerMemberId).orElseThrow(ShopException::notFoundShop);
-        List<Coupon> coupons = couponRepository.fetchAllByShop(shop, pageable);
+        Slice<Coupon> coupons = couponRepository.fetchAllByShop(shop, pageable);
 
-        return coupons
-                .stream()
-                .map(coupon -> ShopCouponResponse.from(coupon, shop))
-                .toList();
+        return coupons.map(coupon -> ShopCouponResponse.from(coupon, shop));
     }
 
     public void destroyIssuingShopCoupon(String sellerMemberId, Long couponId) {
