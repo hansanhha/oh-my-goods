@@ -35,8 +35,6 @@ spring-devtools = { module = "org.springframework.boot:spring-boot-devtools" }
 spring-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
 
 # querydsl
-querydsl-apt = { module = "com.querydsl:querydsl-apt", version.ref = "querydsl" }
-querydsl-jpa = { module = "com.querydsl:querydsl-jpa", version.ref = "querydsl" }
 jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api" }
 jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api" }
 
