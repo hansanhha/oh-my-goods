@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 public enum FileError implements DomainError {
 
     NOT_FOUND_FILE(HttpStatus.NOT_FOUND, "F001", "파일을 찾을 수 없습니다."),
+    EMPTY_UPLOAD_FILE(HttpStatus.BAD_REQUEST, "F100", "업로드할 파일이 없습니다"),
 
     FAILED_CREATE_DIRECTORY(HttpStatus.INTERNAL_SERVER_ERROR, "F002", "디렉토리 생성에 실패했습니다"),
     FAILED_CREATE_FILE(HttpStatus.INTERNAL_SERVER_ERROR, "F003", "파일 생성에 실패했습니다."),

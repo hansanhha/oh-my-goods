@@ -11,9 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetUrlRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,6 +28,12 @@ public class AwsS3CloudStorageService extends AbstractStorageService {
 
     @Override
     public List<UploadFileResponse> upload(UploadFileRequest request) {
+        if (request.domainIdFileMap() == null || request.domainIdFileMap().isEmpty()) {
+            throw FileException.EMPTY_UPLOAD_FILE;
+        }
+
+        createBucketIfRequire(properties.getBucketName());
+
         return request.domainIdFileMap()
                 .entrySet()
                 .stream()
@@ -87,5 +91,17 @@ public class AwsS3CloudStorageService extends AbstractStorageService {
                 &&
                 (storageStrategy.equals(StorageStrategy.CLOUD_STORAGE_API)
                         || storageStrategy.equals(StorageStrategy.PROVIDE_CLOUD_STORAGE_ACCESS_URL));
+    }
+
+    private void createBucketIfRequire(String bucketName) {
+
+        List<Bucket> buckets = awsS3Client.listBuckets().buckets();
+
+        if (buckets.isEmpty() || buckets.stream().noneMatch(bucket -> bucket.name().equals(bucketName))) {
+            return;
+        }
+
+        awsS3Client.createBucket(
+                CreateBucketRequest.builder().bucket(bucketName).build());
     }
 }

@@ -13,6 +13,7 @@ public class FileException extends DomainException {
 
     public static final FileException INVALID_FILE = new FileException(FileError.INVALID_FILE);
     public static final FileException INVALID_CLOUD_PROVIDER = new FileException(FileError.INVALID_CLOUD_PROVIDER);
+    public static final FileException EMPTY_UPLOAD_FILE = new FileException(FileError.EMPTY_UPLOAD_FILE);
 
     public FileException(FileError fileError) {
         super(fileError);
