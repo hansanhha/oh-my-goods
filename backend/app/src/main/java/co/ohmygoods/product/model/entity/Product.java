@@ -2,9 +2,7 @@ package co.ohmygoods.product.model.entity;
 
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.product.exception.ProductException;
-import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
-import co.ohmygoods.product.model.vo.ProductSubCategory;
 import co.ohmygoods.product.model.vo.ProductType;
 import co.ohmygoods.shop.model.entity.Shop;
 import jakarta.persistence.*;
@@ -44,7 +42,7 @@ public class Product extends BaseEntity {
     private ProductStockStatus stockStatus;
 
     @Embedded
-    private ProductCategory category;
+    private ProductGeneralCategory category;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductCustomCategoryMapping> customCategories = new ArrayList<>();
@@ -84,7 +82,7 @@ public class Product extends BaseEntity {
     public void updateMetadata(String name,
                                String description,
                                ProductType type,
-                               ProductCategory category,
+                               ProductGeneralCategory category,
                                List<ProductCustomCategoryMapping> productCustomCategoryMappings) {
 
         this.name = name;

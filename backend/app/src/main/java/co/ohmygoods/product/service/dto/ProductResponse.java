@@ -11,6 +11,7 @@ import java.util.List;
 
 @Builder
 public record ProductResponse(Long shopId,
+                              String shopName,
                               Long productId,
                               String productName,
                               String productDescription,

@@ -4,9 +4,12 @@ import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.model.entity.ProductCustomCategory;
 import co.ohmygoods.product.model.entity.ProductCustomCategoryMapping;
+import co.ohmygoods.product.model.entity.ProductGeneralCategory;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
+import co.ohmygoods.product.model.vo.ProductSubCategory;
 import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
+import co.ohmygoods.product.repository.dto.ProductShopDto;
 import co.ohmygoods.product.service.dto.ProductCustomCategoryResponse;
 import co.ohmygoods.product.service.dto.ProductResponse;
 import co.ohmygoods.shop.exception.ShopException;
@@ -29,48 +32,35 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductCustomCategoryRepository customCategoryRepository;
 
-    public List<ProductResponse> getProductsByMainCategory(ProductMainCategory productMainCategory, Pageable pageable) {
-        Slice<Product> products = productRepository.fetchAllByMainCategoryAndStockStatusOnSales(productMainCategory, pageable);
+    public List<ProductResponse> getProductsByCategory(ProductMainCategory mainCategory, ProductSubCategory subCategory, Pageable pageable) {
+        Slice<ProductShopDto> productShopDtos = productRepository
+                .fetchAllSalesProductByGeneralCategory(ProductGeneralCategory.of(mainCategory, subCategory), pageable);
 
-        return products.stream().map(this::convertProductResponse).toList();
+        return productShopDtos
+                .map(dto -> convertProductResponse(dto.shopId(), dto.shopName(), dto.product()))
+                .toList();
     }
 
-    public List<ProductResponse> getProductsByShop(Long shopId, Pageable pageable) {
+    public List<ProductResponse> getProductsByShopAndCategory(Long shopId, ProductMainCategory mainCategory, ProductSubCategory subCategory, Pageable pageable) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
 
-        Slice<Product> products = productRepository.fetchAllByShopAndStockStatusOnSales(shop, pageable);
+        Slice<Product> products = productRepository.fetchAllSalesProductByShopAndCategory(shop, ProductGeneralCategory.of(mainCategory, subCategory), pageable);
 
-        return products.stream().map(this::convertProductResponse).toList();
+        return products.map(product -> convertProductResponse(shop.getId(), shop.getName(), product)).toList();
     }
 
-    public List<ProductResponse> getProductsByShopAndMainCategory(Long shopId, ProductMainCategory productMainCategory, Pageable pageable) {
+    public List<ProductResponse> getProductsByShopAndCustomCategory(Long shopId, Long customCategoryId, Pageable pageable) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
 
-        Slice<Product> products = productRepository.fetchAllByShopAndMainCategoryAndStockStatusOnSales(shop, productMainCategory, pageable);
-
-        return products.stream().map(this::convertProductResponse).toList();
-    }
-
-    public List<ProductResponse> getProductsByShopAndSubCategory(Long shopId, String productSubCategory, Pageable pageable) {
-        Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
-
-        Slice<Product> products = productRepository.fetchAllByShopAndSubCategoryAndStockStatusOnSales(shop, productSubCategory, pageable);
-
-        return products.stream().map(this::convertProductResponse).toList();
-    }
-
-    public List<ProductResponse> getProductsByShopAndCustomCategory(Long shopId, Long detailCategoryId, Pageable pageable) {
-        Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
-
-        ProductCustomCategory customCategory = customCategoryRepository.findById(detailCategoryId)
+        ProductCustomCategory customCategory = customCategoryRepository.findById(customCategoryId)
                 .orElseThrow(ProductException::notFoundCategory);
 
-        Slice<Product> products = productRepository.fetchAllByCustomCategoryAndStockStatusOnSales(customCategory, pageable);
+        Slice<Product> products = productRepository.fetchAllSalesProductByShopAndCustomCategory(shop, customCategory, pageable);
 
-        return products.stream().map(this::convertProductResponse).toList();
+        return products.map(product -> convertProductResponse(shop.getId(), shop.getName(), product)).toList();
     }
 
-    private ProductResponse convertProductResponse(Product product) {
+    private ProductResponse convertProductResponse(Long shopId, String shopName, Product product) {
         List<ProductCustomCategoryResponse> customCategoryResponses = product.getCustomCategories()
                 .stream()
                 .map(ProductCustomCategoryMapping::getCustomCategory)
@@ -78,7 +68,8 @@ public class ProductService {
                 .toList();
 
         return ProductResponse.builder()
-                .shopId(product.getShop().getId())
+                .shopId(shopId)
+                .shopName(shopName)
                 .productId(product.getId())
                 .productDescription(product.getDescription())
                 .productMainCategory(product.getCategory().getMainCategory())

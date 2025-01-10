@@ -12,50 +12,10 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
 
-public interface ProductRepository extends CrudRepository<Product, Long>, PagingAndSortingRepository<Product, Long> {
+public interface ProductRepository extends CrudRepository<Product, Long>,
+        PagingAndSortingRepository<Product, Long>, ProductRepositoryCustom {
 
     Slice<Product> findAllByShop(Shop shop, Pageable pageable);
-
-
-    @Query("SELECT p " +
-            "FROM Product p " +
-            "JOIN FETCH p.shop " +
-            "JOIN FETCH p.customCategories " +
-            "WHERE p.mainCategory = :mainCategory " +
-            "AND p.stockStatus = 'ON_SALES' ")
-    Slice<Product> fetchAllByMainCategoryAndStockStatusOnSales(ProductMainCategory mainCategory, Pageable pageable);
-
-    @Query("SELECT p " +
-            "FROM Product p " +
-            "JOIN FETCH p.shop "+
-            "JOIN FETCH p.customCategories " +
-            "WHERE p.shop = :shop " +
-            "AND p.mainCategory = :mainCategory " +
-            "AND p.stockStatus = 'ON_SALES' ")
-    Slice<Product> fetchAllByShopAndMainCategoryAndStockStatusOnSales(Shop shop, ProductMainCategory mainCategory, Pageable pageable);
-
-    @Query("SELECT p " +
-            "FROM Product p " +
-            "JOIN FETCH p.shop " +
-            "JOIN FETCH p.customCategories " +
-            "WHERE p.shop = :shop " +
-            "AND p.subCategory = :subCategory " +
-            "AND p.stockStatus = 'ON_SALES' ")
-    Slice<Product> fetchAllByShopAndSubCategoryAndStockStatusOnSales(Shop shop, String subCategory, Pageable pageable);
-
-    @Query("SELECT p " +
-            "FROM Product p " +
-            "WHERE p IN " +
-            "(SELECT pcm.product FROM ProductCustomCategoryMapping pcm WHERE pcm.customCategory = :customCategory) ")
-    Slice<Product> fetchAllByCustomCategoryAndStockStatusOnSales(ProductCustomCategory customCategory, Pageable pageable);
-
-    @Query("SELECT p " +
-            "FROM Product p " +
-            "JOIN FETCH p.shop " +
-            "JOIN FETCH p.customCategories " +
-            "WHERE p.shop = :shop " +
-            "AND p.stockStatus = 'ON_SALES' ")
-    Slice<Product> fetchAllByShopAndStockStatusOnSales(Shop shop, Pageable pageable);
 
     @Query("SELECT p " +
             "FROM Product p " +

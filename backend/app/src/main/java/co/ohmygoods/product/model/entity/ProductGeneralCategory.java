@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductCategory {
+public class ProductGeneralCategory {
 
     @Enumerated(EnumType.STRING)
     private ProductMainCategory mainCategory;
@@ -23,7 +23,7 @@ public class ProductCategory {
     @Enumerated(EnumType.STRING)
     private ProductSubCategory subCategory;
 
-    public static ProductCategory of(ProductMainCategory mainCategory, ProductSubCategory subCategory) {
+    public static ProductGeneralCategory of(ProductMainCategory mainCategory, ProductSubCategory subCategory) {
         if (mainCategory == null && subCategory == null) {
             throw ProductException.INVALID_METADATA;
         }
@@ -35,14 +35,14 @@ public class ProductCategory {
             }
         }
 
-        return new ProductCategory(mainCategory, subCategory);
+        return new ProductGeneralCategory(mainCategory, subCategory);
     }
 
-    public static ProductCategory of(ProductMainCategory mainCategory) {
+    public static ProductGeneralCategory of(ProductMainCategory mainCategory) {
         return of(mainCategory, null);
     }
 
-    public static ProductCategory of(ProductSubCategory subCategory) {
+    public static ProductGeneralCategory of(ProductSubCategory subCategory) {
         return of(subCategory.getParentCategory(), subCategory);
     }
 }
