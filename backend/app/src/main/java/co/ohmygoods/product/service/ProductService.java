@@ -32,24 +32,22 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductCustomCategoryRepository customCategoryRepository;
 
-    public List<ProductResponse> getProductsByCategory(ProductMainCategory mainCategory, ProductSubCategory subCategory, Pageable pageable) {
+    public Slice<ProductResponse> getProductsByCategory(ProductMainCategory mainCategory, ProductSubCategory subCategory, Pageable pageable) {
         Slice<ProductShopDto> productShopDtos = productRepository
                 .fetchAllSalesProductByGeneralCategory(ProductGeneralCategory.of(mainCategory, subCategory), pageable);
 
-        return productShopDtos
-                .map(dto -> convertProductResponse(dto.shopId(), dto.shopName(), dto.product()))
-                .toList();
+        return productShopDtos.map(dto -> convertProductResponse(dto.shopId(), dto.shopName(), dto.product()));
     }
 
-    public List<ProductResponse> getProductsByShopAndCategory(Long shopId, ProductMainCategory mainCategory, ProductSubCategory subCategory, Pageable pageable) {
+    public Slice<ProductResponse> getProductsByShopAndCategory(Long shopId, ProductMainCategory mainCategory, ProductSubCategory subCategory, Pageable pageable) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
 
         Slice<Product> products = productRepository.fetchAllSalesProductByShopAndCategory(shop, ProductGeneralCategory.of(mainCategory, subCategory), pageable);
 
-        return products.map(product -> convertProductResponse(shop.getId(), shop.getName(), product)).toList();
+        return products.map(product -> convertProductResponse(shop.getId(), shop.getName(), product));
     }
 
-    public List<ProductResponse> getProductsByShopAndCustomCategory(Long shopId, Long customCategoryId, Pageable pageable) {
+    public Slice<ProductResponse> getProductsByShopAndCustomCategory(Long shopId, Long customCategoryId, Pageable pageable) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
 
         ProductCustomCategory customCategory = customCategoryRepository.findById(customCategoryId)
@@ -57,7 +55,7 @@ public class ProductService {
 
         Slice<Product> products = productRepository.fetchAllSalesProductByShopAndCustomCategory(shop, customCategory, pageable);
 
-        return products.map(product -> convertProductResponse(shop.getId(), shop.getName(), product)).toList();
+        return products.map(product -> convertProductResponse(shop.getId(), shop.getName(), product));
     }
 
     private ProductResponse convertProductResponse(Long shopId, String shopName, Product product) {

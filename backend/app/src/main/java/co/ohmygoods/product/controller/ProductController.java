@@ -6,6 +6,7 @@ import co.ohmygoods.product.service.ProductService;
 import co.ohmygoods.product.service.dto.ProductResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class ProductController {
                                          @RequestParam(required = false, defaultValue = "0") int page,
                                          @RequestParam(required = false, defaultValue = "20") int size) {
 
-        List<ProductResponse> products = productService.getProductsByCategory(
+        Slice<ProductResponse> products = productService.getProductsByCategory(
 
                 mainCategory != null ? ProductMainCategory.valueOf(mainCategory.toUpperCase()) : null,
                 subCategory != null ? ProductSubCategory.valueOf(subCategory.toUpperCase()) : null,
@@ -44,7 +45,7 @@ public class ProductController {
                                                @RequestParam(required = false, defaultValue = "0") int page,
                                                @RequestParam(required = false, defaultValue = "20") int size) {
 
-        List<ProductResponse> products;
+        Slice<ProductResponse> products;
         Pageable pageable = Pageable.ofSize(size).withPage(page);
 
         if (customCategoryId != null) {
