@@ -12,6 +12,7 @@ import co.ohmygoods.coupon.repository.CouponRepository;
 import co.ohmygoods.coupon.repository.CouponShopMappingRepository;
 import co.ohmygoods.coupon.repository.CouponHistoryRepository;
 import co.ohmygoods.coupon.service.dto.ApplicableIssuedCouponResponse;
+import co.ohmygoods.global.lock.DistributedLock;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.entity.OrderItem;
 import co.ohmygoods.order.repository.OrderItemRepository;
@@ -47,6 +48,7 @@ public class CouponService {
     private final CouponShopMappingRepository couponShopMappingRepository;
 
     // 쿠폰 발급 및 발급 이력 저장
+    @DistributedLock(key = "coupon:issue:#couponId")
     public void issueCoupon(String memberId, Long couponId) {
         Coupon coupon = couponRepository.findById(couponId).orElseThrow(CouponException::notFoundCoupon);
         Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
