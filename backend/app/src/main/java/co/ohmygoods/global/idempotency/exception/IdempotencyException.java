@@ -1,7 +1,6 @@
 package co.ohmygoods.global.idempotency.exception;
 
 import co.ohmygoods.global.exception.DomainException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.net.URI;
 
@@ -27,8 +26,8 @@ public class IdempotencyException extends DomainException {
         return NOT_FOUND_IDEMPOTENCY_HEADER;
     }
 
-    public static IdempotencyException emptyCacheValue() {
-        return EMPTY_CACHE_VALUE;
+    public static IdempotencyException notFound() {
+        return NOT_FOUND_IDEMPOTENCY;
     }
 
 }

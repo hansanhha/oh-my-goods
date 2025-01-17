@@ -2,10 +2,11 @@ package co.ohmygoods.global.idempotency.aop;
 
 import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
 import co.ohmygoods.global.exception.DomainException;
-import co.ohmygoods.global.idempotency.service.dto.IdempotencyRequest;
-import co.ohmygoods.global.idempotency.service.dto.IdempotencyResponse;
+import co.ohmygoods.global.idempotency.IdempotencyLockProperties;
+import co.ohmygoods.global.idempotency.vo.Idempotency;
+import co.ohmygoods.global.idempotency.aop.dto.IdempotencyRequest;
+import co.ohmygoods.global.idempotency.aop.dto.IdempotencyResponse;
 import co.ohmygoods.global.idempotency.exception.IdempotencyException;
-import co.ohmygoods.global.idempotency.service.IdempotencyService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +21,9 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 
+import org.redisson.api.RLock;
+import org.redisson.api.RMap;
+import org.redisson.api.RedissonClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,44 +41,84 @@ import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
 @RequiredArgsConstructor
 public class ControllerIdempotencyAspect {
 
-    private final IdempotencyService idempotencyService;
+    private static final String IDEMPOTENCY_CACHE_PREFIX = "idempotency:";
+
+    private final RedissonClient redissonClient;
+    private final IdempotencyLockProperties lockProperties;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Around("@annotation(org.springframework.stereotype.Controller) && " +
             "@annotation(co.ohmygoods.global.idempotency.aop.Idempotent)")
     public Object processIdempotency(ProceedingJoinPoint controller) throws Throwable {
-
         IdempotencyRequest request = extractIdempotencyRequest(controller);
 
-        if (idempotencyService.isCached(request)) {
-            if (idempotencyService.isProcessing(request)) {
+        RMap<String, Idempotency> idempotencyCache = redissonClient.getMap(IDEMPOTENCY_CACHE_PREFIX);
+        String key = generateCacheKey(request);
+
+        Idempotency cached = idempotencyCache.get(key);
+
+        // http 요청이 이미 캐시된 경우
+        // - 처리하는 중: 예외 발생
+        // - 처리된 요청: 캐시된 응답값 반환
+        if (cached != null) {
+            if (cached.isProcessing()) {
                 throw IdempotencyException.ALREADY_PROCESS_IDEMPOTENCY_REQUEST;
             }
 
-            IdempotencyResponse cached = idempotencyService.getCachedResponse(request);
-            return ResponseEntity.status(cached.httpStatusCode()).body(cached.responseBody());
+            return ResponseEntity.status(cached.getResponseStatus()).body(cached.getResponseBody());
         }
 
-        idempotencyService.cacheRequest(request);
+        // http 요청을 캐시한다
+        // 컨트롤러 실행 전, 락을 획득하여 요청 정보를 레디스에 저장한다 (중복 처리 방지)
+        // 락 획득에 실패하면 다른 스레드에서 이미 멱등 처리 중인 것으로 간주한다
+        // 이후 컨트롤러를 실행하여 받은 응답을 저장하고 (응답 값 캐시) 락을 반납한다
+        RLock rLock = redissonClient.getLock(key);
+        boolean isGetLock = rLock.tryLock(lockProperties.getWaitTime(), lockProperties.getLeaseTime(), lockProperties.getTimeUnit());
+
+        if (!isGetLock) {
+            throw IdempotencyException.ALREADY_PROCESS_IDEMPOTENCY_REQUEST;
+        }
+
+        Idempotency idempotency = Idempotency.create(request.idempotencyKey(),
+                request.httpMethod(), request.servletPath(), request.accessToken());
+
+        idempotencyCache.put(key, idempotency);
 
         try {
             Object controllerResponse = controller.proceed(controller.getArgs());
 
             IdempotencyResponse idempotencyResponse = convertIdempotencyResponse(controllerResponse);
-            idempotencyService.cacheResponse(request, idempotencyResponse);
+            idempotency.cacheResponse(idempotencyResponse.httpStatusCode().value(), idempotencyResponse.responseBody());
+            idempotencyCache.put(key, idempotency);
 
             return controllerResponse;
-        } catch (Throwable e) {
+        }
+        catch (Throwable e) {
             if (e instanceof DomainException domainEx) {
                 HttpStatus errorStatus = domainEx.getHttpStatus();
                 String errorDetailMessage = domainEx.getErrorDetailMessage();
 
                 IdempotencyResponse idempotencyResponse = new IdempotencyResponse(errorStatus, errorDetailMessage);
-                idempotencyService.cacheResponse(request, idempotencyResponse);
+                idempotency.cacheResponse(idempotencyResponse.httpStatusCode().value(), idempotencyResponse.responseBody());
+                idempotencyCache.put(key, idempotency);
             }
-
+            else {
+                idempotency.cacheUnknownError();
+            }
             throw e;
         }
+        finally {
+            try {
+                rLock.unlock();
+            } catch (IllegalMonitorStateException e) {
+                // 이미 락이 해제된 경우
+            }
+        }
+    }
+
+    private String generateCacheKey(IdempotencyRequest request) {
+        return request.idempotencyKey() + ":" + request.httpMethod()
+                + ":" + request.servletPath() + ":" + request.accessToken();
     }
 
     private IdempotencyResponse convertIdempotencyResponse(Object response) {

@@ -1,4 +1,4 @@
-package co.ohmygoods.global.idempotency.service.dto;
+package co.ohmygoods.global.idempotency.aop.dto;
 
 import org.springframework.http.HttpStatusCode;
 

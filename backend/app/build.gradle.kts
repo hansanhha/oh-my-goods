@@ -19,7 +19,6 @@ dependencies {
     implementation(libs.spring.web)
     implementation(libs.spring.validation)
     implementation(libs.spring.data.jpa)
-    implementation(libs.spring.data.redis)
     implementation(libs.spring.security)
     implementation(libs.spring.oauth2.client)
 
@@ -36,6 +35,8 @@ dependencies {
     implementation(libs.guava)
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
+
+    implementation(libs.redisson)
 
     runtimeOnly(libs.spring.actuator)
     runtimeOnly(libs.h2)
