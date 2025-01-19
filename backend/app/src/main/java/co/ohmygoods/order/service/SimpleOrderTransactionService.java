@@ -29,6 +29,7 @@ import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
 @RequiredArgsConstructor
 public class SimpleOrderTransactionService implements OrderTransactionService {
 
@@ -194,6 +196,7 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
         }
 
         order.ordered();
+        logOrderResult(order, OrderResult.SUCCESSFUL);
     }
 
     @EventListener(PaymentCancelEvent.class)
@@ -210,6 +213,7 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
         couponService.restoreAppliedCoupon(order.getAccount().getEmail(), couponHistoryIds);
 
         order.cancel();
+        logOrderResult(order, OrderResult.CANCELLATION);
     }
 
     @EventListener(PaymentFailureEvent.class)
@@ -226,6 +230,7 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
         couponService.restoreAppliedCoupon(order.getAccount().getEmail(), couponHistoryIds);
 
         order.fail(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE, event.paymentFailureCause());
+        logOrderResult(order, OrderResult.FAILURE);
     }
 
     private String generatePaymentName(Order order) {
@@ -242,4 +247,51 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
         return "oh-my-goods 결제";
     }
 
+    private void logOrderResult(Order order, OrderResult result) {
+        String orderItemsMessage = createOrderItemsMessage(order.getOrderItems());
+        String orderMessage = createOrderMessage(order, orderItemsMessage);
+        String resultMessage = result.createResultMessage(orderMessage);
+
+        log.info(resultMessage);
+    }
+
+    private String createOrderItemsMessage(List<OrderItem> orderItems) {
+        return orderItems.stream()
+                .map(orderItem -> String.format("%s %d개", orderItem.getProduct().getName(), orderItem.getOrderQuantity()))
+                .collect(Collectors.joining(", "));
+    }
+
+
+    private String createOrderMessage(Order order, String orderItemsInfo) {
+        return """
+            account email: %s
+            payment status: %s
+            orderTransactionId: %s
+            totalPrice: %d
+            discountPrice: %d
+            purchasePrice: %d
+            orderItems: %s
+            """.formatted(
+                order.getAccount().getEmail(),
+                order.getPayment().getStatus(),
+                order.getTransactionId(),
+                order.getTotalPrice(),
+                order.getDiscountPrice(),
+                (order.getTotalPrice() - order.getDiscountPrice()),
+                orderItemsInfo
+        );
+    }
+
+    @RequiredArgsConstructor
+    private enum OrderResult {
+        SUCCESSFUL("order succeed. "),
+        FAILURE("order failed. "),
+        CANCELLATION("order canceled");
+
+        private final String message;
+
+        private String createResultMessage(String orderInfoMessage) {
+            return "%s %s".formatted(message, orderInfoMessage);
+        }
+    }
 }

@@ -5,12 +5,15 @@ import co.ohmygoods.payment.model.event.PaymentCancelEvent;
 import co.ohmygoods.payment.model.event.PaymentFailureEvent;
 import co.ohmygoods.payment.model.event.PaymentSuccessEvent;
 import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
+import co.ohmygoods.payment.model.vo.PaymentStatus;
 import co.ohmygoods.payment.service.dto.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,6 +31,7 @@ import java.util.List;
  */
 @Service
 @Transactional
+@Slf4j
 @RequiredArgsConstructor
 public class PaymentGateway {
 
@@ -75,6 +79,8 @@ public class PaymentGateway {
 
             Long paymentId = paymentService.failPayment(request.orderTransactionId(), externalResponse.externalError().paymentFailureCause(), failedAt);
 
+            logPaymentResult(request, externalResponse, paymentId, failedAt, false);
+
             paymentEventPublisher.publishEvent(new PaymentFailureEvent(paymentId, externalResponse.externalError().paymentFailureCause()));
 
             return PaymentEndResponse.fail(externalResponse.accountEmail(), paymentId, request.orderTransactionId(),
@@ -83,6 +89,8 @@ public class PaymentGateway {
         }
 
         Long paymentId = paymentService.successPayment(externalResponse.externalTransactionId(), externalResponse.approvedAt());
+
+        logPaymentResult(request, externalResponse, paymentId, externalResponse.approvedAt(), true);
 
         paymentEventPublisher.publishEvent(new PaymentSuccessEvent(paymentId));
 
@@ -104,6 +112,46 @@ public class PaymentGateway {
         Long paymentId = paymentService.failPayment(orderTransactionId, externalPaymentError.paymentFailureCause(), LocalDateTime.now());
 
         paymentEventPublisher.publishEvent(new PaymentFailureEvent(paymentId, externalPaymentError.paymentFailureCause()));
+    }
+
+    private void logPaymentResult(ApprovePaymentRequest request,
+                                  ExternalApprovalResponse externalResponse,
+                                  Long paymentId, LocalDateTime completedAt, boolean success) {
+
+        String defaultMessage = MessageFormat
+                .format("account email: {0} orderTransactionId: {1} paymentId: {2} provider: {3} requestAt: {4} completeAt: {5}",
+                        externalResponse.accountEmail(), externalResponse.orderTransactionId(), paymentId,
+                        request.externalPaymentVendor().name().toLowerCase(), externalResponse.startedAt(), completedAt);
+
+        StringBuilder logMessageBuilder = new StringBuilder();
+
+        if (success) {
+            logMessageBuilder.append("payment successful. ");
+            logMessageBuilder.append(defaultMessage);
+            log.info(logMessageBuilder.toString());
+            return;
+        }
+
+        ExternalPaymentError externalPaymentError = externalResponse.externalError();
+        PaymentStatus failureCause = externalPaymentError.paymentFailureCause();
+
+        String failureCauseMessage = MessageFormat
+                .format(" cause: {0} [provider error code: {1} error message: {2}]",
+                        failureCause.getMessage(), externalPaymentError.externalErrorCode(),
+                        externalPaymentError.externalErrorMsg());
+
+        logMessageBuilder.append("payment failed. ");
+        logMessageBuilder.append(defaultMessage);
+        logMessageBuilder.append(failureCauseMessage);
+        String paymentFailedMessage = logMessageBuilder.toString();
+
+        if (failureCause.equals(PaymentStatus.PAYMENT_FAILED_NETWORK_ERROR)
+                || failureCause.equals(PaymentStatus.PAYMENT_FAILED_OTHER_EXTERNAL_API_ERROR)) {
+            log.warn(paymentFailedMessage);
+            return;
+        }
+
+        log.info(paymentFailedMessage);
     }
 
     private PaymentExternalRequestService findSupportPaymentExternalApiService(ExternalPaymentVendor externalPaymentVendor) {
