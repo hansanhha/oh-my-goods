@@ -9,6 +9,7 @@ import co.ohmygoods.seller.coupon.service.dto.ShopCouponResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -32,7 +33,7 @@ public class SellerCouponController {
                                                   @RequestParam(required = false, defaultValue = "0") int page,
                                                   @RequestParam(required = false, defaultValue = "20") int size) {
 
-        List<ShopCouponResponse> couponHistory = couponService.getShopCouponCreationHistory(account.memberId(), Pageable.ofSize(size).withPage(page));
+        Slice<ShopCouponResponse> couponHistory = couponService.getShopCouponCreationHistory(account.memberId(), Pageable.ofSize(size).withPage(page));
         return ResponseEntity.ok(couponHistory);
     }
 
