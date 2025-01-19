@@ -1,6 +1,7 @@
 package co.ohmygoods.global.exception;
 
 import co.ohmygoods.global.exception.ProblemDetailResponseEntityBuilder.ProblemDetailInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,10 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ProblemDetail> handleDomainException(DomainException e) {
+
+        logDomainException(e);
+
         ProblemDetailInfo problemDetailInfo = ProblemDetailInfo.builder()
                 .exception(e)
                 .httpStatusCode(e.getHttpStatus())
@@ -43,6 +48,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 errors.put(fieldError.getField(), fieldError.getDefaultMessage()));
 
         return handleExceptionInternal(e, errors, headers, HttpStatus.BAD_REQUEST, request);
+    }
+
+    private void logDomainException(DomainException e) {
+        if (e.isServerError()) {
+            log.error("occurred {}. detail: {} ", e.getClass().getSimpleName(), e.toString());
+            return;
+        }
+
+        log.info("occurred {}. detail: {} ", e.getClass().getSimpleName(), e.toString());
     }
 
 }

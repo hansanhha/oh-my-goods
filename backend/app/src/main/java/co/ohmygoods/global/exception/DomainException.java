@@ -25,6 +25,10 @@ public abstract class DomainException extends RuntimeException {
         setStackTrace(new StackTraceElement[]{Thread.currentThread().getStackTrace()[5]});
     }
 
+    public boolean isServerError() {
+        return domainError.getHttpStatus().is5xxServerError();
+    }
+
     public HttpStatus getHttpStatus() {
         return domainError.getHttpStatus();
     }
@@ -62,5 +66,22 @@ public abstract class DomainException extends RuntimeException {
     @Override
     public synchronized Throwable fillInStackTrace() {
         return this;
+    }
+
+    @Override
+    public String toString() {
+        URI instance = getInstance();
+
+        return """
+               stackTrace: %s
+               instance: %s
+               response status: %s
+               error: %s
+               
+               """.formatted(
+                        fillInStackTrace(),
+                        domainError.getHttpStatus(),
+                        instance == null ? "none" : instance,
+                        domainError.getErrorDetailMessage());
     }
 }
