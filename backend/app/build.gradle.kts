@@ -56,6 +56,11 @@ java {
     }
 }
 
-tasks.named<Test>("test") {
+tasks.withType<Jar> {
+    archiveBaseName.set("ohmygoods")
+    archiveVersion.set("0.0.1")
+}
+
+tasks.withType<Test> {
     useJUnitPlatform()
 }
