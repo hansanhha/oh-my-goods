@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.spring.data.jpa)
     implementation(libs.spring.security)
     implementation(libs.spring.oauth2.client)
+    implementation(libs.spring.springdoc)
 
     implementation("com.querydsl:querydsl-jpa:${libs.versions.querydsl.get()}:jakarta")
     annotationProcessor("com.querydsl:querydsl-apt:${libs.versions.querydsl.get()}:jakarta")
