@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -68,6 +69,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         request.setAttribute(ACCESS_TOKEN_REQUEST_ATTRIBUTE_NAME, signInResponse.accessToken().tokenValue());
         request.setAttribute(REFRESH_TOKEN_REQUEST_ATTRIBUTE_NAME, signInResponse.refreshToken().tokenValue());
 
+        SecurityContextHolder.clearContext();
         redirectHandler.sendRedirect(request, response);
     }
 

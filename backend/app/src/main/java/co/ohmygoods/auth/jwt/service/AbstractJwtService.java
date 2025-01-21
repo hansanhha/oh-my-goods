@@ -25,10 +25,10 @@ public abstract class AbstractJwtService implements JwtService {
     private final CacheableRefreshTokenService refreshTokenService;
 
     @Override
-    public Jwts generate(String memberId, Set<Role.Authority> scopes) {
+    public Jwts generate(String memberId, Role role) {
         refreshTokenService.removeAllRefreshToken(memberId);
 
-        TokenDTO accessToken = generateAccessToken(memberId, scopes);
+        TokenDTO accessToken = generateAccessToken(memberId, role);
         TokenDTO refreshToken = generateRefreshToken(memberId);
 
         RefreshToken issuedRefreshToken = RefreshToken.create(memberId, refreshToken.tokenValue());
@@ -56,7 +56,7 @@ public abstract class AbstractJwtService implements JwtService {
 
         Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
-        TokenDTO accessToken = generateAccessToken(memberId, account.getRole().getAuthorities());
+        TokenDTO accessToken = generateAccessToken(memberId, account.getRole());
         TokenDTO refreshToken = generateRefreshToken(memberId);
 
         refreshTokenInDB.updateTokenValue(refreshToken.tokenValue());
@@ -71,6 +71,6 @@ public abstract class AbstractJwtService implements JwtService {
         refreshTokenService.removeAllRefreshToken(memberId);
     }
 
-    abstract protected TokenDTO generateAccessToken(String email, Set<Role.Authority> scopes);
+    abstract protected TokenDTO generateAccessToken(String email, Role role);
     abstract protected TokenDTO generateRefreshToken(String email);
 }

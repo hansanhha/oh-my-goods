@@ -38,12 +38,12 @@ public class NimbusJoseJwtService extends AbstractJwtService {
     }
 
     @Override
-    protected TokenDTO generateAccessToken(String email, Set<Role.Authority> scopes) {
+    protected TokenDTO generateAccessToken(String email, Role role) {
         Instant issueTime = Instant.now();
         Instant expirationTime = issueTime.plus(jwtProperties.getAccessTokenExpiresIn());
 
         JWSHeader jwsHeader = getJWSHeader(jwtProperties.getAccessTokenAlgorithm());
-        JWTClaimsSet accessTokenClaimsSet = getClaimsSet(email, getJwtId(), Date.from(issueTime), Date.from(expirationTime), scopes);
+        JWTClaimsSet accessTokenClaimsSet = getClaimsSet(email, getJwtId(), Date.from(issueTime), Date.from(expirationTime), role);
         SignedJWT signedAccessToken = getSignedNimbusJwt(jwsHeader, accessTokenClaimsSet, jwtProperties.getAccessTokenKey());
 
         return new TokenDTO(signedAccessToken.serialize(), TokenType.BEARER, jwtProperties.getAccessTokenExpiresIn());
@@ -75,7 +75,7 @@ public class NimbusJoseJwtService extends AbstractJwtService {
     }
 
     private JWTClaimsSet getClaimsSet(String email, String jwtId, Date issuedAt, Date expirationTime,
-                                      @Nullable Set<Role.Authority> authorities) {
+                                      Role role) {
 
         var jwtBuilder = new JWTClaimsSet.Builder()
                 .jwtID(jwtId)
@@ -83,11 +83,8 @@ public class NimbusJoseJwtService extends AbstractJwtService {
                 .audience(jwtProperties.getAudience())
                 .issueTime(issuedAt)
                 .expirationTime(expirationTime)
+                .claim("role", role)
                 .subject(email);
-
-        if (authorities != null && !authorities.isEmpty()) {
-            jwtBuilder.claim("scope", authorities);
-        }
 
         return jwtBuilder.build();
     }

@@ -37,7 +37,7 @@ public class AccountService {
 
     public SignInResponse signIn(String memberId) {
         Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
-        Jwts generatedJwts = jwtService.generate(memberId, account.getRole().getAuthorities());
+        Jwts generatedJwts = jwtService.generate(memberId, account.getRole());
         return new SignInResponse(generatedJwts.accessToken(), generatedJwts.refreshToken());
     }
 

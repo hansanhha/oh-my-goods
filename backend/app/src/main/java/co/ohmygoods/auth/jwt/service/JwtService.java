@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface JwtService {
 
-    Jwts generate(String memberId, Set<Role.Authority> scopes);
+    Jwts generate(String memberId, Role role);
 
     Jwts regenerate(String memberId, String refreshTokenValue);
 

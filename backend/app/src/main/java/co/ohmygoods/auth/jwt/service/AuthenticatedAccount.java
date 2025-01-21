@@ -1,7 +1,6 @@
 package co.ohmygoods.auth.jwt.service;
 
 import co.ohmygoods.auth.account.model.vo.Role;
-import org.springframework.security.core.AuthenticatedPrincipal;
 
 /**
  * 유효한 토큰을 보유한 사용자의 정보를 나타내는 객체
@@ -12,10 +11,6 @@ import org.springframework.security.core.AuthenticatedPrincipal;
 public record AuthenticatedAccount(
         String jwt,
         String memberId,
-        Role role) implements AuthenticatedPrincipal {
+        Role role) {
 
-    @Override
-    public String getName() {
-        return memberId;
-    }
 }

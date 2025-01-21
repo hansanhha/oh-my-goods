@@ -28,7 +28,7 @@ public record JwtValidationResult(
     }
 
     public Role getRole() {
-        return Role.valueOf((String) claims.get("role"));
+        return Role.valueOf(((String) claims.get("role")).toUpperCase());
     }
 
 }

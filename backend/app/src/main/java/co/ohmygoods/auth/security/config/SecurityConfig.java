@@ -18,6 +18,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.*;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
@@ -53,7 +54,11 @@ public class SecurityConfig {
     }
 
     private PermitRequestMatcher createPermitRequestMatcher(SecurityConfigProperties.Whitelist whitelist) {
-        return new PermitRequestMatcher(whitelist.getServletPathList());
+        PermitRequestMatcher permitRequestMatcher = new PermitRequestMatcher(whitelist.getServletPathList());
+        permitRequestMatcher.add(whitelist.getOauth2AuthorizationBaseUrl());
+        permitRequestMatcher.add(whitelist.getOauth2AuthorizationProcessingUrl());
+        permitRequestMatcher.add(whitelist.getOauth2LoginProcessingUrl());
+        return permitRequestMatcher;
     }
 
     @Bean
@@ -61,7 +66,7 @@ public class SecurityConfig {
         return http
                 .httpBasic(HttpBasicConfigurer::disable)
                 .csrf(CsrfConfigurer::disable)
-                .sessionManagement(SessionManagementConfigurer::disable)
+                .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .requestCache(RequestCacheConfigurer::disable)
                 .rememberMe(RememberMeConfigurer::disable)
                 .anonymous(AnonymousConfigurer::disable)
