@@ -9,7 +9,7 @@ import org.springframework.data.domain.Slice;
 import java.util.List;
 import java.util.Optional;
 
-public interface CouponHistoryCustomRepositoryCustom {
+public interface CouponHistoryRepositoryCustom {
 
     Optional<CouponHistory> fetchIssuedCouponHistoryByAccountAndCoupon(Account account, Coupon coupon);
 

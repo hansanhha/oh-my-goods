@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class CouponHistoryRepositoryCustomImpl implements CouponHistoryCustomRepositoryCustom {
+public class CouponHistoryRepositoryCustomImpl implements CouponHistoryRepositoryCustom {
 
     private final JPAQueryFactory query;
     private final QCouponHistory couponHistory = QCouponHistory.couponHistory;

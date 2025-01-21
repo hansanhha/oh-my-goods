@@ -1,11 +1,15 @@
 package co.ohmygoods.auth.security.config;
 
 import co.ohmygoods.auth.account.model.vo.Role;
+import co.ohmygoods.auth.jwt.service.JwtValidator;
 import co.ohmygoods.auth.oauth2.service.CacheableOAuth2AuthorizedClientService;
 import co.ohmygoods.auth.oauth2.service.IdentifiedOAuth2UserService;
 import co.ohmygoods.auth.security.JwtBearerAuthenticationFilter;
 import co.ohmygoods.auth.security.OAuth2AuthenticationSuccessHandler;
+import co.ohmygoods.auth.security.PermitRequestMatcher;
 import co.ohmygoods.auth.security.SecurityExceptionProcessingFilter;
+import co.ohmygoods.global.logging.RequestProcessingLoggingInterceptor;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +25,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -32,16 +38,26 @@ public class SecurityConfig {
     private final CacheableOAuth2AuthorizedClientService cacheableOAuth2AuthorizedClientService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
-    // Custom Filter
-    private final JwtBearerAuthenticationFilter jwtBearerAuthenticationFilter;
-    private final SecurityExceptionProcessingFilter securityExceptionProcessingFilter;
-
     // Security Properties
     private final SecurityConfigProperties.Whitelist whitelist;
     private final SecurityConfigProperties.CorsProperties corsProperties;
 
+    // Custom Filter
+    private JwtBearerAuthenticationFilter jwtBearerAuthenticationFilter;
+    private final JwtValidator jwtValidator;
+    private final SecurityExceptionProcessingFilter securityExceptionProcessingFilter;
+
+    @PostConstruct
+    void init() {
+        jwtBearerAuthenticationFilter  = new JwtBearerAuthenticationFilter(createPermitRequestMatcher(whitelist),jwtValidator);
+    }
+
+    private PermitRequestMatcher createPermitRequestMatcher(SecurityConfigProperties.Whitelist whitelist) {
+        return new PermitRequestMatcher(whitelist.getServletPathList());
+    }
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, RequestProcessingLoggingInterceptor requestProcessingLoggingInterceptor) throws Exception {
         return http
                 .httpBasic(HttpBasicConfigurer::disable)
                 .csrf(CsrfConfigurer::disable)
@@ -52,6 +68,7 @@ public class SecurityConfig {
                 .formLogin(FormLoginConfigurer::disable)
                 .cors(config -> config.configurationSource(buildCorsConfigurationSource(corsProperties)))
                 .authorizeHttpRequests(config -> config
+                        .requestMatchers(whitelist.getServletPathList().toArray(new String[0])).permitAll()
                         .requestMatchers(oAuth2LoginProcessingUrlString()).permitAll()
                         .requestMatchers(sellerRequestMatcher()).hasRole(Role.SELLER.name())
                         .dispatcherTypeMatchers(permitDispatcherTypes()).permitAll()
@@ -69,8 +86,8 @@ public class SecurityConfig {
                         .logoutSuccessUrl(whitelist.getLogoutUrl())
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID"))
-                .addFilterBefore(securityExceptionProcessingFilter, ExceptionTranslationFilter.class)
                 .addFilterBefore(jwtBearerAuthenticationFilter, OAuth2AuthorizationRequestRedirectFilter.class)
+                .addFilterBefore(securityExceptionProcessingFilter, JwtBearerAuthenticationFilter.class)
                 .build();
     }
 

@@ -73,15 +73,15 @@ public abstract class DomainException extends RuntimeException {
         URI instance = getInstance();
 
         return """
-               stackTrace: %s
+               exception: %s
                instance: %s
                response status: %s
-               error: %s
+               error detail: %s
                
                """.formatted(
-                        fillInStackTrace(),
-                        domainError.getHttpStatus(),
+                        this.getClass().getSimpleName(),
                         instance == null ? "none" : instance,
+                        domainError.getHttpStatus(),
                         domainError.getErrorDetailMessage());
     }
 }

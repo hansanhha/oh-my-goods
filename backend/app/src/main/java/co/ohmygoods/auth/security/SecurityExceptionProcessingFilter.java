@@ -4,6 +4,8 @@ import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.global.exception.HttpServletExceptionResponseHeaders;
 import co.ohmygoods.global.exception.ProblemDetailResponseEntityBuilder;
 import co.ohmygoods.global.exception.ProblemDetailResponseEntityBuilder.ProblemDetailInfo;
+import com.esotericsoftware.kryo.util.ObjectMap;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +38,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SecurityExceptionProcessingFilter extends OncePerRequestFilter {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpServletExceptionResponseHeaders httpServletExceptionResponseHeaders;
 
     @Override
@@ -93,11 +96,12 @@ public class SecurityExceptionProcessingFilter extends OncePerRequestFilter {
         responseEntity.getHeaders().forEach((name, values) ->
                 values.forEach(value -> response.addHeader(name, value)));
 
-        Object body = responseEntity.getBody();
+        Object responseEntityBody = responseEntity.getBody();
 
-        if (Objects.nonNull(body)) {
+        if (Objects.nonNull(responseEntityBody)) {
             response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
-            response.getWriter().write(body.toString());
+            String responseBody = objectMapper.writeValueAsString(responseEntityBody);
+            response.getWriter().write(responseBody);
             response.getWriter().flush();
         }
     }

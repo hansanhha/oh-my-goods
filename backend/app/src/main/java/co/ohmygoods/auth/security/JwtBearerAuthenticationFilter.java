@@ -9,24 +9,21 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.List;
 
-@Component
-@RequiredArgsConstructor
 public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter {
 
     private static final String BEARER = "Bearer ";
 
+    public JwtBearerAuthenticationFilter(PermitRequestMatcher permitRequestsMather, JwtValidator jwtValidator) {
+        super(permitRequestsMather);
+        this.jwtValidator = jwtValidator;
+    }
+
     private final JwtValidator jwtValidator;
-    private final List<RequestMatcher> permitRequests;
 
     @Override
     protected Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -55,8 +52,4 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
         return new JwtAuthenticationToken(new AuthenticatedAccount(jwt, validationResult.getSubject(), validationResult.getRole()));
     }
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        return permitRequests.stream().anyMatch(ignore -> ignore.matches(request));
-    }
 }
