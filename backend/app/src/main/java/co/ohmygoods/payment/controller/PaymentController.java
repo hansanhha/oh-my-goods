@@ -4,11 +4,13 @@ import co.ohmygoods.payment.controller.dto.KakaopayApproveFailureDto;
 import co.ohmygoods.payment.service.dto.ApprovePaymentRequest;
 import co.ohmygoods.payment.service.PaymentGateway;
 import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Hidden
 @RestController
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
