@@ -10,7 +10,5 @@ build
 .history
 
 # backend
-**.yml
-**.properties
-**.yaml
+**/resources/**
 **.env

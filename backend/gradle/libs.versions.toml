@@ -9,6 +9,7 @@ h2 = "2.2.224"
 redisson = "3.35.0"
 lombok = "1.18.34"
 awssdk = "2.29.29"
+micrometer = "1.14.4"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref="spring-boot" }
@@ -51,3 +52,7 @@ awssdk-bom = { module = "software.amazon.awssdk:bom", version.ref = "awssdk" }
 awssdk-s3 = { module = "software.amazon.awssdk:s3" }
 awssdk-sso = { module = "software.amazon.awssdk:sso" }
 awssdk-ssooidc = { module = "software.amazon.awssdk:ssooidc" }
+
+# observability
+micrometer-bom = { module = "io.micrometer:micrometer-bom", version.ref = "micrometer" }
+micrometer-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }

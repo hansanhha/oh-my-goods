@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
     application
     alias(libs.plugins.spring.boot)
@@ -32,6 +34,9 @@ dependencies {
     implementation(libs.awssdk.sso)
     implementation(libs.awssdk.ssooidc)
     implementation(libs.awssdk.s3)
+
+    implementation(platform(libs.micrometer.bom))
+    implementation(libs.micrometer.prometheus)
 
     implementation(libs.guava)
     compileOnly(libs.lombok)
