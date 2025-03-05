@@ -2,9 +2,6 @@ package co.ohmygoods.global.config;
 
 import co.ohmygoods.global.idempotency.vo.Idempotency;
 import lombok.RequiredArgsConstructor;
-import org.redisson.Redisson;
-import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,18 +12,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @RequiredArgsConstructor
-public class RedissonConfig {
+public class RedisConfig {
 
     private final RedisProperties properties;
 
     private static final String REDISSON_SERVER_PREFIX = "redis://";
-
-    @Bean
-    public RedissonClient redissonClient() {
-        Config config = new Config();
-        config.useSingleServer().setAddress(REDISSON_SERVER_PREFIX + properties.getHost() + ":" + properties.getPort());
-        return Redisson.create(config);
-    }
 
     @Bean
     public RedisTemplate<String, Idempotency> idempotencyRedisTemplate(RedisConnectionFactory connectionFactory) {
