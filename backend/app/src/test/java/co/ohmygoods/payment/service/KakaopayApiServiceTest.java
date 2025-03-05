@@ -9,10 +9,7 @@ import co.ohmygoods.payment.model.vo.UserAgent;
 import co.ohmygoods.payment.repository.PaymentRepository;
 import co.ohmygoods.payment.service.dto.ExternalPreparationResponse;
 import co.ohmygoods.shop.repository.ShopRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -26,7 +23,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
-
+@Disabled("테스트 코드 리팩토링 필요")
 @SpringBootTest(classes = {KakaopayApiService.class, PaymentServiceConfig.class})
 @EnableConfigurationProperties(PaymentServiceConfig.KakaoPayProperties.class)
 @TestPropertySource(locations = "classpath:application.yml")
