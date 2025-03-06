@@ -1,14 +1,26 @@
 #!/bin/bash
 
 set -e
-if [[ ! -d "$HOME/config" ! -f "$HOME/config/.env"]]; then
+if [[ ! -d "$HOME/config" || ! -f "$HOME/.env" ]]; then
   echo "deployment failed"
   echo "there are no required config files"
+  exit 1
+fi
+
+if ! command -v docker &> /dev/null; then
+  echo "installing docker..."
+  sudo dnf update -y
+  sudo dnf install -y docker
+
+  sudo systemctl start docker
+  sudo systemctl enable docker
+
+  echo "installed docker successfully"
 fi
 
 PROJECT_DIR="$HOME/ohmygoods"
 BACKEND_DIR="$PROJECT_DIR/backend"
-BACKEND_DOCKER_COMPOSE_FILE="$BACKEND_DIR/docker-compose.yml"
+BACKEND_DOCKER_COMPOSE_FILE="$BACKEND_DIR/docker-compose-ci.yml"
 BACKEND_SERVICE="backend"
 
 if [ ! -d "$PROJECT_DIR" ]; then
@@ -18,8 +30,8 @@ if [ ! -d "$PROJECT_DIR" ]; then
 fi
 
 if [ -f "$BACKEND_DOCKER_COMPOSE_FILE" ]; then
-  echo "checking if docker-compose.yml has changed"
-  if cmp -s $DOCKER_COMPOSE_FILE $HOME/config/docker-compose.yml; then
+  echo "checking if docker-compose-ci.yml has changed"
+  if cmp -s $DOCKER_COMPOSE_FILE $HOME/config/backend/docker-compose-ci.yml; then
     echo "no changes in docker-compose.yml"
     COMPOSE_CHANGED=false
   else
@@ -29,13 +41,13 @@ if [ -f "$BACKEND_DOCKER_COMPOSE_FILE" ]; then
 fi
 
 echo "updating environment files..."
-mv ~/config/.env $BACKEND_DIR/.env
-mv ~/config/docker-compose.yml $BACKEND_DOCKER_COMPOSE_FILE
+cp ~/.env $BACKEND_DIR/.env
+cp ~/config/backend/docker-compose-ci.yml $BACKEND_DOCKER_COMPOSE_FILE
 
 echo "pulling latest backend docker image..."
 cd $BACKEND_DIR
-docker login ghcr.io -u $GITHUB_ACTOR --password $GITHUB_TOKEN
-docker pull ghcr.io/${GITHUB_REPOSITORY}/backend-app:latest
+echo $GHCR_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+docker pull ghcr.io/$GITHUB_REPOSITORY/backend-app:latest
 
 if [ "$FIRST_DEPLOY" ]; then
   echo "starting all services..."
@@ -54,6 +66,7 @@ if [ "$FIRST_DEPLOY" ]; then
 fi
 
 echo "checking all services health..."
+
 for i in {1..3}; do
   sleep 10
   unhealthy_services=$(docker ps --format '{{.Names}} {{.Status}}' | grep -E 'unhealthy|Exited' | awk '{print $1}')

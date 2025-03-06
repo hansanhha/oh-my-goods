@@ -2,37 +2,40 @@ name: cd
 
 on:
   workflow_run:
-    workflows: ["ci"]
-    types:
-      - completed
+    workflows: [ci]
+    types: [completed]
 
 jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    name: pull docker image from ghcr and deploy to aws
+    name: deploy services to aws
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - uses: actions/checkout@v4
 
       - name: upload build files to aws
-        uses: appleboy/scp-action@v0.1.7  # 파일 복사
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USERNAME }}
-          password: ${{ secrets.AWS_PASSWORD }}
-          port: ${{ secrets.AWS_PORT }}
-          source: backend/docker-compose.yml, deploy.sh
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          source: "./backend/docker-compose-ci.yml, ./deploy.sh"
           target: "$HOME/config"
-          overwrite: 'true'
+          overwrite: "true"
 
       - name: deploy via deploy.sh
         uses: appleboy/ssh-action@v1.2.1
+        env:
+          CHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USERNAME }}
-          password: ${{ secrets.AWS_PASSWORD }}
-          port: ${{ secrets.AWS_PORT }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          envs: GHCR_TOKEN, GITHUB_ACTOR, GITHUB_REPOSITORY
           script: |
             chmod +x $HOME/config/deploy.sh
             $HOME/config/deploy.sh
