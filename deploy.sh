@@ -40,6 +40,10 @@ if [ -f "$BACKEND_DOCKER_COMPOSE_FILE" ]; then
   fi
 fi
 
+echo "print envs"
+echo $GITHUB_ACTOR
+echo $GITHUB_REPOSITORY
+
 echo "updating environment files..."
 cp ~/.env $BACKEND_DIR/.env
 cp ~/config/backend/docker-compose-ci.yml $BACKEND_DOCKER_COMPOSE_FILE

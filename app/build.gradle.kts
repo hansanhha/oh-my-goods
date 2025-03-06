@@ -68,7 +68,7 @@ tasks.withType<Jar> {
 
 tasks.withType<BootJar> {
     enabled = true
-    archiveBaseName.set("ohmygolsods")
+    archiveBaseName.set("ohmygoods")
     archiveVersion.set("0.0.1")
 }
 
