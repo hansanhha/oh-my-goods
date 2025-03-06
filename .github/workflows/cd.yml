@@ -1,0 +1,51 @@
+name: cd
+
+on:
+  workflow_run:
+    workflows: ["ci"]
+    types:
+      - completed
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: pull docker image from ghcr and deploy to aws
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: upload build files to aws
+        uses: appleboy/scp-action@v0.1.7  # 파일 복사
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME }}
+          password: ${{ secrets.AWS_PASSWORD }}
+          port: ${{ secrets.AWS_PORT }}
+          source: backend/docker-compose.yml, deploy.sh
+          target: "$HOME/config"
+          overwrite: 'true'
+
+      - name: deploy via deploy.sh
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME }}
+          password: ${{ secrets.AWS_PASSWORD }}
+          port: ${{ secrets.AWS_PORT }}
+          script: |
+            chmod +x $HOME/config/deploy.sh
+            $HOME/config/deploy.sh
+
+      - name: email notify on deploy failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: ${{ secrets.SMTP_ADDRESS }}
+          server_port: ${{ secrets.SMPT_PORT }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "ohmygoods aws deployment failed"
+          body: "backend deployment failed after multiple retries"
+          to: ${{ secrets.EMAIL_RECEIVER }}
+          from: ${{ secrets.EMAIL_SENDER }}
