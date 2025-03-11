@@ -1,0 +1,36 @@
+services:
+
+  backend:
+    image: hansanhha/ohmygoods-backend
+    container_name: ohmygoods-backend
+    build:
+      context: backend
+      dockerfile: app/Dockerfile-local
+    ports:
+      - '8080:8080'
+    environment:
+      - REDIS_HOST=redis
+    env_file:
+      - config/env/.env
+
+  redis:
+    image: redis:alpine
+    container_name: ohmygoods-redis
+    ports:
+      - '6379:6379'
+
+  prometheus:
+    image: prom/prometheus
+    container_name: ohmygoods-prometheus
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - '9090:9090'
+
+  grafana:
+    image: grafana/grafana
+    container_name: ohmygoods-grafana
+    ports:
+      - '3000:3000'
