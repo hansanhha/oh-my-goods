@@ -3,7 +3,7 @@ package co.ohmygoods.auth.account.service;
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.model.vo.Role;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.auth.account.service.dto.AccountMetadataResponse;
+import co.ohmygoods.auth.account.service.dto.AccountProfile;
 import co.ohmygoods.auth.account.service.dto.OAuth2AuthorizationResponse;
 import co.ohmygoods.auth.account.service.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.account.service.dto.SignInResponse;
@@ -30,9 +30,9 @@ public class AccountService {
     private final JwtService jwtService;
     private final AccountRepository accountRepository;
 
-    public AccountMetadataResponse getAccountMetadata(String memberId) {
+    public AccountProfile getAccountMetadata(String memberId) {
         Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
-        return AccountMetadataResponse.from(account);
+        return AccountProfile.from(account);
     }
 
     public SignInResponse signIn(String memberId) {
@@ -75,7 +75,7 @@ public class AccountService {
         accountRepository.delete(account);
     }
 
-    public AccountMetadataResponse signUp(OAuth2SignUpRequest oAuth2SignUpRequest) {
+    public AccountProfile signUp(OAuth2SignUpRequest oAuth2SignUpRequest) {
         String combinedOAuth2MemberId = oAuth2AttributeService.getCombinedOAuth2MemberId(oAuth2SignUpRequest.oAuth2Provider(), oAuth2SignUpRequest.oauth2MemberId());
 
         var newAccount = Account.builder()
@@ -88,7 +88,7 @@ public class AccountService {
                 .build();
 
         var account = accountRepository.save(newAccount);
-        return AccountMetadataResponse.from(account);
+        return AccountProfile.from(account);
     }
 
     private OAuth2AuthorizationService findSupportOAuth2AuthorizationService(OAuth2Provider oAuth2Provider) {
