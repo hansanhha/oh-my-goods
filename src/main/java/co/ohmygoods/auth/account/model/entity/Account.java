@@ -1,10 +1,22 @@
 package co.ohmygoods.auth.account.model.entity;
 
 import co.ohmygoods.auth.account.model.vo.Role;
+import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
 import co.ohmygoods.global.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Builder
@@ -52,6 +64,14 @@ public class Account extends BaseEntity {
 
     public boolean canDestroyShopCoupon() {
         return role.hasDestroyShopCouponAuthority();
+    }
+
+    public void updateNicknameWithValidation(String nickname) {
+        if (nickname.isBlank() || nickname.length() > 20) {
+            throw AuthException.INVALID_UPDATE_NICKNAME_SIZE;
+        }
+
+        this.nickname = nickname;
     }
 }
 

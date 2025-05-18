@@ -11,6 +11,7 @@ public class AuthException extends DomainException {
     public static final AuthException NOT_FOUND_ACCOUNT = new AuthException(AuthError.NOT_FOUND_ACCOUNT);
     public static final AuthException NOT_FOUND_OAUTH2_AUTHORIZED_CLIENT = new AuthException(AuthError.NOT_FOUND_OAUTH2_AUTHORIZED_CLIENT);
 
+    public static final AuthException INVALID_UPDATE_NICKNAME_SIZE = new AuthException(AuthError.INVALID_UPDATE_NICKNAME_SIZE);
     public static final AuthException DUPLICATED_NICKNAME = new AuthException(AuthError.DUPLICATED_NICKNAME);
 
     public static final AuthException EMPTY_BEARER_HEADER = new AuthException(AuthError.EMPTY_BEARER_HEADER);
