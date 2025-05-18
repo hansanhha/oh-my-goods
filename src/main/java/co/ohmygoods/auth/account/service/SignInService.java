@@ -1,5 +1,6 @@
 package co.ohmygoods.auth.account.service;
 
+
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.model.vo.Role;
 import co.ohmygoods.auth.account.repository.AccountRepository;
@@ -13,12 +14,15 @@ import co.ohmygoods.auth.jwt.service.dto.JWTs;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
 import co.ohmygoods.auth.oauth2.service.OAuth2AttributeExtractor;
 import co.ohmygoods.auth.oauth2.service.OAuth2AuthorizationService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @Transactional
@@ -53,21 +57,6 @@ public class SignInService {
         }
 
         jwtService.removeRefreshToken(memberId);
-    }
-
-    public void delete(String memberId) {
-        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
-
-        OAuth2AuthorizationService oAuth2AuthorizationService = findSupportOAuth2AuthorizationService(account.getOauth2Provider());
-
-        OAuth2AuthorizationResponse oAuth2UnlinkResponse = oAuth2AuthorizationService.unlink(account.getEmail());
-
-        if (!oAuth2UnlinkResponse.isSuccess()) {
-            throw AuthException.failedOAuth2Unlink(oAuth2UnlinkResponse.oauth2ProviderErrorCode(), oAuth2UnlinkResponse.oauth2ProviderErrorMsg());
-        }
-
-        jwtService.removeRefreshToken(memberId);
-        accountRepository.delete(account);
     }
 
     public AccountProfile signUp(OAuth2SignUpRequest oAuth2SignUpRequest) {
