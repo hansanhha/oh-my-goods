@@ -2,7 +2,7 @@ package co.ohmygoods.auth.oauth2.service;
 
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.auth.account.service.AccountService;
+import co.ohmygoods.auth.account.service.SignInService;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
 import co.ohmygoods.auth.security.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ import java.util.UUID;
  *
  * <oi>
  *  <li>{@link OAuth2AuthenticationSuccessHandler#onAuthenticationSuccess}</li>
- *  <li>{@link AccountService#signUp}</li>
+ *  <li>{@link SignInService#signUp}</li>
  *  <li>{@link CacheableOAuth2AuthorizedClientService}</li>
  * </oi>
  */
@@ -39,7 +39,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class IdentifiedOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final OAuth2AttributeService oAuth2AttributeService;
+    private final OAuth2AttributeExtractor oAuth2AttributeService;
     private final AccountRepository accountRepository;
 
     @Override

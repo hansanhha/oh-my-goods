@@ -1,6 +1,6 @@
 package co.ohmygoods.cart.controller;
 
-import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
+import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
 import co.ohmygoods.cart.controller.dto.AddCartWebRequest;
 import co.ohmygoods.cart.model.entity.Cart;
 import co.ohmygoods.cart.service.CartService;

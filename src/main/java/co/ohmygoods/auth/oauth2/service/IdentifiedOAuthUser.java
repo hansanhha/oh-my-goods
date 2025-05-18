@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.oauth2.service;
 
-import co.ohmygoods.auth.account.service.AccountService;
+import co.ohmygoods.auth.account.service.SignInService;
 import co.ohmygoods.auth.security.OAuth2AuthenticationSuccessHandler;
 import lombok.Getter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -16,7 +16,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
  * <oi>
  *  <li>{@link IdentifiedOAuth2UserService}</li>
  *  <li>{@link OAuth2AuthenticationSuccessHandler#onAuthenticationSuccess}</li>
- *  <li>{@link AccountService#signUp}</li>
+ *  <li>{@link SignInService#signUp}</li>
  *  <li>{@link CacheableOAuth2AuthorizedClientService}</li>
  * </oi>
  */

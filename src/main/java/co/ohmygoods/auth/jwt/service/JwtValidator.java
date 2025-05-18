@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt.service;
 
-import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
+import co.ohmygoods.auth.jwt.service.dto.JWTValidationResult;
 
 /**
  * <p>
@@ -9,12 +9,8 @@ import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
  *
  * 주어진 string token 값을 파싱해야 하며 파싱에 실패한 경우 JwtValidationResult.parseFailure 반환
  */
-public interface JwtValidator {
+public interface JWTValidator {
 
-    JwtValidationResult validate(String token);
+    JWTValidationResult validate(String token);
 
-    enum TokenType {
-        ACCESS_TOKEN,
-        REFRESH_TOKEN;
-    }
 }

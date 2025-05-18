@@ -1,7 +1,10 @@
 package co.ohmygoods.global.config;
 
-import co.ohmygoods.global.idempotency.vo.Idempotency;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +22,16 @@ public class RedisConfig {
     private static final String REDISSON_SERVER_PREFIX = "redis://";
 
     @Bean
-    public RedisTemplate<String, Idempotency> idempotencyRedisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Idempotency> irt = new RedisTemplate<>();
-        irt.setConnectionFactory(connectionFactory);
-        irt.setKeySerializer(new StringRedisSerializer());
-        irt.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        return irt;
+    public RedisTemplate<String, Object> idempotencyRedisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.activateDefaultTyping(
+            LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer(mapper));
+
+        return template;
     }
 }

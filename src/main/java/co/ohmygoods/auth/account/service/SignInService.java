@@ -8,10 +8,10 @@ import co.ohmygoods.auth.account.service.dto.OAuth2AuthorizationResponse;
 import co.ohmygoods.auth.account.service.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.account.service.dto.SignInResponse;
 import co.ohmygoods.auth.exception.AuthException;
-import co.ohmygoods.auth.jwt.service.JwtService;
-import co.ohmygoods.auth.jwt.service.dto.Jwts;
+import co.ohmygoods.auth.jwt.service.JWTService;
+import co.ohmygoods.auth.jwt.service.dto.JWTs;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
-import co.ohmygoods.auth.oauth2.service.OAuth2AttributeService;
+import co.ohmygoods.auth.oauth2.service.OAuth2AttributeExtractor;
 import co.ohmygoods.auth.oauth2.service.OAuth2AuthorizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,26 +23,21 @@ import java.util.UUID;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AccountService {
+public class SignInService {
 
     private final List<OAuth2AuthorizationService> oAuth2AuthorizationServices;
-    private final OAuth2AttributeService oAuth2AttributeService;
-    private final JwtService jwtService;
+    private final OAuth2AttributeExtractor oAuth2AuttributeExtractor;
+    private final JWTService jwtService;
     private final AccountRepository accountRepository;
-
-    public AccountProfile getAccountMetadata(String memberId) {
-        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
-        return AccountProfile.from(account);
-    }
 
     public SignInResponse signIn(String memberId) {
         Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
-        Jwts generatedJwts = jwtService.generate(memberId, account.getRole());
-        return new SignInResponse(generatedJwts.accessToken(), generatedJwts.refreshToken());
+        JWTs jwts = jwtService.generateToken(memberId, account.getRole());
+        return new SignInResponse(jwts.accessToken(), jwts.refreshToken());
     }
 
-    public SignInResponse refreshSignIn(String memberId, String refreshTokenValue) {
-        Jwts regeneratedJwts = jwtService.regenerate(memberId, refreshTokenValue);
+    public SignInResponse refreshAccessToken(String memberId, String refreshTokenValue) {
+        JWTs regeneratedJwts = jwtService.regenerate(memberId, refreshTokenValue);
         return new SignInResponse(regeneratedJwts.accessToken(), regeneratedJwts.refreshToken());
     }
 
@@ -76,7 +71,7 @@ public class AccountService {
     }
 
     public AccountProfile signUp(OAuth2SignUpRequest oAuth2SignUpRequest) {
-        String combinedOAuth2MemberId = oAuth2AttributeService.getCombinedOAuth2MemberId(oAuth2SignUpRequest.oAuth2Provider(), oAuth2SignUpRequest.oauth2MemberId());
+        String combinedOAuth2MemberId = oAuth2AuttributeExtractor.getCombinedOAuth2MemberId(oAuth2SignUpRequest.oAuth2Provider(), oAuth2SignUpRequest.oauth2MemberId());
 
         var newAccount = Account.builder()
                 .memberId(oAuth2SignUpRequest.memberId())

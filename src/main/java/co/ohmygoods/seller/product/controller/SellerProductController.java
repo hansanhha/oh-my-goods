@@ -1,6 +1,6 @@
 package co.ohmygoods.seller.product.controller;
 
-import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
+import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
 import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.global.swagger.IdempotencyOpenAPI;
 import co.ohmygoods.global.swagger.PaginationOpenAPI;

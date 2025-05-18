@@ -1,6 +1,6 @@
 package co.ohmygoods.coupon.controller;
 
-import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
+import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
 import co.ohmygoods.coupon.service.CouponService;
 import co.ohmygoods.coupon.service.dto.ApplicableIssuedCouponResponse;
 import co.ohmygoods.global.idempotency.aop.Idempotent;

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class OAuth2AttributeService {
+public class OAuth2AttributeExtractor {
 
     public String getCombinedOAuth2MemberId(OAuth2Provider oAuth2Provider, String originalOAuth2MemberId) {
         return oAuth2Provider.name().toLowerCase().concat("_").concat(originalOAuth2MemberId);

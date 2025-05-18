@@ -1,6 +1,4 @@
-package co.ohmygoods.auth.jwt.service;
-
-import co.ohmygoods.auth.account.model.vo.Role;
+package co.ohmygoods.auth.account.model.vo;
 
 /**
  * 유효한 토큰을 보유한 사용자의 정보를 나타내는 객체

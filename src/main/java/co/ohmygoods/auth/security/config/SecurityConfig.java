@@ -1,7 +1,7 @@
 package co.ohmygoods.auth.security.config;
 
 import co.ohmygoods.auth.account.model.vo.Role;
-import co.ohmygoods.auth.jwt.service.JwtValidator;
+import co.ohmygoods.auth.jwt.service.JWTValidator;
 import co.ohmygoods.auth.oauth2.service.CacheableOAuth2AuthorizedClientService;
 import co.ohmygoods.auth.oauth2.service.IdentifiedOAuth2UserService;
 import co.ohmygoods.auth.security.JwtBearerAuthenticationFilter;
@@ -45,7 +45,7 @@ public class SecurityConfig {
 
     // Custom Filter
     private JwtBearerAuthenticationFilter jwtBearerAuthenticationFilter;
-    private final JwtValidator jwtValidator;
+    private final JWTValidator jwtValidator;
     private final SecurityExceptionProcessingFilter securityExceptionProcessingFilter;
 
     @PostConstruct

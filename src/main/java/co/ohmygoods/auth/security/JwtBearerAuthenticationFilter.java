@@ -1,10 +1,9 @@
 package co.ohmygoods.auth.security;
 
+import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
 import co.ohmygoods.auth.exception.AuthException;
-import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
-import co.ohmygoods.auth.jwt.service.JwtAuthenticationToken;
-import co.ohmygoods.auth.jwt.service.JwtValidator;
-import co.ohmygoods.auth.jwt.service.dto.JwtValidationResult;
+import co.ohmygoods.auth.jwt.service.JWTValidator;
+import co.ohmygoods.auth.jwt.service.dto.JWTValidationResult;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,18 +17,18 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
 
     private static final String BEARER = "Bearer ";
 
-    public JwtBearerAuthenticationFilter(PermitRequestMatcher permitRequestsMather, JwtValidator jwtValidator) {
+    public JwtBearerAuthenticationFilter(PermitRequestMatcher permitRequestsMather, JWTValidator jwtValidator) {
         super(permitRequestsMather);
         this.jwtValidator = jwtValidator;
     }
 
-    private final JwtValidator jwtValidator;
+    private final JWTValidator jwtValidator;
 
     @Override
     protected Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = extractBearerToken(request);
 
-        JwtValidationResult validationResult = jwtValidator.validate(jwt);
+        JWTValidationResult validationResult = jwtValidator.validate(jwt);
 
         if (!validationResult.isValid()) {
             throw validationResult.error();
@@ -48,8 +47,8 @@ public class JwtBearerAuthenticationFilter extends AbstractAuthenticationFilter 
         return authorizationHeader.replace(BEARER, "");
     }
 
-    private JwtAuthenticationToken createJwtAuthenticationToken(JwtValidationResult validationResult, String jwt) {
-        return new JwtAuthenticationToken(new AuthenticatedAccount(jwt, validationResult.getSubject(), validationResult.getRole()));
+    private JWTAuthenticationToken createJwtAuthenticationToken(JWTValidationResult validationResult, String jwt) {
+        return new JWTAuthenticationToken(new AuthenticatedAccount(jwt, validationResult.getSubject(), validationResult.getRole()));
     }
 
 }

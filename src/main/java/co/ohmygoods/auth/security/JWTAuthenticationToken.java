@@ -1,12 +1,16 @@
-package co.ohmygoods.auth.jwt.service;
+package co.ohmygoods.auth.security;
+
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
-public class JwtAuthenticationToken extends AbstractAuthenticationToken {
+import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
+
+
+public class JWTAuthenticationToken extends AbstractAuthenticationToken {
 
     private final AuthenticatedAccount principal;
 
-    public JwtAuthenticationToken(AuthenticatedAccount principal) {
+    public JWTAuthenticationToken(AuthenticatedAccount principal) {
         super(principal.role().toGrantedAuthorities());
         this.setAuthenticated(true);
         this.principal = principal;

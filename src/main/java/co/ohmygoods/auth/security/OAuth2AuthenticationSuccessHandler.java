@@ -1,11 +1,11 @@
 package co.ohmygoods.auth.security;
 
-import co.ohmygoods.auth.account.service.AccountService;
+import co.ohmygoods.auth.account.service.SignInService;
 import co.ohmygoods.auth.account.service.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.account.service.dto.SignInResponse;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
 import co.ohmygoods.auth.oauth2.service.IdentifiedOAuthUser;
-import co.ohmygoods.auth.oauth2.service.OAuth2AttributeService;
+import co.ohmygoods.auth.oauth2.service.OAuth2AttributeExtractor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +41,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     public static final String REFRESH_TOKEN_REQUEST_ATTRIBUTE_NAME = "refreshToken";
 
     private final OAuth2LoginSuccessRedirectHandler redirectHandler;
-    private final AccountService accountService;
-    private final OAuth2AttributeService oAuth2AttributeService;
+    private final SignInService accountService;
+    private final OAuth2AttributeExtractor oAuth2AttributeService;
 
     /**
      * @param authentication {@link org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter}에 의해 생성된 {@link org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken}

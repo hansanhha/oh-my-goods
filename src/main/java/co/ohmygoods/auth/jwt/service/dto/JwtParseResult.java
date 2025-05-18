@@ -1,13 +1,13 @@
 package co.ohmygoods.auth.jwt.service.dto;
 
-public record JwtParseResult<T>(T token,
+public record JWTParseResult<T>(T token,
                                 boolean isFailed) {
 
-    public static <T> JwtParseResult<T> success(T token) {
-        return new JwtParseResult<>(token, false);
+    public static <T> JWTParseResult<T> success(T token) {
+        return new JWTParseResult<>(token, false);
     }
 
-    public static <T> JwtParseResult<T> failure() {
-        return new JwtParseResult<>(null, true);
+    public static <T> JWTParseResult<T> failure() {
+        return new JWTParseResult<>(null, true);
     }
 }

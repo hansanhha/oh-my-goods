@@ -1,8 +1,8 @@
 package co.ohmygoods.auth.jwt.service;
 
-import co.ohmygoods.auth.jwt.service.dto.JwtParseResult;
+import co.ohmygoods.auth.jwt.service.dto.JWTParseResult;
 
-public interface JwtParser<T> {
+public interface JWTParser<T> {
 
-    JwtParseResult<T> parse(String token);
+    JWTParseResult<T> parse(String token);
 }

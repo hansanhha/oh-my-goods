@@ -1,6 +1,6 @@
 package co.ohmygoods.global.idempotency.aop;
 
-import co.ohmygoods.auth.jwt.service.AuthenticatedAccount;
+import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
 import co.ohmygoods.global.exception.DomainException;
 import co.ohmygoods.global.idempotency.IdempotencyLockProperties;
 import co.ohmygoods.global.idempotency.vo.Idempotency;

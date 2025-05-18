@@ -1,7 +1,7 @@
 package co.ohmygoods.auth.account.service.dto;
 
-import co.ohmygoods.auth.jwt.service.dto.TokenDTO;
+import co.ohmygoods.auth.jwt.service.dto.JWT;
 
-public record SignInResponse(TokenDTO accessToken,
-                             TokenDTO refreshToken) {
+public record SignInResponse(JWT accessToken,
+                             JWT refreshToken) {
 }

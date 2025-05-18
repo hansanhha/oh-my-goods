@@ -1,6 +1,6 @@
 package co.ohmygoods.auth.jwt.model.vo;
 
-public enum JwtProvider {
+public enum JWTProvider {
 
     JJWT,
     AUTH0,
