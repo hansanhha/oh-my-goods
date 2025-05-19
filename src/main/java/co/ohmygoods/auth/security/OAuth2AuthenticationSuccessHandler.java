@@ -4,8 +4,8 @@ import co.ohmygoods.auth.account.service.SignInService;
 import co.ohmygoods.auth.account.service.dto.OAuth2SignUpRequest;
 import co.ohmygoods.auth.account.service.dto.SignInResponse;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
-import co.ohmygoods.auth.oauth2.service.IdentifiedOAuthUser;
-import co.ohmygoods.auth.oauth2.service.OAuth2AttributeExtractor;
+import co.ohmygoods.auth.oauth2.service.LoggedOAuthUser;
+import co.ohmygoods.auth.oauth2.service.OAuth2UserAttributeUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
     private final OAuth2LoginSuccessRedirectHandler redirectHandler;
     private final SignInService accountService;
-    private final OAuth2AttributeExtractor oAuth2AttributeService;
+    private final OAuth2UserAttributeUtils oAuth2AttributeService;
 
     /**
      * @param authentication {@link org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter}에 의해 생성된 {@link org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken}
@@ -54,10 +54,10 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         }
 
         OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) authentication;
-        IdentifiedOAuthUser identifiedOAuthUser = (IdentifiedOAuthUser) oauth2Token.getPrincipal();
+        LoggedOAuthUser identifiedOAuthUser = (LoggedOAuthUser) oauth2Token.getPrincipal();
         OAuth2Provider oAuth2Provider = OAuth2Provider.valueOf(oauth2Token.getAuthorizedClientRegistrationId().toUpperCase());
         Map<String, Object> oauth2Attributes = oauth2Token.getPrincipal().getAttributes();
-        String email = oAuth2AttributeService.getEmail(oAuth2Provider, oauth2Attributes);
+        String email = oAuth2AttributeService.extractUserEmail(oAuth2Provider, oauth2Attributes);
 
         if (identifiedOAuthUser.isFirstLogin()) {
             accountService.signUp(new OAuth2SignUpRequest(

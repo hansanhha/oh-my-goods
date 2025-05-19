@@ -1,11 +1,17 @@
 package co.ohmygoods.auth.oauth2.service;
 
+
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.account.service.SignInService;
 import co.ohmygoods.auth.oauth2.model.vo.OAuth2Provider;
 import co.ohmygoods.auth.security.OAuth2AuthenticationSuccessHandler;
+
+import java.util.Optional;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -14,8 +20,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * <p>
@@ -31,31 +35,30 @@ import java.util.UUID;
  * <oi>
  *  <li>{@link OAuth2AuthenticationSuccessHandler#onAuthenticationSuccess}</li>
  *  <li>{@link SignInService#signUp}</li>
- *  <li>{@link CacheableOAuth2AuthorizedClientService}</li>
  * </oi>
  */
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class IdentifiedOAuth2UserService extends DefaultOAuth2UserService {
+public class OAuth2UserLoginService extends DefaultOAuth2UserService {
 
-    private final OAuth2AttributeExtractor oAuth2AttributeService;
+    private final OAuth2UserAttributeUtils oAuth2UserAttributeUtils;
     private final AccountRepository accountRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         DefaultOAuth2User oAuth2User = (DefaultOAuth2User) super.loadUser(userRequest);
 
-        String combinedOAuth2MemberId = oAuth2AttributeService.getCombinedOAuth2MemberId(OAuth2Provider.valueOf(
+        String uniqueOAuth2MemberId = oAuth2UserAttributeUtils.getUniqueOAuth2MemberId(OAuth2Provider.valueOf(
                 userRequest.getClientRegistration().getRegistrationId().toUpperCase()), oAuth2User.getName());
 
-        Optional<Account> account = accountRepository.findByOauth2MemberId(combinedOAuth2MemberId);
+        Optional<Account> existingAccount = accountRepository.findByOauth2MemberId(uniqueOAuth2MemberId);
 
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 
-        return account
-                .map(account_ -> new IdentifiedOAuthUser(oAuth2User, account_.getMemberId(), false, userNameAttributeName))
-                .orElseGet(() -> new IdentifiedOAuthUser(oAuth2User, UUID.randomUUID().toString(), true, userNameAttributeName));
+        return existingAccount
+                .map(account -> new LoggedOAuthUser(oAuth2User, account.getMemberId(), false, userNameAttributeName))
+                .orElseGet(() -> new LoggedOAuthUser(oAuth2User, UUID.randomUUID().toString(), true, userNameAttributeName));
     }
 
 }

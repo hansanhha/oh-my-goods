@@ -1,32 +1,38 @@
 package co.ohmygoods.auth.security.config;
 
+
 import co.ohmygoods.auth.account.model.vo.Role;
 import co.ohmygoods.auth.jwt.service.JWTValidator;
-import co.ohmygoods.auth.oauth2.service.CacheableOAuth2AuthorizedClientService;
-import co.ohmygoods.auth.oauth2.service.IdentifiedOAuth2UserService;
+import co.ohmygoods.auth.oauth2.service.OAuth2UserLoginService;
 import co.ohmygoods.auth.security.JwtBearerAuthenticationFilter;
 import co.ohmygoods.auth.security.OAuth2AuthenticationSuccessHandler;
 import co.ohmygoods.auth.security.PermitRequestMatcher;
 import co.ohmygoods.auth.security.SecurityExceptionProcessingFilter;
 import co.ohmygoods.global.logging.RequestProcessingLoggingInterceptor;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.DispatcherType;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.*;
+import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -35,8 +41,7 @@ import java.util.List;
 public class SecurityConfig {
 
     // OAuth2
-    private final IdentifiedOAuth2UserService identifiedOAuth2UserService;
-    private final CacheableOAuth2AuthorizedClientService cacheableOAuth2AuthorizedClientService;
+    private final OAuth2UserLoginService identifiedOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     // Security Properties
@@ -83,8 +88,6 @@ public class SecurityConfig {
                         .userInfoEndpoint(endpoint -> endpoint.userService(identifiedOAuth2UserService))
                         .authorizationEndpoint(endpoint -> endpoint.baseUri(whitelist.getOauth2AuthorizationBaseUrl()))
                         .successHandler(oAuth2AuthenticationSuccessHandler))
-                .oauth2Client(config -> config
-                        .authorizedClientService(cacheableOAuth2AuthorizedClientService))
                 .logout(config -> config
                         .logoutUrl(whitelist.getLogoutUrl())
                         .clearAuthentication(true)
