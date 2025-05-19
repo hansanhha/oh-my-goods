@@ -57,8 +57,8 @@ public class OAuth2UserLoginService extends DefaultOAuth2UserService {
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 
         return existingAccount
-                .map(account -> new LoggedOAuthUser(oAuth2User, account.getMemberId(), false, userNameAttributeName))
-                .orElseGet(() -> new LoggedOAuthUser(oAuth2User, UUID.randomUUID().toString(), true, userNameAttributeName));
+                .map(account -> new LoggedOAuth2User(oAuth2User, account.getMemberId(), false, userNameAttributeName))
+                .orElseGet(() -> new LoggedOAuth2User(oAuth2User, UUID.randomUUID().toString(), true, userNameAttributeName));
     }
 
 }

@@ -11,13 +11,22 @@ import org.springframework.validation.annotation.Validated;
 import java.util.List;
 
 @Configuration
+@ConfigurationProperties(prefix = "application.security")
+@Getter
+@Setter
+@Validated
 public class SecurityConfigProperties {
+
+    private List<String> whiteList;
+
+    private OAuth2Url sign;
+
+    private CorsProperties cors;
 
     @Getter
     @Setter
     @Validated
-    @ConfigurationProperties(prefix = "application.security.whitelist")
-    public static class Whitelist {
+    public static class OAuth2Url {
 
         @NotEmpty
         private String oauth2AuthorizationBaseUrl;
@@ -34,13 +43,11 @@ public class SecurityConfigProperties {
         @NotEmpty
         private String logoutRedirectUrl;
 
-        private List<String> servletPathList;
     }
 
     @Getter
     @Setter
     @Validated
-    @ConfigurationProperties(prefix = "application.security.cors")
     public static class CorsProperties {
 
         @NotNull
@@ -55,8 +62,7 @@ public class SecurityConfigProperties {
         @NotNull
         private List<String> accessControlExposeHeaders;
 
-        @NotNull
         private boolean accessControlAllowCredentials;
+        
     }
-
 }

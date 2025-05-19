@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RedisRefreshTokenService implements RefreshTokenService {
+public class RedisRefreshTokenHandler implements RefreshTokenHandler {
 
     private static final String KEY_PREFIX = "auth:refresh:";
 

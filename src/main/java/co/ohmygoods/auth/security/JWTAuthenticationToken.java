@@ -1,9 +1,9 @@
 package co.ohmygoods.auth.security;
 
 
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-
 import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
+
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 
 public class JWTAuthenticationToken extends AbstractAuthenticationToken {

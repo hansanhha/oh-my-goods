@@ -2,15 +2,14 @@ package co.ohmygoods.auth.security.config;
 
 
 import co.ohmygoods.auth.account.model.vo.Role;
-import co.ohmygoods.auth.jwt.service.JWTValidator;
 import co.ohmygoods.auth.oauth2.service.OAuth2UserLoginService;
 import co.ohmygoods.auth.security.JwtBearerAuthenticationFilter;
 import co.ohmygoods.auth.security.OAuth2AuthenticationSuccessHandler;
 import co.ohmygoods.auth.security.PermitRequestMatcher;
 import co.ohmygoods.auth.security.SecurityExceptionProcessingFilter;
+import co.ohmygoods.auth.security.config.SecurityConfigProperties.OAuth2Url;
 import co.ohmygoods.global.logging.RequestProcessingLoggingInterceptor;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.DispatcherType;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,6 @@ import org.springframework.security.config.annotation.web.configurers.RequestCac
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -40,34 +38,30 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // OAuth2
-    private final OAuth2UserLoginService identifiedOAuth2UserService;
+    private final SecurityConfigProperties securityProperties;
+
+    private final OAuth2UserLoginService oAuth2UserLoginService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
-    // Security Properties
-    private final SecurityConfigProperties.Whitelist whitelist;
-    private final SecurityConfigProperties.CorsProperties corsProperties;
-
-    // Custom Filter
-    private JwtBearerAuthenticationFilter jwtBearerAuthenticationFilter;
-    private final JWTValidator jwtValidator;
+    private final JwtBearerAuthenticationFilter jwtBearerAuthenticationFilter;
     private final SecurityExceptionProcessingFilter securityExceptionProcessingFilter;
 
-    @PostConstruct
-    void init() {
-        jwtBearerAuthenticationFilter  = new JwtBearerAuthenticationFilter(createPermitRequestMatcher(whitelist),jwtValidator);
-    }
+    @Bean
+    PermitRequestMatcher createPermitRequestMatcher() {
+        PermitRequestMatcher permitRequestMatcher = new PermitRequestMatcher(securityProperties.getWhiteList());
+        
+        OAuth2Url signUrl = securityProperties.getSign();
+        permitRequestMatcher.add(signUrl.getOauth2AuthorizationBaseUrl());
+        permitRequestMatcher.add(signUrl.getOauth2AuthorizationProcessingUrl());
+        permitRequestMatcher.add(signUrl.getOauth2LoginProcessingUrl());
 
-    private PermitRequestMatcher createPermitRequestMatcher(SecurityConfigProperties.Whitelist whitelist) {
-        PermitRequestMatcher permitRequestMatcher = new PermitRequestMatcher(whitelist.getServletPathList());
-        permitRequestMatcher.add(whitelist.getOauth2AuthorizationBaseUrl());
-        permitRequestMatcher.add(whitelist.getOauth2AuthorizationProcessingUrl());
-        permitRequestMatcher.add(whitelist.getOauth2LoginProcessingUrl());
         return permitRequestMatcher;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, RequestProcessingLoggingInterceptor requestProcessingLoggingInterceptor) throws Exception {
+        OAuth2Url signUrl = securityProperties.getSign();
+
         return http
                 .httpBasic(HttpBasicConfigurer::disable)
                 .csrf(CsrfConfigurer::disable)
@@ -76,22 +70,22 @@ public class SecurityConfig {
                 .rememberMe(RememberMeConfigurer::disable)
                 .anonymous(AnonymousConfigurer::disable)
                 .formLogin(FormLoginConfigurer::disable)
-                .cors(config -> config.configurationSource(buildCorsConfigurationSource(corsProperties)))
+                .cors(config -> config.configurationSource(corsConfigurationSource(securityProperties.getCors())))
                 .authorizeHttpRequests(config -> config
-                        .requestMatchers(whitelist.getServletPathList().toArray(new String[0])).permitAll()
-                        .requestMatchers(oAuth2LoginProcessingUrlString()).permitAll()
-                        .requestMatchers(sellerRequestMatcher()).hasRole(Role.SELLER.name())
-                        .dispatcherTypeMatchers(permitDispatcherTypes()).permitAll()
+                        .requestMatchers(securityProperties.getWhiteList().toArray(new String[0])).permitAll()
+                        .requestMatchers(new String[] {signUrl.getOauth2AuthorizationBaseUrl(), signUrl.getOauth2LoginProcessingUrl()}).permitAll()
+                        .requestMatchers("/api/seller").hasRole(Role.SELLER.name())
+                        .dispatcherTypeMatchers(getPermitDispatcherTypes()).permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(config -> config
-                        .loginProcessingUrl(whitelist.getOauth2LoginProcessingUrl())
-                        .userInfoEndpoint(endpoint -> endpoint.userService(identifiedOAuth2UserService))
-                        .authorizationEndpoint(endpoint -> endpoint.baseUri(whitelist.getOauth2AuthorizationBaseUrl()))
+                        .loginProcessingUrl(securityProperties.getSign().getOauth2LoginProcessingUrl())
+                        .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserLoginService))
+                        .authorizationEndpoint(endpoint -> endpoint.baseUri(signUrl.getOauth2AuthorizationBaseUrl()))
                         .successHandler(oAuth2AuthenticationSuccessHandler))
                 .logout(config -> config
-                        .logoutUrl(whitelist.getLogoutUrl())
+                        .logoutUrl(signUrl.getLogoutUrl())
                         .clearAuthentication(true)
-                        .logoutSuccessUrl(whitelist.getLogoutUrl())
+                        .logoutSuccessUrl(signUrl.getLogoutUrl())
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID"))
                 .addFilterBefore(jwtBearerAuthenticationFilter, OAuth2AuthorizationRequestRedirectFilter.class)
@@ -99,31 +93,22 @@ public class SecurityConfig {
                 .build();
     }
 
-    private CorsConfigurationSource buildCorsConfigurationSource(SecurityConfigProperties.CorsProperties corsProperties) {
+    private CorsConfigurationSource corsConfigurationSource(SecurityConfigProperties.CorsProperties cors) {
         return request -> {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedHeaders(corsProperties.getAccessControlAllowHeaders());
-            config.setAllowedMethods(corsProperties.getAccessControlAllowMethods());
-            config.setAllowedOriginPatterns(corsProperties.getAccessControlAllowOrigin());
-            config.setExposedHeaders(corsProperties.getAccessControlExposeHeaders());
-            config.setAllowCredentials(corsProperties.isAccessControlAllowCredentials());
+            config.setAllowedHeaders(cors.getAccessControlAllowHeaders());
+            config.setAllowedMethods(cors.getAccessControlAllowMethods());
+            config.setAllowedOriginPatterns(cors.getAccessControlAllowOrigin());
+            config.setExposedHeaders(cors.getAccessControlExposeHeaders());
+            config.setAllowCredentials(cors.isAccessControlAllowCredentials());
             return config;
         };
     }
 
-    private DispatcherType[] permitDispatcherTypes() {
+    private DispatcherType[] getPermitDispatcherTypes() {
         return new DispatcherType[] {
                 DispatcherType.ERROR, DispatcherType.FORWARD
         };
     }
 
-    private RequestMatcher sellerRequestMatcher() {
-        return request -> request.getServletPath().startsWith("/api/seller");
-    }
-
-    private String[] oAuth2LoginProcessingUrlString() {
-        return new String[] {
-                whitelist.getOauth2AuthorizationBaseUrl(), whitelist.getOauth2LoginProcessingUrl()
-        };
-    }
 }

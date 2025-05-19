@@ -1,16 +1,25 @@
 package co.ohmygoods.auth.security;
 
+
 import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.global.exception.HttpServletExceptionResponseHeaders;
 import co.ohmygoods.global.exception.ProblemDetailResponseEntityBuilder;
 import co.ohmygoods.global.exception.ProblemDetailResponseEntityBuilder.ProblemDetailInfo;
-import com.esotericsoftware.kryo.util.ObjectMap;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.Objects;
+import java.util.Optional;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -22,15 +31,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * <p>
  * 필터 계층에서 AuthException, AuthenticationException, AccessDeniedException 발생 시
- * "application/problem+json" 타입의 예외 응답을 생성/전송하는 유틸 클래스
+ * "application/problem+json" 타입의 예외 응답(ProblemDetail)을 생성/전송하는 유틸 클래스
  * </p>
  * {@link ProblemDetailResponseEntityBuilder}
  */

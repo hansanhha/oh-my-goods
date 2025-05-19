@@ -9,7 +9,7 @@ import co.ohmygoods.auth.jwt.config.JWTProperties;
 import co.ohmygoods.auth.jwt.model.vo.JWTProvider;
 import co.ohmygoods.auth.jwt.model.vo.TokenType;
 import co.ohmygoods.auth.jwt.service.JWTService;
-import co.ohmygoods.auth.jwt.service.RefreshTokenService;
+import co.ohmygoods.auth.jwt.service.RefreshTokenHandler;
 import co.ohmygoods.auth.jwt.service.dto.JWT;
 import co.ohmygoods.auth.jwt.service.dto.JWTs;
 
@@ -39,7 +39,7 @@ public class NimbusJWTService implements JWTService {
     
     private final AccountRepository accountRepository;
     private final JWTProperties jwtProperties;
-    private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenHandler refreshTokenService;
 
     @Override
     public JWTs generateToken(String memberId, Role role) {      

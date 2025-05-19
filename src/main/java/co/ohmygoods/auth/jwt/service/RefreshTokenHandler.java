@@ -4,7 +4,7 @@ package co.ohmygoods.auth.jwt.service;
 import java.time.Duration;
 
 
-public interface RefreshTokenService {
+public interface RefreshTokenHandler {
 
     void validateStealToken(String memberId, String refreshTokenValue);
 

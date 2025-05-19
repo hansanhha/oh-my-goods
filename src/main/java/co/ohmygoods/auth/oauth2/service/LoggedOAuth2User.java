@@ -21,12 +21,12 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
  * </oi>
  */
 @Getter
-public class LoggedOAuthUser extends DefaultOAuth2User {
+public class LoggedOAuth2User extends DefaultOAuth2User {
 
     private final String memberId;
     private final boolean firstLogin;
 
-    public LoggedOAuthUser(DefaultOAuth2User defaultOAuth2User, String memberId, boolean firstLogin, String usernameAttributeName) {
+    public LoggedOAuth2User(DefaultOAuth2User defaultOAuth2User, String memberId, boolean firstLogin, String usernameAttributeName) {
         super(defaultOAuth2User.getAuthorities(), defaultOAuth2User.getAttributes(), usernameAttributeName);
         this.memberId = memberId;
         this.firstLogin = firstLogin;
@@ -36,5 +36,5 @@ public class LoggedOAuthUser extends DefaultOAuth2User {
     public String getName() {
         return memberId;
     }
-    
+
 }

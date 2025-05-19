@@ -23,11 +23,11 @@ public record JWTValidationResult(
         return new JWTValidationResult(claims, true, false, null);
     }
 
-    public String getSubject() {
+    public String getSubClaim() {
         return (String) claims.get("sub");
     }
 
-    public Role getRole() {
+    public Role getRoleClaim() {
         return Role.valueOf(((String) claims.get("role")).toUpperCase());
     }
 
