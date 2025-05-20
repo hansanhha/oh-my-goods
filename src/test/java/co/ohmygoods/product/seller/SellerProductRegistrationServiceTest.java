@@ -127,7 +127,7 @@ class SellerProductRegistrationServiceTest {
 //        var type = ProductType.ANALOGUE;
 //
 //        var productRegisterRequest = RegisterProductRequest.builder()
-//                .accountEmail(ACCOUNT_EMAIL)
+//                .email(ACCOUNT_EMAIL)
 //                .name(name)
 //                .mainCategory(mainCategory)
 //                .description(description)
@@ -183,7 +183,7 @@ class SellerProductRegistrationServiceTest {
 //
 //        var productRegisterRequest = RegisterProductRequest.builder()
 //                .shopId(SHOP_ID)
-//                .accountEmail(ACCOUNT_EMAIL)
+//                .email(ACCOUNT_EMAIL)
 //                .name(name)
 //                .mainCategory(mainCategory)
 //                .description(description)
@@ -243,7 +243,7 @@ class SellerProductRegistrationServiceTest {
 //
 //        var productRegisterRequest = RegisterProductRequest.builder()
 //                .shopId(SHOP_ID)
-//                .accountEmail(ACCOUNT_EMAIL)
+//                .email(ACCOUNT_EMAIL)
 //                .name(name)
 //                .mainCategory(mainCategory)
 //                .description(description)
@@ -322,7 +322,7 @@ class SellerProductRegistrationServiceTest {
 //        var productMetadataModifyInfo = UpdateProductMetadataRequest.builder()
 //                .shopId(SHOP_ID)
 //                .modifyProductId(modifyProductId)
-//                .accountEmail(ACCOUNT_EMAIL)
+//                .email(ACCOUNT_EMAIL)
 //                .modifyName(modifyName)
 //                .modifyDescription(modifyDescription)
 //                .modifyTopCategory(modifyMainCategory)

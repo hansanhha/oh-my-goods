@@ -11,7 +11,7 @@ import co.ohmygoods.order.service.dto.OrderCheckoutRequest;
 import co.ohmygoods.order.service.dto.OrderCheckoutResponse;
 import co.ohmygoods.order.service.dto.OrderItemDetailResponse;
 import co.ohmygoods.order.service.dto.OrderItemResponse;
-import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
+import co.ohmygoods.payment.model.vo.PaymentAPIProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -79,7 +79,7 @@ public class OrderController {
                 .toList();
 
         OrderCheckoutRequest orderCheckoutRequest = new OrderCheckoutRequest(account.memberId(), orderProductDetails,
-                ExternalPaymentVendor.valueOf(request.orderPaymentMethod().name().toUpperCase()), request.deliveryAddressId(), request.totalOrderPrice());
+                PaymentAPIProvider.valueOf(request.orderPaymentMethod().name().toUpperCase()), request.deliveryAddressId(), request.totalOrderPrice());
 
         OrderCheckoutResponse checkoutResponse = orderTransactionService.checkout(orderCheckoutRequest);
         return ResponseEntity.ok(checkoutResponse);

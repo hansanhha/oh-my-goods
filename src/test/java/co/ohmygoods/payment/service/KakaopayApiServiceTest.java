@@ -7,7 +7,7 @@ import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.config.PaymentServiceConfig;
 import co.ohmygoods.payment.model.vo.UserAgent;
 import co.ohmygoods.payment.repository.PaymentRepository;
-import co.ohmygoods.payment.service.dto.ExternalPreparationResponse;
+import co.ohmygoods.payment.service.dto.PaymentPrepareAPIResponse;
 import co.ohmygoods.shop.repository.ShopRepository;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
@@ -24,7 +24,7 @@ import java.util.UUID;
 import static org.mockito.Mockito.*;
 
 @Disabled("테스트 코드 리팩토링 필요")
-@SpringBootTest(classes = {KakaopayApiService.class, PaymentServiceConfig.class})
+@SpringBootTest(classes = {KakaopayAPIService.class, PaymentServiceConfig.class})
 @EnableConfigurationProperties(PaymentServiceConfig.KakaoPayProperties.class)
 @TestPropertySource(locations = "classpath:application.yml")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -43,7 +43,7 @@ class KakaopayApiServiceTest {
     private OrderRepository orderRepository;
 
     @Autowired
-    private KakaopayApiService kakaopayApiService;
+    private KakaopayAPIService kakaopayApiService;
 
     @Mock
     private Account mockAccount;
@@ -69,7 +69,7 @@ class KakaopayApiServiceTest {
         when(accountRepository.findByEmail(anyString())).thenReturn(Optional.of(mockAccount));
         when(orderRepository.fetchAccountByTransactionId(anyString())).thenReturn(Optional.of(order));
 
-        ExternalPreparationResponse kakaopayPreparationResponse = kakaopayApiService.sendPreparationRequest(UserAgent.DESKTOP,
+        PaymentPrepareAPIResponse kakaopayPreparationResponse = kakaopayApiService.prepare(UserAgent.DESKTOP,
                 ACCOUNT_EMAIL, ORDER_TRANSACTION_ID, ORDER_TOTAL_PRICE, PAYMENT_NAME);
 
         System.out.println(kakaopayPreparationResponse);

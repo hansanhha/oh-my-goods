@@ -1,6 +1,6 @@
 package co.ohmygoods.product.service.dto;
 
-import co.ohmygoods.payment.service.dto.ExternalPaymentError;
+import co.ohmygoods.payment.service.dto.PaymentAPIErrorDetail;
 import co.ohmygoods.payment.model.vo.PaymentStatus;
 
 import java.time.LocalDateTime;
@@ -13,11 +13,11 @@ public record PaymentApproveResponse(
         int paymentAmount,
         String vendorName,
         PaymentStatus paymentStatus,
-        ExternalPaymentError externalPaymentError,
+        PaymentAPIErrorDetail externalPaymentError,
         LocalDateTime approvedAt) {
 
     public static PaymentApproveResponse fail(Long paymentId, Long orderId, String accountEmail, int paymentAmount,
-                                              String vendorName, PaymentStatus paymentStatus, ExternalPaymentError externalPaymentError) {
+                                              String vendorName, PaymentStatus paymentStatus, PaymentAPIErrorDetail externalPaymentError) {
 
         return new PaymentApproveResponse(false, paymentId, orderId, accountEmail, paymentAmount, vendorName, paymentStatus, externalPaymentError, null);
     }

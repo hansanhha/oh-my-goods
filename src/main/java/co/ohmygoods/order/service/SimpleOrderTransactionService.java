@@ -23,8 +23,8 @@ import co.ohmygoods.payment.model.event.PaymentSuccessEvent;
 import co.ohmygoods.payment.model.vo.PaymentStatus;
 import co.ohmygoods.payment.model.vo.UserAgent;
 import co.ohmygoods.payment.service.PaymentGateway;
-import co.ohmygoods.payment.service.dto.PaymentStartResponse;
-import co.ohmygoods.payment.service.dto.PreparePaymentRequest;
+import co.ohmygoods.payment.service.dto.PaymentStartResult;
+import co.ohmygoods.payment.service.dto.PaymentPrepareAPIRequest;
 import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.repository.ProductRepository;
@@ -151,19 +151,19 @@ public class SimpleOrderTransactionService implements OrderTransactionService {
 
         Order order = orderRepository.save(newOrder);
 
-        PreparePaymentRequest preparePaymentRequest = new PreparePaymentRequest(request.orderPaymentMethod(),
+        PaymentPrepareAPIRequest paymentPrepareAPIRequest = new PaymentPrepareAPIRequest(request.orderPaymentMethod(),
                 UserAgent.DESKTOP, account.getEmail(), order.getId(), order.getTransactionId(), order.getTotalPrice(), generatePaymentName(order));
 
         // 결제 준비 요청(외부 api 호출)
-        PaymentStartResponse paymentStartResponse = paymentGateway.startPayment(preparePaymentRequest);
+        PaymentStartResult paymentStartResult = paymentGateway.start(paymentPrepareAPIRequest);
 
         // 결제 준비 요청 결과에 따른 분기 처리
-        if (!paymentStartResponse.isStartSuccess()) {
-            order.fail(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE, paymentStartResponse.paymentFailureCause());
-            return OrderCheckoutResponse.fail(paymentStartResponse.paymentFailureCause().getMessage());
+        if (!paymentStartResult.isStartSuccess()) {
+            order.fail(OrderStatus.ORDER_FAILED_PAYMENT_FAILURE, paymentStartResult.paymentFailureCause());
+            return OrderCheckoutResponse.fail(paymentStartResult.paymentFailureCause().getMessage());
         }
 
-        return OrderCheckoutResponse.success(paymentStartResponse.nextRedirectUrl(),
+        return OrderCheckoutResponse.success(paymentStartResult.nextRedirectUrl(),
                 order.getTransactionId(), order.getCreatedAt());
     }
 

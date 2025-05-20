@@ -22,11 +22,11 @@ public class PaymentServiceConfig {
 
         private String cid;
 
-        private String preparationRequestUrl;
+        private String prepareUrl;
 
-        private String approvalRequestUrl;
+        private String approveUrl;
 
-        private String approvalRedirectUrl;
+        private String approveRedirectUrl;
 
         private String cancelRedirectUrl;
 
@@ -40,13 +40,4 @@ public class PaymentServiceConfig {
 
     }
 
-    @Bean
-    public RestClient kakaopayApiRestClient(KakaoPayProperties kakaoPayProperties) {
-        return RestClient.builder()
-                .defaultHeaders(headers -> {
-                    headers.add(HttpHeaders.AUTHORIZATION, kakaoPayProperties.getSecretKey());
-                    headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                })
-                .build();
-    }
 }

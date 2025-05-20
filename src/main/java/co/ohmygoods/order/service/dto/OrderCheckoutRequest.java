@@ -1,6 +1,6 @@
 package co.ohmygoods.order.service.dto;
 
-import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
+import co.ohmygoods.payment.model.vo.PaymentAPIProvider;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
 */
 public record OrderCheckoutRequest(String orderAccountEmail,
                                    List<OrderProductDetail> orderDetails,
-                                   ExternalPaymentVendor orderPaymentMethod,
+                                   PaymentAPIProvider orderPaymentMethod,
                                    Long deliveryAddressId,
                                    int totalOrderPrice) {
 

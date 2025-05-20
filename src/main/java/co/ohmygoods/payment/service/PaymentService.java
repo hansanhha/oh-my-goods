@@ -1,13 +1,13 @@
 package co.ohmygoods.payment.service;
 
-import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
+import co.ohmygoods.payment.model.vo.PaymentAPIProvider;
 import co.ohmygoods.payment.model.vo.PaymentStatus;
 
 import java.time.LocalDateTime;
 
 public interface PaymentService {
 
-    Long createPayment(ExternalPaymentVendor externalPaymentVendor, String accountEmail, Long orderId, int paymentAmount, String paymentName);
+    Long createPayment(PaymentAPIProvider paymentAPIProvider, String accountEmail, Long orderId, int paymentAmount, String paymentName);
 
     Long readyPayment(Long paymentId, String paymentTransactionId, LocalDateTime readyAt);
 

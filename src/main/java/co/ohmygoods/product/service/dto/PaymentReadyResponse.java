@@ -1,6 +1,6 @@
 package co.ohmygoods.product.service.dto;
 
-import co.ohmygoods.payment.service.dto.ExternalPaymentError;
+import co.ohmygoods.payment.service.dto.PaymentAPIErrorDetail;
 import co.ohmygoods.payment.model.vo.PaymentStatus;
 
 import java.time.LocalDateTime;
@@ -14,7 +14,7 @@ public record PaymentReadyResponse(
         LocalDateTime readyAt,
         String nextUrl,
         PaymentStatus paymentFailureCause,
-        ExternalPaymentError externalPaymentError) {
+        PaymentAPIErrorDetail externalPaymentError) {
 
     static PaymentReadyResponse success(String transactionId, Long orderId, String buyerEmail, int paymentAmount, String nextUrl, LocalDateTime readyAt) {
         return new PaymentReadyResponse(transactionId, orderId, buyerEmail, paymentAmount, true, readyAt, nextUrl, null, null);

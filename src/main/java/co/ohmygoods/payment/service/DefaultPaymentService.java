@@ -8,8 +8,8 @@ import co.ohmygoods.order.model.entity.Order;
 import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.payment.model.entity.Payment;
 import co.ohmygoods.payment.exception.PaymentException;
+import co.ohmygoods.payment.model.vo.PaymentAPIProvider;
 import co.ohmygoods.payment.repository.PaymentRepository;
-import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
 import co.ohmygoods.payment.model.vo.PaymentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,18 +20,18 @@ import java.time.LocalDateTime;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SimplePaymentService implements PaymentService {
+public class DefaultPaymentService implements PaymentService {
 
     private final AccountRepository accountRepository;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
 
     @Override
-    public Long createPayment(ExternalPaymentVendor externalPaymentVendor, String accountEmail, Long orderId, int paymentAmount, String paymentName) {
+    public Long createPayment(PaymentAPIProvider paymentAPIProvider, String accountEmail, Long orderId, int paymentAmount, String paymentName) {
         Account account = accountRepository.findByEmail(accountEmail).orElseThrow(AuthException::notFoundAccount);
         Order order = orderRepository.findById(orderId).orElseThrow(OrderException::notFoundOrder);
 
-        Payment newPayment = Payment.start(account, order, externalPaymentVendor, paymentAmount);
+        Payment newPayment = Payment.start(account, order, paymentAPIProvider, paymentAmount);
 
         Payment payment = paymentRepository.save(newPayment);
 

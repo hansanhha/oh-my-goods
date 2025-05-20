@@ -1,6 +1,5 @@
 package co.ohmygoods.order.controller.dto;
 
-import co.ohmygoods.payment.model.vo.ExternalPaymentVendor;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
