@@ -47,18 +47,6 @@ public class SecurityConfig {
     private final SecurityExceptionProcessingFilter securityExceptionProcessingFilter;
 
     @Bean
-    PermitRequestMatcher createPermitRequestMatcher() {
-        PermitRequestMatcher permitRequestMatcher = new PermitRequestMatcher(securityProperties.getWhiteList());
-        
-        OAuth2Url signUrl = securityProperties.getSign();
-        permitRequestMatcher.add(signUrl.getOauth2AuthorizationBaseUrl());
-        permitRequestMatcher.add(signUrl.getOauth2AuthorizationProcessingUrl());
-        permitRequestMatcher.add(signUrl.getOauth2LoginProcessingUrl());
-
-        return permitRequestMatcher;
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, RequestProcessingLoggingInterceptor requestProcessingLoggingInterceptor) throws Exception {
         OAuth2Url signUrl = securityProperties.getSign();
 
