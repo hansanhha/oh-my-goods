@@ -1,5 +1,6 @@
 package co.ohmygoods.product.service;
 
+
 import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.model.entity.ProductCustomCategory;
@@ -15,13 +16,16 @@ import co.ohmygoods.product.service.dto.ProductResponse;
 import co.ohmygoods.shop.exception.ShopException;
 import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
+
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @Transactional
@@ -65,22 +69,6 @@ public class ProductService {
                 .map(ProductCustomCategoryResponse::from)
                 .toList();
 
-        return ProductResponse.builder()
-                .shopId(shopId)
-                .shopName(shopName)
-                .productId(product.getId())
-                .productDescription(product.getDescription())
-                .productMainCategory(product.getCategory().getMainCategory())
-                .productSubCategory(product.getCategory().getSubCategory())
-                .productStockStatus(product.getStockStatus())
-                .productCustomCategories(customCategoryResponses)
-                .productQuantity(product.getRemainingQuantity())
-                .productPurchaseLimit(product.getPurchaseMaximumQuantity())
-                .productPrice(product.getOriginalPrice())
-                .productDiscountRate(product.getDiscountRate())
-                .productDiscountStartDate(product.getDiscountStartDate())
-                .productDiscountEndDate(product.getDiscountEndDate())
-                .productRegisteredAt(product.getCreatedAt())
-                .build();
+        return ProductResponse.of(shopId, shopName, product, customCategoryResponses);
     }
 }

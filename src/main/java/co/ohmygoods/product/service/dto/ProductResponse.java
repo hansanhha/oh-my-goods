@@ -1,15 +1,16 @@
 package co.ohmygoods.product.service.dto;
 
+
+import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductStockStatus;
 import co.ohmygoods.product.model.vo.ProductSubCategory;
 import co.ohmygoods.product.model.vo.ProductType;
-import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Builder
+
 public record ProductResponse(Long shopId,
                               String shopName,
                               Long productId,
@@ -27,5 +28,26 @@ public record ProductResponse(Long shopId,
                               LocalDateTime productDiscountStartDate,
                               LocalDateTime productDiscountEndDate,
                               LocalDateTime productRegisteredAt) {
+
+    public static ProductResponse of(Long shopId, String shopName, Product product, List<ProductCustomCategoryResponse> customCategories) {
+        return new ProductResponse(
+            shopId, 
+            shopName, 
+            product.getId(), 
+            product.getName(), 
+            product.getDescription(), 
+            product.getType(), 
+            product.getCategory().getMainCategory(), 
+            product.getCategory().getSubCategory(), 
+            product.getStockStatus(), 
+            customCategories, 
+            product.getRemainingQuantity(), 
+            product.getPurchaseMaximumQuantity(), 
+            product.getOriginalPrice(), 
+            product.getDiscountRate(), 
+            product.getDiscountStartDate(), 
+            product.getDiscountEndDate(), 
+            product.getCreatedAt());
+    }
 
 }

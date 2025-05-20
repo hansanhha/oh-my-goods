@@ -1,36 +1,38 @@
 package co.ohmygoods.seller.product.controller;
 
+
 import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
 import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.global.swagger.IdempotencyOpenAPI;
 import co.ohmygoods.global.swagger.PaginationOpenAPI;
-import co.ohmygoods.product.model.vo.ProductMainCategory;
-import co.ohmygoods.product.model.vo.ProductSubCategory;
-import co.ohmygoods.product.model.vo.ProductType;
 import co.ohmygoods.seller.product.service.SellerProductRegistrationService;
 import co.ohmygoods.seller.product.service.dto.RegisterProductRequest;
 import co.ohmygoods.seller.product.service.dto.SellerProductResponse;
 import co.ohmygoods.seller.product.service.dto.UpdateProductMetadataRequest;
 import co.ohmygoods.seller.product.controller.dto.RegisterProductWebRequest;
 import co.ohmygoods.seller.product.controller.dto.UpdateProductMetadataWebRequest;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
 import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
+
 
 @Tag(name = "판매자 상품", description = "판매자 상품 관련 api")
 @RequestMapping("/api/seller/product")
@@ -63,23 +65,7 @@ public class SellerProductController {
                                              @IdempotencyOpenAPI.HeaderDescription @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                                              @RequestBody @Validated RegisterProductWebRequest request) {
 
-        RegisterProductRequest registerProductRequest = RegisterProductRequest.builder()
-                .ownerMemberId(account.memberId())
-                .type(ProductType.valueOf(request.productType()))
-                .mainCategory(ProductMainCategory.valueOf(request.productMainCategory().toUpperCase()))
-                .subCategory(ProductSubCategory.valueOf(request.productSubCategory().toUpperCase()))
-                .customCategoryIds(request.productCustomCategoryIds())
-                .name(request.productName())
-                .description(request.productDescription())
-                .assets(request.productImages())
-                .quantity(request.productQuantity())
-                .price(request.productPrice())
-                .purchaseLimitCount(request.productPurchaseLimitCount())
-                .discountRate(request.productDiscountRate())
-                .discountStartDate(request.productDiscountStartDate())
-                .discountEndDate(request.productDiscountEndDate())
-                .isImmediatelySale(request.productExpectedSaleDate() == null)
-                .build();
+        RegisterProductRequest registerProductRequest = RegisterProductRequest.of(account.memberId(), request);
 
         SellerProductResponse registered = registrationService.registerProduct(registerProductRequest);
         return ResponseEntity.created(URI.create("")).body(Map.of("data", registered));
@@ -96,18 +82,7 @@ public class SellerProductController {
                                                    @Parameter(name = "수정할 상품 아이디", in = ParameterIn.PATH) @PathVariable Long productId,
                                                    @RequestBody @Validated UpdateProductMetadataWebRequest request) {
 
-        UpdateProductMetadataRequest updateProductMetadataRequest = UpdateProductMetadataRequest.builder()
-                .ownerMemberId(account.memberId())
-                .updateProductId(productId)
-                .updateName(request.updateProductName())
-                .updateDescription(request.updateDescription())
-                .updateType(ProductType.valueOf(request.updateProductType()))
-                .updateMainCategory(ProductMainCategory.valueOf(request.updateProductMainCategory().toUpperCase()))
-                .updateSubCategory(ProductSubCategory.valueOf(request.updateProductSubCategory().toUpperCase()))
-                .updateCustomCategoryIds(request.updateProductCustomCategoryIds())
-                .updateAssets(request.updateProductImages())
-                .build();
-
+        UpdateProductMetadataRequest updateProductMetadataRequest = UpdateProductMetadataRequest.of(account.memberId(), productId, request);
         SellerProductResponse updated = registrationService.updateProductMetadata(updateProductMetadataRequest);
         return ResponseEntity.ok(Map.of("data", updated));
     }

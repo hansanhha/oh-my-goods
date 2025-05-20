@@ -1,11 +1,12 @@
 package co.ohmygoods.seller.coupon.service.dto;
 
-import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Builder
+import co.ohmygoods.seller.coupon.controller.dto.CreateShopCouponWebRequest;
+
+
 public record CreateShopCouponRequest(String sellerMemberId,
                                       boolean isLimitedMaxIssueCount,
                                       int maxIssueCount,
@@ -21,4 +22,23 @@ public record CreateShopCouponRequest(String sellerMemberId,
                                       int maxDiscountPrice,
                                       LocalDateTime startDate,
                                       LocalDateTime endDate) {
+
+    public static CreateShopCouponRequest of(String memberId, CreateShopCouponWebRequest request) {
+        return new CreateShopCouponRequest(
+            memberId, 
+            request.isLimitedMaxIssueCount(), 
+            request.maxIssueCount(), 
+            request.isLimitedUsageCountPerAccount(), 
+            request.usageCountPerAccount(), 
+            request.isFixedDiscount(), 
+            request.discountValue(), 
+            request.minimumPurchasePrice(), 
+            request.isApplicableSpecificProducts(), 
+            request.applicableProductIds(), 
+            request.couponName(), 
+            request.couponCode(), 
+            request.maxDiscountPrice(), 
+            request.startDate(), 
+            request.endDate());
+    }
 }

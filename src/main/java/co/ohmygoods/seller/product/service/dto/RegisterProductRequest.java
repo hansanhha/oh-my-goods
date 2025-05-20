@@ -1,16 +1,18 @@
 package co.ohmygoods.seller.product.service.dto;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import co.ohmygoods.product.model.vo.ProductSubCategory;
-import org.springframework.web.multipart.MultipartFile;
 
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductType;
-import lombok.Builder;
+import co.ohmygoods.seller.product.controller.dto.RegisterProductWebRequest;
+import co.ohmygoods.product.model.vo.ProductSubCategory;
 
-@Builder
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
+
+
 public record RegisterProductRequest(String ownerMemberId,
                                      ProductType type,
                                      ProductMainCategory mainCategory,
@@ -27,4 +29,24 @@ public record RegisterProductRequest(String ownerMemberId,
                                      LocalDateTime discountStartDate,
                                      LocalDateTime discountEndDate,
                                      LocalDateTime expectedSaleDate) {
+
+    public static RegisterProductRequest of(String memberId, RegisterProductWebRequest request) {
+        return new RegisterProductRequest(
+            memberId, 
+            ProductType.valueOf(request.productType()), 
+            ProductMainCategory.valueOf(request.productMainCategory().toUpperCase()), 
+            ProductSubCategory.valueOf(request.productSubCategory().toUpperCase()), 
+            request.productCustomCategoryIds(), 
+            request.productName(), 
+            request.productDescription(), 
+            request.productImages(), 
+            request.productQuantity(), 
+            request.productPrice(), 
+            request.productPurchaseLimitCount(), 
+            request.productDiscountRate(),
+            request.productExpectedSaleDate() == null,
+            request.productDiscountStartDate(), 
+            request.productDiscountEndDate(),
+            request.productExpectedSaleDate());
+    }
 }

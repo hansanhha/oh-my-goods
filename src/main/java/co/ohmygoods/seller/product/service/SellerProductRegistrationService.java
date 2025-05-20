@@ -1,5 +1,6 @@
 package co.ohmygoods.seller.product.service;
 
+
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.exception.AuthException;
@@ -19,14 +20,17 @@ import co.ohmygoods.seller.product.service.dto.UpdateProductMetadataRequest;
 import co.ohmygoods.shop.exception.ShopException;
 import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
+
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @Transactional
@@ -153,28 +157,12 @@ public class SellerProductRegistrationService {
     }
 
     private SellerProductResponse convertSellerProductResponse(Product product) {
-        var customCategoryResponses = product.getCustomCategories()
+        List<CustomCategoryResponse> customCategories = product.getCustomCategories()
                 .stream()
                 .map(ProductCustomCategoryMapping::getCustomCategory)
                 .map(CustomCategoryResponse::from)
                 .toList();
 
-        return SellerProductResponse.builder()
-                .shopId(product.getShop().getId())
-                .productId(product.getId())
-                .productDescription(product.getDescription())
-                .productMainCategory(product.getCategory().getMainCategory())
-                .productSubCategory(product.getCategory().getSubCategory())
-                .productStockStatus(product.getStockStatus())
-                .productCustomCategories(customCategoryResponses)
-                .productQuantity(product.getRemainingQuantity())
-                .productPurchaseLimit(product.getPurchaseMaximumQuantity())
-                .productPrice(product.getOriginalPrice())
-                .productDiscountRate(product.getDiscountRate())
-                .productDiscountStartDate(product.getDiscountStartDate())
-                .productDiscountEndDate(product.getDiscountEndDate())
-                .productRegisteredAt(product.getCreatedAt())
-                .productLastModifiedAt(product.getLastModifiedAt())
-                .build();
+        return SellerProductResponse.of(product.getShop().getId(), product, customCategories);
     }
 }

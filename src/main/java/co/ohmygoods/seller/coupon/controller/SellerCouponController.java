@@ -1,5 +1,6 @@
 package co.ohmygoods.seller.coupon.controller;
 
+
 import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
 import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.global.swagger.IdempotencyOpenAPI;
@@ -8,12 +9,17 @@ import co.ohmygoods.seller.coupon.controller.dto.CreateShopCouponWebRequest;
 import co.ohmygoods.seller.coupon.service.SellerCouponService;
 import co.ohmygoods.seller.coupon.service.dto.CreateShopCouponRequest;
 import co.ohmygoods.seller.coupon.service.dto.ShopCouponResponse;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Getter;
+
+import java.net.URI;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +27,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
 import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
+
 
 @Tag(name = "판매자 쿠폰", description = "판매자 쿠폰 관련 api")
 @RequestMapping("/api/seller/coupon")
@@ -58,24 +61,7 @@ public class SellerCouponController {
                                               @IdempotencyOpenAPI.HeaderDescription @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                                               @RequestBody @Validated CreateShopCouponWebRequest request) {
 
-        CreateShopCouponRequest createShopCouponRequest = CreateShopCouponRequest.builder()
-                .sellerMemberId(account.memberId())
-                .isLimitedMaxIssueCount(request.isLimitedMaxIssueCount())
-                .maxIssueCount(request.maxIssueCount())
-                .isLimitedUsageCountPerAccount(request.isLimitedUsageCountPerAccount())
-                .usageCountPerAccount(request.usageCountPerAccount())
-                .isFixedDiscount(request.isFixedDiscount())
-                .discountValue(request.discountValue())
-                .minimumPurchasePrice(request.minimumPurchasePrice())
-                .isApplicableSpecificProducts(request.isApplicableSpecificProducts())
-                .applicableProductIds(request.applicableProductIds())
-                .couponName(request.couponName())
-                .couponCode(request.couponCode())
-                .maxDiscountPrice(request.maxDiscountPrice())
-                .startDate(request.startDate())
-                .endDate(request.endDate())
-                .build();
-
+        CreateShopCouponRequest createShopCouponRequest = CreateShopCouponRequest.of(account.memberId(), request);
         ShopCouponResponse created = couponService.createShopCoupon(createShopCouponRequest);
         return ResponseEntity.created(URI.create("")).body(Map.of("data", created));
     }
