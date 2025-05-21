@@ -5,7 +5,7 @@ import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.coupon.model.entity.CouponHistory;
 import co.ohmygoods.coupon.repository.CouponRepository;
-import co.ohmygoods.coupon.service.CouponService;
+import co.ohmygoods.coupon.service.user.CouponService;
 import co.ohmygoods.order.exception.DeliveryAddressException;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.entity.DeliveryAddress;

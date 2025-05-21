@@ -18,6 +18,10 @@ public class ProductException extends DomainException {
     public static final ProductException NOT_SALES_STATUS = new ProductException(ProductError.NOT_SALES_STATUS);
     public static final ProductException NOT_ENOUGH_STOCK = new ProductException(ProductError.NOT_ENOUGH_STOCK);
 
+    public static final ProductException DUPLICATE_CUSTOM_CATEGORY_NAME = new ProductException(ProductError.DUPLICATE_CUSTOM_CATEGORY_NAME);
+    public static final ProductException INVALID_PRODUCT_PRICE = new ProductException(ProductError.INVALID_PRODUCT_PRICE);
+    public static final ProductException INVALID_SUB_CATEGORY = new ProductException(ProductError.INVALID_SUB_CATEGORY);
+
     public ProductException(ProductError error) {
         super(error);
     }

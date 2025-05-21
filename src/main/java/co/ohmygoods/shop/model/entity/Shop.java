@@ -21,8 +21,8 @@ public class Shop extends BaseEntity {
     private String name;
 
     @OneToOne
-    @JoinColumn(name = "owner_id")
-    private Account owner;
+    @JoinColumn(name = "admin_id")
+    private Account admin;
 
     @Column(columnDefinition = "TEXT")
     private String introduction;
@@ -38,31 +38,14 @@ public class Shop extends BaseEntity {
     public static Shop toEntity(String name, Account owner, String introduction, ShopStatus status) {
         var shop = new Shop();
         shop.name = name;
-        shop.owner = owner;
+        shop.admin = owner;
         shop.introduction = introduction;
         shop.status = status;
         return shop;
     }
 
     public void changeShopStatus(ShopStatus status) {
-        if (!this.status.isChangeable(status)) {
-            throw ShopException.INVALID_SHOP_STATUS;
-        }
-
         this.status = status;
-    }
-
-    public void changeOwner(Account targetAccount) {
-        owner = targetAccount;
-    }
-
-    public void ownerCheck(Account account) {
-        if (!owner.getId().equals(account.getId())) {
-            throw ShopException.INVALID_SHOP_OWNER;
-        }
-    }
-
-    public void validateShopManager(Account account) {
     }
 
     @Override
