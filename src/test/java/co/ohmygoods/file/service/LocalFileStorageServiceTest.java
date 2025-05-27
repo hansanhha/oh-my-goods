@@ -1,9 +1,10 @@
 package co.ohmygoods.file.service;
 
-import co.ohmygoods.file.config.LocalFileStorageProperties;
-import co.ohmygoods.file.model.vo.DomainType;
-import co.ohmygoods.file.service.dto.UploadFileRequest;
-import co.ohmygoods.file.service.dto.UploadFileResponse;
+import co.ohmygoods.global.file.config.LocalFileStorageProperties;
+import co.ohmygoods.global.file.model.vo.DomainType;
+import co.ohmygoods.global.file.service.LocalFileStorageService;
+import co.ohmygoods.global.file.service.dto.UploadFileRequest;
+import co.ohmygoods.global.file.service.dto.UploadFileResponse;
 import com.google.common.io.Files;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -21,7 +22,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

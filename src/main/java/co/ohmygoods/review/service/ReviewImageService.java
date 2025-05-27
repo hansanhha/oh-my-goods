@@ -1,11 +1,11 @@
 package co.ohmygoods.review.service;
 
-import co.ohmygoods.file.model.vo.CloudStorageProvider;
-import co.ohmygoods.file.model.vo.DomainType;
-import co.ohmygoods.file.model.vo.StorageStrategy;
-import co.ohmygoods.file.service.FileService;
-import co.ohmygoods.file.service.dto.UploadFileRequest;
-import co.ohmygoods.file.service.dto.UploadFileResponse;
+import co.ohmygoods.global.file.model.vo.CloudStorageProvider;
+import co.ohmygoods.global.file.model.vo.DomainType;
+import co.ohmygoods.global.file.model.vo.StorageStrategy;
+import co.ohmygoods.global.file.service.FileService;
+import co.ohmygoods.global.file.service.dto.UploadFileRequest;
+import co.ohmygoods.global.file.service.dto.UploadFileResponse;
 import co.ohmygoods.review.exception.ReviewException;
 import co.ohmygoods.review.model.entity.Review;
 import co.ohmygoods.review.model.entity.ReviewImageInfo;

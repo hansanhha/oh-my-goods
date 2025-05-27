@@ -1,10 +1,11 @@
 package co.ohmygoods.file.service;
 
-import co.ohmygoods.file.config.AwsS3CloudStorageProperties;
-import co.ohmygoods.file.config.AwsS3Config;
-import co.ohmygoods.file.model.vo.DomainType;
-import co.ohmygoods.file.service.dto.UploadFileRequest;
-import co.ohmygoods.file.service.dto.UploadFileResponse;
+import co.ohmygoods.global.file.config.AwsS3CloudStorageProperties;
+import co.ohmygoods.global.file.config.AwsS3Config;
+import co.ohmygoods.global.file.model.vo.DomainType;
+import co.ohmygoods.global.file.service.AwsS3CloudStorageService;
+import co.ohmygoods.global.file.service.dto.UploadFileRequest;
+import co.ohmygoods.global.file.service.dto.UploadFileResponse;
 import com.google.common.io.Files;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;

@@ -1,4 +1,4 @@
-package co.ohmygoods.file.service.dto;
+package co.ohmygoods.global.file.service.dto;
 
 public record UploadFileResponse(String uploadedDomainId,
                                  String uploadedFileName,

@@ -1,11 +1,11 @@
-package co.ohmygoods.file.service;
+package co.ohmygoods.global.file.service;
 
-import co.ohmygoods.file.config.AwsS3CloudStorageProperties;
-import co.ohmygoods.file.exception.FileException;
-import co.ohmygoods.file.model.vo.CloudStorageProvider;
-import co.ohmygoods.file.model.vo.StorageStrategy;
-import co.ohmygoods.file.service.dto.UploadFileRequest;
-import co.ohmygoods.file.service.dto.UploadFileResponse;
+import co.ohmygoods.global.file.config.AwsS3CloudStorageProperties;
+import co.ohmygoods.global.file.exception.FileException;
+import co.ohmygoods.global.file.model.vo.CloudStorageProvider;
+import co.ohmygoods.global.file.model.vo.StorageStrategy;
+import co.ohmygoods.global.file.service.dto.UploadFileRequest;
+import co.ohmygoods.global.file.service.dto.UploadFileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;

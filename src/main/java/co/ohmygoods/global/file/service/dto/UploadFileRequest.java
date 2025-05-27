@@ -1,8 +1,8 @@
-package co.ohmygoods.file.service.dto;
+package co.ohmygoods.global.file.service.dto;
 
-import co.ohmygoods.file.model.vo.CloudStorageProvider;
-import co.ohmygoods.file.model.vo.DomainType;
-import co.ohmygoods.file.model.vo.StorageStrategy;
+import co.ohmygoods.global.file.model.vo.CloudStorageProvider;
+import co.ohmygoods.global.file.model.vo.DomainType;
+import co.ohmygoods.global.file.model.vo.StorageStrategy;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nullable;

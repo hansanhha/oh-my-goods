@@ -1,4 +1,4 @@
-package co.ohmygoods.file.config;
+package co.ohmygoods.global.file.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

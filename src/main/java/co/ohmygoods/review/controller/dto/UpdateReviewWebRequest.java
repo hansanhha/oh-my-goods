@@ -1,6 +1,6 @@
 package co.ohmygoods.review.controller.dto;
 
-import co.ohmygoods.file.model.vo.StorageStrategy;
+import co.ohmygoods.global.file.model.vo.StorageStrategy;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

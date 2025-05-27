@@ -1,4 +1,4 @@
-package co.ohmygoods.file.model.vo;
+package co.ohmygoods.global.file.model.vo;
 
 public enum StorageStrategy {
 

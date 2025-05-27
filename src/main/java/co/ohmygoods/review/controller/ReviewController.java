@@ -1,7 +1,7 @@
 package co.ohmygoods.review.controller;
 
 import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
-import co.ohmygoods.file.model.vo.StorageStrategy;
+import co.ohmygoods.global.file.model.vo.StorageStrategy;
 import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.global.swagger.IdempotencyOpenAPI;
 import co.ohmygoods.global.swagger.PaginationOpenAPI;

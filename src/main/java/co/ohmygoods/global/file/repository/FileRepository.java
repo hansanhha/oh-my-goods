@@ -1,7 +1,7 @@
-package co.ohmygoods.file.repository;
+package co.ohmygoods.global.file.repository;
 
-import co.ohmygoods.file.model.entity.File;
-import co.ohmygoods.file.model.vo.DomainType;
+import co.ohmygoods.global.file.model.entity.File;
+import co.ohmygoods.global.file.model.vo.DomainType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 

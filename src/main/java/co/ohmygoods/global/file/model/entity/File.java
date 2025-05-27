@@ -1,9 +1,9 @@
-package co.ohmygoods.file.model.entity;
+package co.ohmygoods.global.file.model.entity;
 
-import co.ohmygoods.file.model.vo.CloudStorageProvider;
-import co.ohmygoods.file.model.vo.DomainType;
-import co.ohmygoods.file.model.vo.FileType;
-import co.ohmygoods.file.model.vo.StorageStrategy;
+import co.ohmygoods.global.file.model.vo.CloudStorageProvider;
+import co.ohmygoods.global.file.model.vo.DomainType;
+import co.ohmygoods.global.file.model.vo.FileType;
+import co.ohmygoods.global.file.model.vo.StorageStrategy;
 import co.ohmygoods.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;

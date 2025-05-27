@@ -1,4 +1,4 @@
-package co.ohmygoods.file.config;
+package co.ohmygoods.global.file.config;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package co.ohmygoods.file.exception;
+package co.ohmygoods.global.file.exception;
 
 import co.ohmygoods.global.exception.DomainException;
 

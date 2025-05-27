@@ -1,6 +1,6 @@
 package co.ohmygoods.review.service.dto;
 
-import co.ohmygoods.file.model.vo.StorageStrategy;
+import co.ohmygoods.global.file.model.vo.StorageStrategy;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

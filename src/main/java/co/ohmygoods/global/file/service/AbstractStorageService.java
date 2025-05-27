@@ -1,4 +1,4 @@
-package co.ohmygoods.file.service;
+package co.ohmygoods.global.file.service;
 
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;

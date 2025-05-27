@@ -1,14 +1,13 @@
-package co.ohmygoods.file.service;
+package co.ohmygoods.global.file.service;
 
-import co.ohmygoods.file.service.dto.UploadFileRequest;
-import co.ohmygoods.file.service.dto.UploadFileResponse;
-import co.ohmygoods.file.model.vo.CloudStorageProvider;
-import co.ohmygoods.file.model.vo.StorageStrategy;
+import co.ohmygoods.global.file.service.dto.UploadFileRequest;
+import co.ohmygoods.global.file.service.dto.UploadFileResponse;
+import co.ohmygoods.global.file.model.vo.CloudStorageProvider;
+import co.ohmygoods.global.file.model.vo.StorageStrategy;
 
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
