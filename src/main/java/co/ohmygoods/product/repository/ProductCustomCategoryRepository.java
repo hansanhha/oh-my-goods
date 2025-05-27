@@ -1,30 +1,23 @@
 package co.ohmygoods.product.repository;
 
-import co.ohmygoods.product.model.entity.ProductCustomCategory;
+
+import co.ohmygoods.product.model.entity.CustomCategory;
 import co.ohmygoods.shop.model.entity.Shop;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface ProductCustomCategoryRepository extends CrudRepository<ProductCustomCategory, Long> {
 
-    List<ProductCustomCategory> findAllByShop(Shop shop);
+public interface ProductCustomCategoryRepository extends CrudRepository<CustomCategory, Long> {
 
-    @Query("SELECT pdc " +
-            "FROM ProductCustomCategory pdc " +
-            "JOIN pdc.shop on pdc.shop = :shop " +
-            "WHERE pdc.customCategoryName = :customCategoryName")
-    List<ProductCustomCategory> findAllByShopAndCustomCategoryName(Shop shop, String customCategoryName);
+    List<CustomCategory> findAllByShop(Shop shop);
 
-    Optional<ProductCustomCategory> findByCustomCategoryName(String customCategoryName);
+    @Query("SELECT cc " +
+            "FROM CustomCategory cc " +
+            "JOIN cc.shop on cc.shop = :shop " +
+            "WHERE cc.id in :ids")
+    List<CustomCategory> findAllByIdAndShop(Iterable<Long> ids, Shop shop);
 
-    @Query("SELECT pdc " +
-            "FROM ProductCustomCategory pdc " +
-            "JOIN pdc.shop on pdc.shop = :shop " +
-            "WHERE pdc.id in :ids")
-    List<ProductCustomCategory> findAllByIdAndShop(Iterable<Long> ids, Shop shop);
-
-    boolean existsByCustomCategoryName(String customCategoryName);
+    boolean existsByShopAndName(Shop shop, String name);
 }

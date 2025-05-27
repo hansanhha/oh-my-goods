@@ -1,13 +1,22 @@
 package co.ohmygoods.product.controller.admin.dto;
 
-import java.time.LocalDateTime;
-import java.util.List;
 
+import co.ohmygoods.product.model.vo.ProductMainCategory;
+import co.ohmygoods.product.model.vo.ProductSubCategory;
+import co.ohmygoods.product.model.vo.ProductType;
+import co.ohmygoods.product.service.admin.dto.ProductRegisterRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.web.multipart.MultipartFile;
+
 
 public record ProductRegisterWebRequest(
 
@@ -59,4 +68,25 @@ public record ProductRegisterWebRequest(
 
         @Schema(description = "상품 판매 시작 기간")
         LocalDateTime productExpectedSaleDate) {
+
+        public ProductRegisterRequest toServiceDTO(String adminMemberId) {
+                return new ProductRegisterRequest(
+                        adminMemberId,
+                        ProductType.valueOf(productType()),
+                        ProductMainCategory.valueOf(productMainCategory().toUpperCase()),
+                        ProductSubCategory.valueOf(productSubCategory().toUpperCase()),
+                        productCustomCategoryIds(),
+                        productName(),
+                        productDescription(),
+                        Arrays.asList(productImages()),
+                        productQuantity(),
+                        productPrice(),
+                        productPurchaseLimitCount(),
+                        productDiscountRate(),
+                        productExpectedSaleDate() == null,
+                        productDiscountStartDate(),
+                        productDiscountEndDate(),
+                        productExpectedSaleDate());
+        }
+
 }

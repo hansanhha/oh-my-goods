@@ -3,7 +3,6 @@ package co.ohmygoods.product.model.vo;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Set;
 
 @Getter
 @RequiredArgsConstructor
@@ -22,7 +21,7 @@ public enum ProductMainCategory {
 
     private final String displayName;
 
-    public boolean contains(ProductSubCategory subCategory) {
-        return subCategory.getParentCategory().equals(this);
+    public boolean notContains(ProductSubCategory subCategory) {
+        return !subCategory.getParentCategory().equals(this);
     }
 }

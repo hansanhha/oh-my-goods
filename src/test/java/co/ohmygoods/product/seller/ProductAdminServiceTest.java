@@ -5,7 +5,7 @@ import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.product.model.entity.*;
 import co.ohmygoods.product.repository.ProductCustomCategoryRepository;
 import co.ohmygoods.product.repository.ProductRepository;
-import co.ohmygoods.product.service.admin.ProductRegistrationAdminService;
+import co.ohmygoods.product.service.admin.ProductAdminService;
 import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
 import org.junit.jupiter.api.Disabled;
@@ -24,7 +24,7 @@ import java.util.List;
 @Disabled("테스트 코드 리팩토링 필요")
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class ProductRegistrationAdminServiceTest {
+class ProductAdminServiceTest {
 
     @Mock
     private AccountRepository mockAccountRepository;
@@ -39,7 +39,7 @@ class ProductRegistrationAdminServiceTest {
     private ProductCustomCategoryRepository mockProductCustomCategoryRepository;
 
     @InjectMocks
-    private ProductRegistrationAdminService productRegistrationAdminService;
+    private ProductAdminService productAdminService;
 
     @Mock
     private Product mockProduct;
@@ -48,10 +48,10 @@ class ProductRegistrationAdminServiceTest {
     ArgumentCaptor<Product> productArgumentCaptor;
 
     @Captor
-    ArgumentCaptor<List<ProductCustomCategoryMapping>> detailCategoryMappingsCaptor;
+    ArgumentCaptor<List<ProductCustomCategory>> detailCategoryMappingsCaptor;
 
     @Mock
-    private ProductCustomCategory mockProductCustomCategory;
+    private CustomCategory mockCustomCategory;
 
     @Mock
     private Shop mockShop;
@@ -282,7 +282,7 @@ class ProductRegistrationAdminServiceTest {
 //        given(mockShopRepository.findById(anyLong())).willReturn(Optional.of(mockShop));
 //        given(mockAccountRepository.findByEmail(anyString())).willReturn(Optional.of(mockAccount));
 //        given(mockProductRegisterRequest.shopId()).willReturn(SHOP_ID);
-//        given(mockProductRegisterRequest.ownerMemberId()).willReturn(ACCOUNT_EMAIL);
+//        given(mockProductRegisterRequest.adminMemberId()).willReturn(ACCOUNT_EMAIL);
 //        doThrow(InvalidShopOwnerException.class).when(mockShop).ownerCheck(mockAccount);
 //
 //        assertThatThrownBy(() -> sellerProductRegistrationService.registerProduct(mockProductRegisterRequest))

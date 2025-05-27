@@ -2,9 +2,9 @@ package co.ohmygoods.product.service.user;
 
 
 import co.ohmygoods.product.exception.ProductException;
+import co.ohmygoods.product.model.entity.CustomCategory;
 import co.ohmygoods.product.model.entity.Product;
 import co.ohmygoods.product.model.entity.ProductCustomCategory;
-import co.ohmygoods.product.model.entity.ProductCustomCategoryMapping;
 import co.ohmygoods.product.model.entity.ProductGeneralCategory;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductSubCategory;
@@ -54,7 +54,7 @@ public class ProductService {
     public Slice<ProductResponse> getProductsByShopAndCustomCategory(Long shopId, Long customCategoryId, Pageable pageable) {
         Shop shop = shopRepository.findById(shopId).orElseThrow(ShopException::notFoundShop);
 
-        ProductCustomCategory customCategory = customCategoryRepository.findById(customCategoryId)
+        CustomCategory customCategory = customCategoryRepository.findById(customCategoryId)
                 .orElseThrow(ProductException::notFoundCategory);
 
         Slice<Product> products = productRepository.fetchAllSalesProductByShopAndCustomCategory(shop, customCategory, pageable);
@@ -65,7 +65,7 @@ public class ProductService {
     private ProductResponse convertProductResponse(Long shopId, String shopName, Product product) {
         List<ProductCustomCategoryResponse> customCategoryResponses = product.getCustomCategories()
                 .stream()
-                .map(ProductCustomCategoryMapping::getCustomCategory)
+                .map(ProductCustomCategory::getCustomCategory)
                 .map(ProductCustomCategoryResponse::from)
                 .toList();
 

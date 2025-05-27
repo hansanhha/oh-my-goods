@@ -1,5 +1,9 @@
 package co.ohmygoods.product.controller.admin.dto;
 
+import co.ohmygoods.product.model.vo.ProductMainCategory;
+import co.ohmygoods.product.model.vo.ProductSubCategory;
+import co.ohmygoods.product.model.vo.ProductType;
+import co.ohmygoods.product.service.admin.dto.ProductMetadataUpdateRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,4 +37,18 @@ public record ProductMetadataUpdateWebRequest(
 
         @Schema(description = "수정된 상품 이미지")
         MultipartFile[] updateProductImages) {
+
+        public ProductMetadataUpdateRequest toServiceDto(String memberId, Long productId) {
+                return new ProductMetadataUpdateRequest(
+                        memberId,
+                        productId,
+                        updateProductName(),
+                        updateDescription(),
+                        ProductType.valueOf(updateProductType()),
+                        ProductMainCategory.valueOf(updateProductMainCategory().toUpperCase()),
+                        ProductSubCategory.valueOf(updateProductSubCategory().toUpperCase()),
+                        updateProductCustomCategoryIds(),
+                        updateProductImages());
+        }
+
 }

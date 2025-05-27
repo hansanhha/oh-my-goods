@@ -30,7 +30,7 @@ public class ProductGeneralCategory {
 
         if (subCategory != null) {
             mainCategory = mainCategory != null ? mainCategory : subCategory.getParentCategory();
-            if (!mainCategory.contains(subCategory)) {
+            if (mainCategory.notContains(subCategory)) {
                 throw ProductException.INVALID_METADATA;
             }
         }

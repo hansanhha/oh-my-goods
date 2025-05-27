@@ -1,6 +1,5 @@
 package co.ohmygoods.product.model.entity;
 
-import co.ohmygoods.shop.model.entity.Shop;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -13,16 +12,18 @@ public class ProductCustomCategory {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id")
-    private Shop shop;
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-    @Column(unique = true, nullable = false)
-    private String customCategoryName;
 
-    public static ProductCustomCategory toEntity(Shop shop, String customCategoryName) {
-        var productDetailCategory = new ProductCustomCategory();
-        productDetailCategory.shop = shop;
-        productDetailCategory.customCategoryName = customCategoryName;
-        return productDetailCategory;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_custom_category_id")
+    private CustomCategory customCategory;
+
+    public static ProductCustomCategory create(Product product, CustomCategory customCategory) {
+        var productDetailCategoryMapping = new ProductCustomCategory();
+        productDetailCategoryMapping.product = product;
+        productDetailCategoryMapping.customCategory = customCategory;
+        return productDetailCategoryMapping;
     }
 }

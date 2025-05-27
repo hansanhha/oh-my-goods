@@ -1,29 +1,20 @@
 package co.ohmygoods.product.service.admin;
 
 
-import co.ohmygoods.auth.account.model.entity.Account;
-import co.ohmygoods.auth.account.repository.AccountRepository;
-import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.global.file.model.vo.CloudStorageProvider;
 import co.ohmygoods.global.file.model.vo.DomainType;
 import co.ohmygoods.global.file.service.FileService;
 import co.ohmygoods.global.file.service.dto.UploadFileRequest;
 import co.ohmygoods.global.file.service.dto.UploadFileResponse;
-import co.ohmygoods.product.exception.ProductException;
 import co.ohmygoods.product.model.entity.Product;
-import co.ohmygoods.product.model.entity.ProductAssetInfo;
+import co.ohmygoods.product.model.entity.ProductAsset;
 import co.ohmygoods.product.repository.ProductAssetInfoRepository;
-import co.ohmygoods.product.repository.ProductRepository;
-import co.ohmygoods.shop.exception.ShopException;
-import co.ohmygoods.shop.model.entity.Shop;
-import co.ohmygoods.shop.repository.ShopRepository;
-
-import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,63 +27,57 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductAssetAdminService {
 
     private final FileService fileService;
-    private final ShopRepository shopRepository;
-    private final AccountRepository accountRepository;
-    private final ProductRepository productRepository;
     private final ProductAssetInfoRepository productAssetInfoRepository;
 
 
-    public void upload(Long productId, String sellerMemberId, MultipartFile[] files) {
-        Shop shop = shopRepository.findByAdminMemberId(sellerMemberId).orElseThrow(ShopException::notFoundShop);
-        Account account = accountRepository.findByMemberId(sellerMemberId).orElseThrow(AuthException::notFoundAccount);
-        Product product = productRepository.findById(productId).orElseThrow(ProductException::notFoundProduct);
+    public void upload(Product product, String adminMemberId, List<MultipartFile> files) {
+        Map<String, ProductAsset> productAssets = new HashMap<>(files.size());
+        Map<String, MultipartFile> uploadFiles = new HashMap<>(files.size());
 
-        product.shopCheck(shop);
-
-        Map<String, ProductAssetInfo> productAssetInfoMap = new HashMap<>(files.length);
-        Map<String, MultipartFile> productAssetFileMap = new HashMap<>(files.length);
-
-        for (int i = 0; i < files.length; i++) {
-            ProductAssetInfo productAssetInfo = ProductAssetInfo.create(UUID.randomUUID(), i, product, files[i]);
-            productAssetInfoMap.put(productAssetInfo.getAssetId().toString(), productAssetInfo);
-            productAssetFileMap.put(productAssetInfo.getAssetId().toString(), files[i]);
+        for (int i = 0; i < files.size(); i++) {
+            ProductAsset productAsset = ProductAsset.create(i, product, files.get(i));
+            productAssets.put(productAsset.getAssetId().toString(), productAsset);
+            uploadFiles.put(productAsset.getAssetId().toString(), files.get(i));
         }
 
         List<UploadFileResponse> uploadResponses = fileService.upload(UploadFileRequest.useCloudStorage(
-                CloudStorageProvider.DEFAULT, account.getEmail(), DomainType.SELLER, productAssetFileMap));
+                CloudStorageProvider.DEFAULT, adminMemberId, DomainType.SELLER, uploadFiles));
 
         uploadResponses.forEach(response ->
-            productAssetInfoMap.get(response.uploadedDomainId()).setPath(response.uploadedFilePath()));
+            productAssets.get(response.uploadedDomainId()).setPath(response.uploadedFilePath()));
 
-        productAssetInfoRepository.saveAll(productAssetInfoMap.values());
+        productAssetInfoRepository.saveAll(productAssets.values());
     }
 
-    public void replace(Long productId, String sellerMemberId, MultipartFile[] replaceFiles) {
-        Shop shop = shopRepository.findByAdminMemberId(sellerMemberId).orElseThrow(ShopException::notFoundShop);
-        Account account = accountRepository.findByMemberId(sellerMemberId).orElseThrow(AuthException::notFoundAccount);
-        Product product = productRepository.findById(productId).orElseThrow(ProductException::notFoundProduct);
-        List<ProductAssetInfo> deleteProductAssetInfos = productAssetInfoRepository.findByProduct(product);
+    public void replace(Product product, String adminMemberId, List<MultipartFile> replaceFiles) {
+        List<ProductAsset> deleteProductAssets = productAssetInfoRepository.findByProduct(product);
 
-        product.shopCheck(shop);
+        fileService.delete(DomainType.SELLER, deleteProductAssets.stream()
+                .map(ProductAsset::getAssetId).map(String::valueOf).toList());
 
-        fileService.delete(DomainType.SELLER, deleteProductAssetInfos.stream()
-                .map(ProductAssetInfo::getAssetId).map(String::valueOf).toList());
+        Map<String, ProductAsset> productAssets = new HashMap<>(replaceFiles.size());
+        Map<String, MultipartFile> reuploadFiles = new HashMap<>(replaceFiles.size());
 
-        Map<String, ProductAssetInfo> replaceProductAssetInfoMap = new HashMap<>(replaceFiles.length);
-        Map<String, MultipartFile> replaceProductAssetFileMap = new HashMap<>(replaceFiles.length);
-
-        for (int i = 0; i < replaceFiles.length; i++) {
-            ProductAssetInfo productAssetInfo = ProductAssetInfo.create(UUID.randomUUID(), i, product, replaceFiles[i]);
-            replaceProductAssetInfoMap.put(productAssetInfo.getAssetId().toString(), productAssetInfo);
-            replaceProductAssetFileMap.put(productAssetInfo.getAssetId().toString(), replaceFiles[i]);
+        for (int i = 0; i < replaceFiles.size(); i++) {
+            ProductAsset productAsset = ProductAsset.create(i, product, replaceFiles.get(i));
+            productAssets.put(productAsset.getAssetId().toString(), productAsset);
+            reuploadFiles.put(productAsset.getAssetId().toString(), replaceFiles.get(i));
         }
 
         List<UploadFileResponse> uploadResponses = fileService.upload(UploadFileRequest.useCloudStorage(
-                CloudStorageProvider.DEFAULT, account.getEmail(), DomainType.SELLER, replaceProductAssetFileMap));
+                CloudStorageProvider.DEFAULT, adminMemberId, DomainType.SELLER, reuploadFiles));
 
         uploadResponses.forEach(response ->
-                replaceProductAssetInfoMap.get(response.uploadedDomainId()).setPath(response.uploadedFilePath()));
+                productAssets.get(response.uploadedDomainId()).setPath(response.uploadedFilePath()));
 
-        productAssetInfoRepository.saveAll(replaceProductAssetInfoMap.values());
+        productAssetInfoRepository.saveAll(productAssets.values());
     }
+
+    public void delete(Product product) {
+        List<ProductAsset> deleteProductAssets = productAssetInfoRepository.findByProduct(product);
+
+        fileService.delete(DomainType.SELLER, deleteProductAssets.stream()
+                .map(ProductAsset::getAssetId).map(String::valueOf).toList());
+    }
+
 }

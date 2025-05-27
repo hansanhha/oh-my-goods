@@ -19,18 +19,6 @@ public record ProductMetadataUpdateRequest(String ownerMemberId,
                                            ProductMainCategory updateMainCategory,
                                            ProductSubCategory updateSubCategory,
                                            List<Long> updateCustomCategoryIds,
-                                           MultipartFile[] updateAssets) {
+                                           List<MultipartFile> updateAssets) {
 
-    public static ProductMetadataUpdateRequest of(String memberId, Long productId, ProductMetadataUpdateWebRequest request) {
-        return new ProductMetadataUpdateRequest(
-            memberId, 
-            productId, 
-            request.updateProductName(), 
-            request.updateDescription(), 
-            ProductType.valueOf(request.updateProductType()),
-            ProductMainCategory.valueOf(request.updateProductMainCategory().toUpperCase()),
-            ProductSubCategory.valueOf(request.updateProductSubCategory().toUpperCase()), 
-            request.updateProductCustomCategoryIds(),
-            request.updateProductImages());
-    }
 }

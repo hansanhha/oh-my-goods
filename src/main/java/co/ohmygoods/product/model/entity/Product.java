@@ -45,7 +45,7 @@ public class Product extends BaseEntity {
     private ProductGeneralCategory category;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductCustomCategoryMapping> customCategories = new ArrayList<>();
+    private List<ProductCustomCategory> customCategories = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -75,21 +75,21 @@ public class Product extends BaseEntity {
         }
     }
 
-    public void addCustomCategories(List<ProductCustomCategoryMapping> customCategoriesMappings) {
-        this.customCategories.addAll(customCategoriesMappings);
+    public void addCustomCategories(List<ProductCustomCategory> customCategories) {
+        this.customCategories.addAll(customCategories);
     }
 
     public void updateMetadata(String name,
                                String description,
                                ProductType type,
                                ProductGeneralCategory category,
-                               List<ProductCustomCategoryMapping> productCustomCategoryMappings) {
+                               List<ProductCustomCategory> productCustomCategories) {
 
         this.name = name;
         this.description = description;
         this.type = type;
         this.category = category;
-        this.customCategories = productCustomCategoryMappings;
+        this.customCategories = productCustomCategories;
     }
 
     public boolean isDiscounted() {

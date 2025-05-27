@@ -1,11 +1,13 @@
 package co.ohmygoods.product.service.admin.dto;
 
-import co.ohmygoods.product.model.entity.ProductCustomCategory;
+
+import co.ohmygoods.product.model.entity.CustomCategory;
+
 
 public record CustomCategoryResponse(Long customCategoryId,
                                      String customCategoryName) {
 
-    public static CustomCategoryResponse from(ProductCustomCategory customCategory) {
-        return new CustomCategoryResponse(customCategory.getId(), customCategory.getCustomCategoryName());
+    public static CustomCategoryResponse from(CustomCategory customCategory) {
+        return new CustomCategoryResponse(customCategory.getId(), customCategory.getName());
     }
 }

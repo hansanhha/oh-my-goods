@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductAssetInfo {
+public class ProductAsset {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,8 +40,8 @@ public class ProductAssetInfo {
     @Column(nullable = false)
     private String contentType;
 
-    public static ProductAssetInfo create(UUID assetId, int order, Product product, MultipartFile file) {
-        return new ProductAssetInfo(0L, assetId, order, product, file.getName(), file.getOriginalFilename(),
+    public static ProductAsset create(int order, Product product, MultipartFile file) {
+        return new ProductAsset(0L, UUID.randomUUID(), order, product, file.getName(), file.getOriginalFilename(),
                 null, file.getSize(), file.getContentType());
     }
 }
