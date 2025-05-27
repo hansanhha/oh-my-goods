@@ -1,7 +1,7 @@
 package co.ohmygoods.coupon.model.entity;
 
 import co.ohmygoods.auth.account.model.entity.Account;
-import co.ohmygoods.coupon.model.vo.CouponHistoryStatus;
+import co.ohmygoods.coupon.model.vo.CouponUsingStatus;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.model.entity.OrderItem;
 import jakarta.persistence.*;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class CouponHistory extends BaseEntity {
+public class CouponUsingHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,26 +31,30 @@ public class CouponHistory extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CouponHistoryStatus couponHistoryStatus;
+    private CouponUsingStatus couponUsingStatus;
 
     private LocalDateTime usedAt;
 
-    public static CouponHistory issued(Coupon coupon, Account account) {
-        CouponHistory couponHistory = new CouponHistory();
-        couponHistory.coupon = coupon;
-        couponHistory.account = account;
-        couponHistory.couponHistoryStatus = CouponHistoryStatus.ISSUED;
-        return couponHistory;
+    public static CouponUsingHistory issued(Coupon coupon, Account account) {
+        CouponUsingHistory cuh = new CouponUsingHistory();
+        cuh.coupon = coupon;
+        cuh.account = account;
+        cuh.couponUsingStatus = CouponUsingStatus.ISSUED;
+        return cuh;
     }
 
     public void used(OrderItem orderItem) {
         this.orderItem = orderItem;
-        couponHistoryStatus = CouponHistoryStatus.USED;
+        couponUsingStatus = CouponUsingStatus.USED;
         usedAt = LocalDateTime.now();
     }
 
     public void restore() {
         this.orderItem =  null;
-        couponHistoryStatus = CouponHistoryStatus.ISSUED;
+        couponUsingStatus = CouponUsingStatus.ISSUED;
+    }
+
+    public boolean isUsed() {
+        return couponUsingStatus.equals(CouponUsingStatus.USED);
     }
 }

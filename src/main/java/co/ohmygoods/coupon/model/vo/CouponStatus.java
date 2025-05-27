@@ -4,5 +4,4 @@ public enum CouponStatus {
 
     ISSUED,
     SOLDOUT,
-    DESTROYED;
 }

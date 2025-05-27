@@ -1,6 +1,6 @@
 package co.ohmygoods.coupon.model.vo;
 
-public enum CouponIssuanceTarget {
+public enum CouponIssueTarget {
 
     ALL_ACCOUNTS,
     SPECIFIC_ACCOUNTS;

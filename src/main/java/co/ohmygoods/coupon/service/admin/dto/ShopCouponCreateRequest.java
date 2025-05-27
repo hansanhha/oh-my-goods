@@ -7,7 +7,7 @@ import java.util.List;
 import co.ohmygoods.coupon.controller.admin.dto.ShopCouponCreateWebRequest;
 
 
-public record ShopCouponCreateRequest(String sellerMemberId,
+public record ShopCouponCreateRequest(String shopAdminMemberId,
                                       boolean isLimitedMaxIssueCount,
                                       int maxIssueCount,
                                       boolean isLimitedUsageCountPerAccount,
@@ -15,17 +15,17 @@ public record ShopCouponCreateRequest(String sellerMemberId,
                                       boolean isFixedDiscount,
                                       int discountValue,
                                       int minimumPurchasePrice,
-                                      boolean isApplicableSpecificProducts,
-                                      List<Long> applicableProductIds,
+                                      boolean isSpecificProductsIssuable,
+                                      List<Long> issuableProductIds,
                                       String couponName,
                                       String couponCode,
                                       int maxDiscountPrice,
                                       LocalDateTime startDate,
                                       LocalDateTime endDate) {
 
-    public static ShopCouponCreateRequest of(String memberId, ShopCouponCreateWebRequest request) {
+    public static ShopCouponCreateRequest of(String adminMemberId, ShopCouponCreateWebRequest request) {
         return new ShopCouponCreateRequest(
-            memberId, 
+            adminMemberId,
             request.isLimitedMaxIssueCount(), 
             request.maxIssueCount(), 
             request.isLimitedUsageCountPerAccount(), 
@@ -33,8 +33,8 @@ public record ShopCouponCreateRequest(String sellerMemberId,
             request.isFixedDiscount(), 
             request.discountValue(), 
             request.minimumPurchasePrice(), 
-            request.isApplicableSpecificProducts(), 
-            request.applicableProductIds(), 
+            request.isSpecificProductsIssuable(),
+            request.issuableProductIds(),
             request.couponName(), 
             request.couponCode(), 
             request.maxDiscountPrice(), 

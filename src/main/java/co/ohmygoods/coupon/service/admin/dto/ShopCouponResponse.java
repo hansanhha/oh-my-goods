@@ -21,22 +21,22 @@ public record ShopCouponResponse(Long couponId,
                                  LocalDateTime couponStartDate,
                                  LocalDateTime couponEndDate) {
 
-    public static ShopCouponResponse from(Coupon issuedCoupon, Shop shop) {
+    public static ShopCouponResponse from(Coupon createdCoupon, Shop shop) {
         return new ShopCouponResponse(
-                issuedCoupon.getId(),
-                issuedCoupon.getIssuer().getEmail(),
+                createdCoupon.getId(),
+                createdCoupon.getIssuer().getEmail(),
                 shop.getId(),
                 shop.getName(),
-                issuedCoupon.getName(),
-                issuedCoupon.getCouponCode(),
-                issuedCoupon.getIssuanceTarget().name(),
-                issuedCoupon.getMaxIssuableQuantity(),
-                issuedCoupon.getMaxUsageQuantityPerAccount(),
-                issuedCoupon.getStatus().name(),
-                issuedCoupon.getDiscountType().name(),
-                issuedCoupon.getDiscountValue(),
-                issuedCoupon.getCreatedAt(),
-                issuedCoupon.getValidFrom(),
-                issuedCoupon.getValidUntil());
+                createdCoupon.getName(),
+                createdCoupon.getCouponCode(),
+                createdCoupon.getIssueTarget().name(),
+                createdCoupon.getMaxIssuableQuantity(),
+                createdCoupon.getMaximumQuantityPerAccount(),
+                createdCoupon.getStatus().name(),
+                createdCoupon.getDiscountType().name(),
+                createdCoupon.getDiscountValue(),
+                createdCoupon.getCreatedAt(),
+                createdCoupon.getValidFrom(),
+                createdCoupon.getValidUntil());
     }
 }

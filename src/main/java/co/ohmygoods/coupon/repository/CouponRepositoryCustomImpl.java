@@ -1,22 +1,27 @@
 package co.ohmygoods.coupon.repository;
 
+
 import co.ohmygoods.coupon.model.entity.Coupon;
-import co.ohmygoods.coupon.model.entity.CouponShopMapping;
+import co.ohmygoods.coupon.model.entity.QShopCouponHistory;
+import co.ohmygoods.coupon.model.entity.ShopCouponHistory;
 import co.ohmygoods.coupon.model.entity.QCoupon;
-import co.ohmygoods.coupon.model.entity.QCouponShopMapping;
 import co.ohmygoods.coupon.repository.expression.CouponOrder;
 import co.ohmygoods.coupon.repository.util.CouponRepositoryUtils;
 import co.ohmygoods.shop.model.entity.Shop;
+
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -24,7 +29,7 @@ public class CouponRepositoryCustomImpl implements CouponRepositoryCustom {
 
     private final JPAQueryFactory query;
     private final QCoupon coupon = QCoupon.coupon;
-    private final QCouponShopMapping couponShopMapping = QCouponShopMapping.couponShopMapping;
+    private final QShopCouponHistory shopCouponHistory = QShopCouponHistory.shopCouponHistory;
 
     @Override
     public Slice<Coupon> fetchAllByShop(Shop shop, Pageable pageable) {
@@ -52,7 +57,7 @@ public class CouponRepositoryCustomImpl implements CouponRepositoryCustom {
         return Optional.ofNullable(result);
     }
 
-    private JPQLQuery<CouponShopMapping> filterShopSubQuery(Shop shop) {
-        return JPAExpressions.select(couponShopMapping).where(couponShopMapping.applyTargetShop.id.eq(shop.getId()));
+    private JPQLQuery<ShopCouponHistory> filterShopSubQuery(Shop shop) {
+        return JPAExpressions.select(shopCouponHistory).where(shopCouponHistory.shop.id.eq(shop.getId()));
     }
 }

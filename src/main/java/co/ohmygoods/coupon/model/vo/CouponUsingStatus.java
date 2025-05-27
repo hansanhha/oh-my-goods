@@ -1,6 +1,6 @@
 package co.ohmygoods.coupon.model.vo;
 
-public enum CouponHistoryStatus {
+public enum CouponUsingStatus {
 
     ISSUED,
     USED;

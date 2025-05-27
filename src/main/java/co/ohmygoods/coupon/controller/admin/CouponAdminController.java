@@ -31,7 +31,7 @@ import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
 
 
 @Tag(name = "상점 쿠폰 관리", description = "관리자의 상점 쿠폰 관리 api")
-@RequestMapping("/api/admin/coupon")
+@RequestMapping("/api/admin/coupons")
 @RestController
 @RequiredArgsConstructor
 public class CouponAdminController {
@@ -47,7 +47,7 @@ public class CouponAdminController {
                                                   @PaginationOpenAPI.PageDescription @RequestParam(required = false, defaultValue = "0") int page,
                                                   @PaginationOpenAPI.SizeDescription @RequestParam(required = false, defaultValue = "20") int size) {
 
-        Slice<ShopCouponResponse> couponHistory = couponService.getShopCouponCreationHistory(account.memberId(), Pageable.ofSize(size).withPage(page));
+        Slice<ShopCouponResponse> couponHistory = couponService.getShopCouponCreateHistory(account.memberId(), Pageable.ofSize(size).withPage(page));
         return ResponseEntity.ok(couponHistory);
     }
 
@@ -66,13 +66,4 @@ public class CouponAdminController {
         return ResponseEntity.created(URI.create("")).body(Map.of("data", created));
     }
 
-    @Operation(summary = "판매자의 상점 쿠폰 삭제", description = "판매자가 상점 쿠폰을 삭제합니다")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "상점 쿠폰 삭제 완료")
-    })
-    @DeleteMapping("/{couponId}")
-    public void deleteShopCoupon(@AuthenticationPrincipal AuthenticatedAccount account,
-                                 @PathVariable Long couponId) {
-        couponService.destroyIssuingShopCoupon(account.memberId(), couponId);
-    }
 }

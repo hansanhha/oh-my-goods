@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class CouponShopMapping extends BaseEntity {
+public class ShopCouponHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,12 +19,12 @@ public class CouponShopMapping extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "apply_target_shop_id")
-    private Shop applyTargetShop;
+    private Shop shop;
 
-    public static CouponShopMapping toEntity(Coupon coupon, Shop shop) {
-        CouponShopMapping couponShopMapping = new CouponShopMapping();
-        couponShopMapping.coupon = coupon;
-        couponShopMapping.applyTargetShop = shop;
-        return couponShopMapping;
+    public static ShopCouponHistory toEntity(Coupon coupon, Shop shop) {
+        ShopCouponHistory shopCouponHistory = new ShopCouponHistory();
+        shopCouponHistory.coupon = coupon;
+        shopCouponHistory.shop = shop;
+        return shopCouponHistory;
     }
 }

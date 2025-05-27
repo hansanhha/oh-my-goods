@@ -2,7 +2,7 @@ package co.ohmygoods.coupon.controller.user;
 
 import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
 import co.ohmygoods.coupon.service.user.CouponService;
-import co.ohmygoods.coupon.service.user.dto.ApplicableIssuedCouponResponse;
+import co.ohmygoods.coupon.service.user.dto.CouponResponse;
 import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.global.swagger.IdempotencyOpenAPI;
 import co.ohmygoods.global.swagger.PaginationOpenAPI;
@@ -43,27 +43,20 @@ public class CouponController {
                                         @PaginationOpenAPI.PageDescription @RequestParam(required = false, defaultValue = "0") int page,
                                         @PaginationOpenAPI.SizeDescription @RequestParam(required = false, defaultValue = "20") int size) {
 
-        Slice<ApplicableIssuedCouponResponse> coupons;
-
-        if (productId > 0) {
-             coupons = couponService.getAllApplicableIssuedCoupons(account.memberId(), Pageable.ofSize(size).withPage(page));
-        } else {
-            coupons = couponService.getIssuedCouponsApplicableToProduct(account.memberId(), productId, Pageable.ofSize(size).withPage(page));
-        }
-
-        return ResponseEntity.ok(coupons);
+        if (productId > 0) return ResponseEntity.ok(couponService.getUsableCouponsOnTargetProduct(account.memberId(), productId));
+        else return ResponseEntity.ok(couponService.getUsableCoupons(account.memberId(), Pageable.ofSize(size).withPage(page)));
     }
 
     @Operation(summary = "쿠폰 발급", description = IdempotencyOpenAPI.message)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "쿠폰 발급 성공"),
     })
-    @PostMapping("/{couponId}/issue")
+    @PostMapping("/{couponId}")
     @Idempotent
     public void issueCoupon(@AuthenticationPrincipal AuthenticatedAccount account,
                             @IdempotencyOpenAPI.HeaderDescription @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                             @Parameter(name ="쿠폰 아이디", in = ParameterIn.PATH) @PathVariable("couponId")
                             @Positive(message = "올바르지 않은 쿠폰 id입니다") Long couponId) {
-        couponService.issueCoupon(account.memberId(), couponId);
+        couponService.issue(account.memberId(), couponId);
     }
 }

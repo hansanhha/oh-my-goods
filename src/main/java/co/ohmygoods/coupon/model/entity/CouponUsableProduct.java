@@ -1,13 +1,17 @@
 package co.ohmygoods.coupon.model.entity;
 
+
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.product.model.entity.Product;
+
 import jakarta.persistence.*;
+
 import lombok.Getter;
+
 
 @Entity
 @Getter
-public class CouponProductMapping extends BaseEntity {
+public class CouponUsableProduct extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,12 +23,12 @@ public class CouponProductMapping extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "apply_target_product_id")
-    private Product applyTargetProduct;
+    private Product product;
 
-    public static CouponProductMapping toEntity(Coupon coupon, Product applyTargetProduct) {
-        CouponProductMapping couponProductMapping = new CouponProductMapping();
-        couponProductMapping.coupon = coupon;
-        couponProductMapping.applyTargetProduct = applyTargetProduct;
-        return couponProductMapping;
+    public static CouponUsableProduct toEntity(Coupon coupon, Product applyTargetProduct) {
+        CouponUsableProduct couponUsableProduct = new CouponUsableProduct();
+        couponUsableProduct.coupon = coupon;
+        couponUsableProduct.product = applyTargetProduct;
+        return couponUsableProduct;
     }
 }

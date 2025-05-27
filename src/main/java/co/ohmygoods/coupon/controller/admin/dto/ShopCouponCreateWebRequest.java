@@ -40,10 +40,10 @@ public record ShopCouponCreateWebRequest(
 
         @Schema(description = "쿠폰 적용 대상 상품 제한 여부")
         @NotNull(message = "쿠폰 적용 대상 상품 제한 여부를 결정해주세요")
-        boolean isApplicableSpecificProducts,
+        boolean isSpecificProductsIssuable,
 
         @Schema(description = "쿠폰을 적용할 수 있는 상품의 아이디")
-        List<Long> applicableProductIds,
+        List<Long> issuableProductIds,
 
         @Schema(description = "쿠폰 이름")
         @NotEmpty(message = "올바르지 않은 쿠폰 이름입니다")
