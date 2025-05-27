@@ -1,6 +1,6 @@
 package co.ohmygoods.order.model.entity;
 
-import co.ohmygoods.coupon.model.entity.CouponHistory;
+import co.ohmygoods.coupon.model.entity.CouponUsingHistory;
 import co.ohmygoods.global.entity.BaseEntity;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.vo.OrderStatus;
@@ -35,7 +35,7 @@ public class OrderItem extends BaseEntity {
     private DeliveryAddress deliveryAddress;
 
     @OneToOne(mappedBy = "orderItem", orphanRemoval = true)
-    private CouponHistory couponHistory;
+    private CouponUsingHistory couponUsingHistory;
 
     @Column(nullable = false)
     private int orderQuantity;
@@ -83,7 +83,7 @@ public class OrderItem extends BaseEntity {
     }
 
     public void updatePurchaseQuantity(int quantity) {
-        if (quantity <= 0 || getProduct().isValidRequestQuantity(quantity)) {
+        if (quantity <= 0 || getProduct().isValidPurchaseQuantity(quantity)) {
             throw OrderException.INVALID_PURCHASE_QUANTITY;
         }
 
@@ -94,11 +94,8 @@ public class OrderItem extends BaseEntity {
         this.orderQuantity = quantity;
     }
 
-    public void updateCouponApplyingPurchasePrice(int productFinalPrice, int couponDiscountedPrice) {
-        if (productFinalPrice < 0 || couponDiscountedPrice < 0)
-            throw OrderException.INVALID_PURCHASE_AMOUNT;
-
-        this.purchasePrice = productFinalPrice;
+    public void updatePurchasePriceByCoupon(int couponDiscountedPrice) {
         this.couponDiscountPrice = couponDiscountedPrice;
+        this.purchasePrice -= couponDiscountedPrice;
     }
 }

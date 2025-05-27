@@ -1,10 +1,12 @@
 package co.ohmygoods.global.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 
 import java.net.URI;
 
+@Getter
 public abstract class DomainException extends RuntimeException {
 
     private final DomainError domainError;

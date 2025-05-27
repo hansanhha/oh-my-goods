@@ -61,7 +61,6 @@ public class CouponService {
         couponUsingHistoryRepository.save(couponUsingHistory);
     }
 
-    // 쿠폰 적용 및 최대 할인 금액 계산
     public int use(String memberId, Long orderItemId, Long couponId, int targetProductPrice) {
         Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
         OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow(OrderException::notFoundOrderItem);
@@ -75,11 +74,13 @@ public class CouponService {
             throw CouponException.COUPON_ALREADY_USED;
         }
 
+        // 쿠폰 최대 할인 금액
         int discountedPrice = CouponDiscountCalculator
                 .calculate(coupon.getDiscountType(), coupon.getDiscountValue(), coupon.getMaxDiscountPrice(), targetProductPrice);
+
         couponUsingHistory.used(orderItem);
 
-        return discountedPrice;
+        return targetProductPrice - discountedPrice;
     }
 
     public void restoreUsedCoupon(List<Long> couponHistoryIds) {

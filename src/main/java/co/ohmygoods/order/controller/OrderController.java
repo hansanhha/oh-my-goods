@@ -1,24 +1,30 @@
 package co.ohmygoods.order.controller;
 
+
 import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
 import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.global.swagger.IdempotencyOpenAPI;
 import co.ohmygoods.global.swagger.PaginationOpenAPI;
 import co.ohmygoods.order.controller.dto.OrderCheckoutWebRequest;
-import co.ohmygoods.order.service.OrderManagementService;
-import co.ohmygoods.order.service.OrderTransactionService;
+import co.ohmygoods.order.service.OrderQueryService;
+import co.ohmygoods.order.service.OrderProcessingService;
 import co.ohmygoods.order.service.dto.OrderCheckoutRequest;
 import co.ohmygoods.order.service.dto.OrderCheckoutResponse;
 import co.ohmygoods.order.service.dto.OrderItemDetailResponse;
 import co.ohmygoods.order.service.dto.OrderItemResponse;
 import co.ohmygoods.payment.model.vo.PaymentAPIProvider;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +32,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
+
 
 @Tag(name = "주문", description = "주문 관련 api")
 @RequestMapping("/api/orders")
@@ -36,8 +41,8 @@ import static co.ohmygoods.global.idempotency.aop.Idempotent.IDEMPOTENCY_HEADER;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderManagementService orderManagementService;
-    private final OrderTransactionService orderTransactionService;
+    private final OrderQueryService orderQueryService;
+    private final OrderProcessingService orderProcessingService;
 
     @Operation(summary = "사용자 주문 내역 조회", description = "사용자의 주문 내역을 최신순으로 조회합니다")
     @ApiResponses(value = {
@@ -47,7 +52,7 @@ public class OrderController {
     public ResponseEntity<?> getOrders(@AuthenticationPrincipal AuthenticatedAccount account,
                                        @PaginationOpenAPI.PageDescription @RequestParam(required = false, defaultValue = "0") int page,
                                        @PaginationOpenAPI.SizeDescription @RequestParam(required = false, defaultValue = "20") int size) {
-        Slice<OrderItemResponse> orders = orderManagementService.getOrders(account.memberId(), Pageable.ofSize(size).withPage(page));
+        Slice<OrderItemResponse> orders = orderQueryService.getOrders(account.memberId(), Pageable.ofSize(size).withPage(page));
         return ResponseEntity.ok(orders);
     }
 
@@ -57,7 +62,7 @@ public class OrderController {
     })
     @GetMapping("/{orderItemId}")
     public ResponseEntity<?> getOrder(@Parameter(in = ParameterIn.PATH, name = "조회할 주문 아이디") @PathVariable Long orderItemId) {
-        OrderItemDetailResponse order = orderManagementService.getOrder(orderItemId);
+        OrderItemDetailResponse order = orderQueryService.getOrder(orderItemId);
         return ResponseEntity.ok(order);
     }
 
@@ -74,14 +79,16 @@ public class OrderController {
         List<OrderCheckoutRequest.OrderProductDetail> orderProductDetails = request.orderDetails().stream()
                 .map(detail -> new OrderCheckoutRequest.OrderProductDetail(
                         detail.productId(), detail.PurchaseQuantity(),
-                        detail.isAppliedCoupon() != null ? detail.isAppliedCoupon() : false,
-                        detail.appliedCouponId() != null ? detail.appliedCouponId() : -1))
+                        detail.isUsingCoupon() != null ? detail.isUsingCoupon() : false,
+                        detail.couponId() != null ? detail.couponId() : -1))
                 .toList();
 
         OrderCheckoutRequest orderCheckoutRequest = new OrderCheckoutRequest(account.memberId(), orderProductDetails,
                 PaymentAPIProvider.valueOf(request.orderPaymentMethod().name().toUpperCase()), request.deliveryAddressId(), request.totalOrderPrice());
 
-        OrderCheckoutResponse checkoutResponse = orderTransactionService.checkout(orderCheckoutRequest);
-        return ResponseEntity.ok(checkoutResponse);
+        OrderCheckoutResponse checkoutResponse = orderProcessingService.checkout(orderCheckoutRequest);
+
+        if (checkoutResponse.isSuccessful()) return ResponseEntity.ok(checkoutResponse);
+        else return ResponseEntity.badRequest().body(checkoutResponse);
     }
 }

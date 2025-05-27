@@ -5,7 +5,7 @@ import co.ohmygoods.payment.model.vo.PaymentStatus;
 
 import java.time.LocalDateTime;
 
-public record PaymentStartResult(boolean isStartSuccess,
+public record PaymentStartResult(boolean isSuccessful,
                                  String accountEmail,
                                  Long paymentId,
                                  int paymentAmount,

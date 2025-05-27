@@ -2,7 +2,7 @@ package co.ohmygoods.order.service.dto;
 
 import java.time.LocalDateTime;
 
-public record OrderCheckoutResponse(boolean isOrderSuccess,
+public record OrderCheckoutResponse(boolean isSuccessful,
                                     String nextProcessingURI,
                                     String orderTransactionId,
                                     String orderFailureCauseMessage,

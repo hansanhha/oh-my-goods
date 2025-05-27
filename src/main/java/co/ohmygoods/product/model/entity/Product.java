@@ -92,6 +92,13 @@ public class Product extends BaseEntity {
         this.customCategories = productCustomCategoryMappings;
     }
 
+    public boolean isDiscounted() {
+        LocalDateTime now = LocalDateTime.now();
+
+        return discountStartDate != null && discountEndDate != null
+                && now.isAfter(discountStartDate) && now.isBefore(discountEndDate) && discountRate > 0;
+    }
+
     public int calculateActualPrice() {
         double discountPrice = originalPrice - (originalPrice * (double) discountRate / 100);
         BigDecimal halfUpDiscountPrice = BigDecimal.valueOf(discountPrice).setScale(0, RoundingMode.HALF_UP);
@@ -140,7 +147,7 @@ public class Product extends BaseEntity {
         this.discountEndDate = discountEndDate;
     }
 
-    public boolean isValidRequestQuantity(int quantity) {
+    public boolean isValidPurchaseQuantity(int quantity) {
         return purchaseMaximumQuantity >= quantity && remainingQuantity >= quantity;
     }
 
@@ -152,14 +159,14 @@ public class Product extends BaseEntity {
     public void decrease(int quantity) {
         validateSaleStatus();
 
-        if (!isValidRequestQuantity(quantity)) {
+        if (!isValidPurchaseQuantity(quantity)) {
             throw ProductException.EXCEED_PURCHASE_PRODUCT_MAX_LIMIT;
         }
 
         remainingQuantity -= quantity;
 
         if (remainingQuantity < 0) {
-            throw ProductException.EXCEED_PURCHASE_PRODUCT_MAX_LIMIT;
+            throw ProductException.NOT_ENOUGH_STOCK;
         }
     }
 

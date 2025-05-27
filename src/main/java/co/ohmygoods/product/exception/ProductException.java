@@ -34,11 +34,4 @@ public class ProductException extends DomainException {
         return NOT_FOUND_CATEGORY;
     }
 
-    public static boolean isOutOfStockException(ProductException e) {
-        return ProductError.NOT_ENOUGH_STOCK.getErrorCode().equals(e.getErrorCode());
-    }
-
-    public static boolean isNotSalesStatusException(ProductException e) {
-        return ProductError.NOT_SALES_STATUS.getErrorCode().equals(e.getErrorCode());
-    }
 }

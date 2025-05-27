@@ -3,7 +3,6 @@ package co.ohmygoods.order.service;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.entity.OrderItem;
 import co.ohmygoods.order.repository.OrderItemRepository;
-import co.ohmygoods.order.repository.OrderRepository;
 import co.ohmygoods.order.service.dto.OrderItemDetailResponse;
 import co.ohmygoods.order.service.dto.OrderItemResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class OrderManagementService {
+public class OrderQueryService {
 
     private final OrderItemRepository orderItemRepository;
 

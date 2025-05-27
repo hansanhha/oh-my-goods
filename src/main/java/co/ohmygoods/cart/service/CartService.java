@@ -50,7 +50,7 @@ public class CartService {
         Cart cart = cartRepository.findById(request.cartId()).orElseThrow(CartException::notFoundCart);
         Product product = cart.getProduct();
 
-        if (product.isValidRequestQuantity(request.updateQuantity())) {
+        if (product.isValidPurchaseQuantity(request.updateQuantity())) {
             throw CartException.EXCEED_PRODUCT_MAX_LIMIT;
         }
 

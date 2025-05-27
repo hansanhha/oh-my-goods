@@ -1,11 +1,13 @@
 package co.ohmygoods.order.repository;
 
+
 import co.ohmygoods.order.model.entity.Order;
-import org.springframework.data.domain.Pageable;
+
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.Optional;
 
 public interface OrderRepository extends CrudRepository<Order, Long> {
 
@@ -15,15 +17,11 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
             "WHERE o.transactionId = :transactionId")
     Optional<Order> fetchAccountByTransactionId(String transactionId);
 
+
     @Query("SELECT o " +
             "FROM Order o " +
-            "JOIN FETCH o.account " +
-            "JOIN FETCH o.orderItems oi " +
-            "JOIN FETCH Product p ON oi.product = p " +
-            "WHERE o.id = :orderId")
-    Optional<Order> fetchOrderItemsAndProductById(Long orderId);
-
-    @Query("SELECT o FROM Order o JOIN o.payment p WHERE p.id = :paymentId")
-    Optional<Order> findByPaymentId(Long paymentId);
+            "JOIN FETCH o.orderItems " +
+            "JOIN o.payment p ON p.id = :paymentId")
+    Optional<Order> fetchOrderItemsByPaymentId(Long paymentId);
 
 }

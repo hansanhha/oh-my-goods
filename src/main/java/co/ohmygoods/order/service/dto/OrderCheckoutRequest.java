@@ -20,8 +20,8 @@ public record OrderCheckoutRequest(String orderAccountEmail,
 
     public record OrderProductDetail(Long productId,
                                      int purchaseQuantity,
-                                     boolean isAppliedCoupon,
-                                     Long appliedCouponId) {
+                                     boolean isUsingCoupon,
+                                     Long couponId) {
     }
 
 }

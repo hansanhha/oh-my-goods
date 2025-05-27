@@ -35,10 +35,10 @@ public record OrderCheckoutWebRequest(
             int PurchaseQuantity,
 
             @Schema(description = "쿠폰 적용 여부")
-            Boolean isAppliedCoupon,
+            Boolean isUsingCoupon,
 
             @Schema(description = "적용할 쿠폰 아이디")
-            Long appliedCouponId) {
+            Long couponId) {
     }
 
     public enum AllowedOrderCheckoutPaymentMethod {
