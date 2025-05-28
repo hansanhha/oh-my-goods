@@ -17,5 +17,5 @@ public interface ReviewRepository extends CrudRepository<Review, Long> {
             "FROM Review r " +
             "JOIN FETCH r.reviewer " +
             "WHERE r.product.id = :productId")
-    Slice<Review> fetchReviewerAllByProductId(Long productId, Pageable pageable);
+    Slice<Review> fetchAllReviwerByProductId(Long productId, Pageable pageable);
 }

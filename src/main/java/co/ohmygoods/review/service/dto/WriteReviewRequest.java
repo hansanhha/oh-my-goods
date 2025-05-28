@@ -9,6 +9,6 @@ public record WriteReviewRequest(String reviewOrderNumber,
                                  String memberId,
                                  String reviewContent,
                                  int reviewStarRating,
-                                 List<MultipartFile> reviewImages,
+                                 List<MultipartFile> images,
                                  StorageStrategy storageStrategy) {
 }

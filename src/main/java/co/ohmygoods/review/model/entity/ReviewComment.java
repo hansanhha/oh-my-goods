@@ -33,11 +33,11 @@ public class ReviewComment extends LikeBaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    public static ReviewComment write(Review review, Account account, String content) {
+    public static ReviewComment create(Review review, Account account, String content) {
         return new ReviewComment(0L, review, account, null, content);
     }
 
-    public static ReviewComment reply(ReviewComment reviewComment, Account account, String content) {
+    public static ReviewComment create(ReviewComment reviewComment, Account account, String content) {
         return new ReviewComment(0L, reviewComment.getReview(), account, reviewComment, content);
     }
 

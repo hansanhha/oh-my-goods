@@ -38,7 +38,7 @@ public class Review extends LikeBaseEntity {
     @Column(nullable = false)
     private int starRating;
 
-    public static Review write(OrderItem orderItem, Product product, Account reviewer, String content, int starRating) {
+    public static Review create(OrderItem orderItem, Product product, Account reviewer, String content, int starRating) {
         if (starRating <= 0) {
             starRating = 1;
         } else if (starRating > 5) {

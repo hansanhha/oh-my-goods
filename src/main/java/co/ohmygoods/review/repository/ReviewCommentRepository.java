@@ -12,12 +12,12 @@ public interface ReviewCommentRepository extends CrudRepository<ReviewComment, L
             "FROM ReviewComment rc " +
             "JOIN FETCH rc.account " +
             "WHERE rc.review.id = :reviewId")
-    Slice<ReviewComment> fetchWriterAllByReviewId(Long reviewId, Pageable pageable);
+    Slice<ReviewComment> fetchAllWriterByReviewId(Long reviewId, Pageable pageable);
 
     @Query("SELECT rc " +
             "FROM ReviewComment rc " +
             "JOIN FETCH rc.account " +
             "WHERE rc.review.id = :reviewId " +
             "AND rc.parentReviewComment.id = :reviewCommentId")
-    Slice<ReviewComment> fetchWriterAllByReviewIdAndReviewCommentId(Long reviewId, Long reviewCommentId, Pageable pageable);
+    Slice<ReviewComment> fetchAllWriterByReviewIdAndReviewCommentId(Long reviewId, Long reviewCommentId, Pageable pageable);
 }

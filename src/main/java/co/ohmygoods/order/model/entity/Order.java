@@ -91,6 +91,6 @@ public class Order extends BaseEntity {
     }
 
     public boolean isOrderer(Account account) {
-        return this.account.getEmail().equals(account.getEmail());
+        return this.account.getMemberId().equals(account.getMemberId());
     }
 }

@@ -1,10 +1,10 @@
 package co.ohmygoods.review.service;
 
+
 import co.ohmygoods.auth.account.model.entity.Account;
 import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.auth.exception.AuthException;
 import co.ohmygoods.global.file.model.vo.StorageStrategy;
-import co.ohmygoods.global.file.service.FileService;
 import co.ohmygoods.order.exception.OrderException;
 import co.ohmygoods.order.model.entity.OrderItem;
 import co.ohmygoods.order.repository.OrderItemRepository;
@@ -12,59 +12,51 @@ import co.ohmygoods.review.exception.ReviewException;
 import co.ohmygoods.review.model.entity.Review;
 import co.ohmygoods.review.model.entity.ReviewComment;
 import co.ohmygoods.review.repository.ReviewCommentRepository;
-import co.ohmygoods.review.repository.ReviewImageInfoRepository;
 import co.ohmygoods.review.repository.ReviewRepository;
 import co.ohmygoods.review.service.dto.ReviewCommentResponse;
 import co.ohmygoods.review.service.dto.ReviewResponse;
 import co.ohmygoods.review.service.dto.UpdateReviewRequest;
 import co.ohmygoods.review.service.dto.WriteReviewRequest;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final FileService fileService;
     private final ReviewImageService reviewImageService;
     private final AccountRepository accountRepository;
     private final OrderItemRepository orderItemRepository;
     private final ReviewRepository reviewRepository;
-    private final ReviewImageInfoRepository reviewImageInfoRepository;
     private final ReviewCommentRepository reviewCommentRepository;
 
-    public List<ReviewResponse> getReviews(Long productId, Pageable pageable) {
-        Slice<Review> reviews = reviewRepository.fetchReviewerAllByProductId(productId, pageable);
+    public Slice<ReviewResponse> getReviews(Long productId, Pageable pageable) {
+        Slice<Review> reviews = reviewRepository.fetchAllReviwerByProductId(productId, pageable);
 
-        return reviews.stream()
-                .map(review -> ReviewResponse.from(productId, review))
-                .toList();
+        return reviews.map(ReviewResponse::from);
     }
 
-    public List<ReviewCommentResponse> getReviewComments(Long reviewId, Pageable pageable) {
-        Slice<ReviewComment> reviewComments = reviewCommentRepository.fetchWriterAllByReviewId(reviewId, pageable);
+    public Slice<ReviewCommentResponse> getReviewComments(Long reviewId, Pageable pageable) {
+        Slice<ReviewComment> reviewComments = reviewCommentRepository.fetchAllWriterByReviewId(reviewId, pageable);
 
-        return reviewComments.stream()
-                .map(reviewComment -> ReviewCommentResponse.from(reviewId, 0L, reviewComment))
-                .toList();
+        return reviewComments.map(rc -> ReviewCommentResponse.from(reviewId, 0L, rc));
     }
 
-    public List<ReviewCommentResponse> getReviewReplyComments(Long reviewId, Long reviewCommentId, Pageable pageable) {
+    public Slice<ReviewCommentResponse> getReviewReplyComments(Long reviewId, Long reviewCommentId, Pageable pageable) {
         Slice<ReviewComment> reviewComments =
-                reviewCommentRepository.fetchWriterAllByReviewIdAndReviewCommentId(reviewId, reviewCommentId, pageable);
+                reviewCommentRepository.fetchAllWriterByReviewIdAndReviewCommentId(reviewId, reviewCommentId, pageable);
 
-        return reviewComments.stream()
-                .map(reviewComment -> ReviewCommentResponse.from(reviewId, reviewCommentId, reviewComment))
-                .toList();
+        return reviewComments.map(reviewComment -> ReviewCommentResponse.from(reviewId, reviewCommentId, reviewComment));
     }
 
-    public void writeReview(WriteReviewRequest request) {
+    public Long writeReview(WriteReviewRequest request) {
         Account account = accountRepository.findByMemberId(request.memberId()).orElseThrow(AuthException::notFoundAccount);
         OrderItem orderItem = orderItemRepository.fetchProductByOrderNumber(request.reviewOrderNumber()).orElseThrow(OrderException::notFoundOrderItem);
 
@@ -80,14 +72,14 @@ public class ReviewService {
             throw ReviewException.INVALID_AUTHORITY_WRITE_REVIEW;
         }
 
-        Review savedReview = Review.write(orderItem, orderItem.getProduct(), account, request.reviewContent(), request.reviewStarRating());
+        Review savedReview = Review.create(orderItem, orderItem.getProduct(), account, request.reviewContent(), request.reviewStarRating());
 
-        // 리뷰 이미지 업로드
-        if (!request.reviewImages().isEmpty()) {
-            reviewImageService.upload(savedReview.getId(), account.getEmail(), request.storageStrategy(), request.reviewImages());
+        if (!request.images().isEmpty()) {
+            reviewImageService.upload(savedReview, account.getEmail(), request.storageStrategy(), request.images());
         }
 
-        reviewRepository.save(savedReview);
+        Review review = reviewRepository.save(savedReview);
+        return review.getId();
     }
 
     public void updateReview(UpdateReviewRequest request) {
@@ -103,39 +95,38 @@ public class ReviewService {
         if (request.isUpdatedReviewImages()) {
 
             // 기존 리뷰 이미지 삭제
-            reviewImageService.delete(review.getId());
+            reviewImageService.delete(review);
 
             // 새 리뷰 이미지 업로드
             if (!request.updateReviewImages().isEmpty()) {
-                reviewImageService.upload(review.getId(), account.getEmail(), StorageStrategy.CLOUD_STORAGE_API, request.updateReviewImages());
+                reviewImageService.upload(review, account.getEmail(), StorageStrategy.CLOUD_STORAGE_API, request.updateReviewImages());
             }
         }
     }
 
-    public void deleteReview(Long reviewId, String reviewerEmail) {
+    public void deleteReview(Long reviewId, String memberId) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(ReviewException::notFoundReview);
-        Account account = accountRepository.findByEmail(reviewerEmail).orElseThrow(AuthException::notFoundAccount);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
         if (review.isNotReviewer(account)) {
             throw ReviewException.INVALID_AUTHORITY_WRITE_REVIEW;
         }
 
         reviewRepository.delete(review);
-        reviewImageService.delete(reviewId);
+        reviewImageService.delete(review);
     }
 
     public void writeReviewComment(Long reviewId, String memberId, String reviewCommentContent) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(ReviewException::notFoundReview);
         Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
-        ReviewComment reviewComment = ReviewComment.write(review, account, reviewCommentContent);
+        ReviewComment reviewComment = ReviewComment.create(review, account, reviewCommentContent);
 
         reviewCommentRepository.save(reviewComment);
     }
 
     public void updateReviewComment(Long reviewCommentId, String memberId, String updateCommentContent) {
         ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId).orElseThrow(ReviewException::notFoundReview);
-
         Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
         if (!reviewComment.isNotReviewCommenter(account)) {
@@ -145,9 +136,9 @@ public class ReviewService {
         reviewComment.update(updateCommentContent);
     }
 
-    public void deleteReviewComment(Long reviewCommentId, String reviewCommenterEmail) {
+    public void deleteReviewComment(Long reviewCommentId, String memberId) {
         ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId).orElseThrow(ReviewException::notFoundReview);
-        Account account = accountRepository.findByEmail(reviewCommenterEmail).orElseThrow(AuthException::notFoundAccount);
+        Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
         if (reviewComment.isNotReviewCommenter(account)) {
             throw ReviewException.INVALID_AUTHORITY_WRITE_REVIEW_COMMENT;
@@ -160,9 +151,9 @@ public class ReviewService {
         ReviewComment reviewComment = reviewCommentRepository.findById(reviewCommentId).orElseThrow(ReviewException::notFoundReviewComment);
         Account account = accountRepository.findByMemberId(memberId).orElseThrow(AuthException::notFoundAccount);
 
-        ReviewComment reply = ReviewComment.reply(reviewComment, account, reviewReplyCommentContent);
+        ReviewComment replyComment = ReviewComment.create(reviewComment, account, reviewReplyCommentContent);
 
-        reviewCommentRepository.save(reply);
+        reviewCommentRepository.save(replyComment);
     }
 
 }

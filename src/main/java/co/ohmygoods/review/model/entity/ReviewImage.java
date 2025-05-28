@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ReviewImageInfo extends BaseEntity {
+public class ReviewImage extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,8 +41,8 @@ public class ReviewImageInfo extends BaseEntity {
     @Column(nullable = false)
     private String contentType;
 
-    public static ReviewImageInfo create(UUID imageId, int order, Review review, MultipartFile file) {
-        return new ReviewImageInfo(0L, imageId, order, review, file.getName(), file.getOriginalFilename(),
+    public static ReviewImage create(int order, Review review, MultipartFile file) {
+        return new ReviewImage(0L, UUID.randomUUID(), order, review, file.getName(), file.getOriginalFilename(),
                 null, file.getSize(), file.getContentType());
     }
 }
