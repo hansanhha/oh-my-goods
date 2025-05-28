@@ -7,9 +7,8 @@ import co.ohmygoods.global.swagger.IdempotencyOpenAPI;
 import co.ohmygoods.global.swagger.PaginationOpenAPI;
 import co.ohmygoods.product.service.admin.ProductAdminService;
 import co.ohmygoods.product.service.admin.dto.ProductAdminResponse;
-import co.ohmygoods.product.service.admin.dto.ProductMetadataUpdateRequest;
-import co.ohmygoods.product.controller.admin.dto.ProductRegisterWebRequest;
-import co.ohmygoods.product.controller.admin.dto.ProductMetadataUpdateWebRequest;
+import co.ohmygoods.product.controller.admin.dto.RegisterProductWebRequest;
+import co.ohmygoods.product.controller.admin.dto.UpdateProductMetadataWebRequest;
 
 import co.ohmygoods.product.service.admin.dto.ProductSearchCondition;
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,7 +64,7 @@ public class ProductAdminController {
     @Idempotent
     public ResponseEntity<ProductAdminResponse> registerProduct(@AuthenticationPrincipal AuthenticatedAccount account,
                                                                 @IdempotencyOpenAPI.HeaderDescription @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                                                                @RequestBody @Validated ProductRegisterWebRequest request) {
+                                                                @RequestBody @Validated RegisterProductWebRequest request) {
 
         long productId = productAdminService.registerProduct(request.toServiceDTO(account.memberId()));
         return ResponseEntity.created(URI.create("/api/products/".concat(String.valueOf(productId)))).build();
@@ -80,7 +79,7 @@ public class ProductAdminController {
     public ResponseEntity<ProductAdminResponse> updateProductMetadata(@AuthenticationPrincipal AuthenticatedAccount account,
                                                    @IdempotencyOpenAPI.HeaderDescription @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
                                                    @Parameter(name = "수정할 상품 아이디", in = ParameterIn.PATH) @PathVariable Long productId,
-                                                   @RequestBody @Validated ProductMetadataUpdateWebRequest request) {
+                                                   @RequestBody @Validated UpdateProductMetadataWebRequest request) {
 
         return ResponseEntity.ok(productAdminService.updateProduct(request.toServiceDto(account.memberId(), productId)));
     }

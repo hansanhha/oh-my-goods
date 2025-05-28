@@ -54,7 +54,7 @@ public class ProductAdminService {
         return new CustomCategoryResponse(customCategory.getId(), customCategory.getName());
     }
 
-    public long registerProduct(ProductRegisterRequest request) {
+    public long registerProduct(RegisterProductRequest request) {
         Shop shop = shopRepository.findByAdminMemberId(request.adminMemberId()).orElseThrow(ShopException::notFoundShop);
 
         ProductStockStatus stockStatus = request.isImmediatelySale() ? ProductStockStatus.ON_SALES : ProductStockStatus.TO_BE_SOLD;
@@ -98,7 +98,7 @@ public class ProductAdminService {
         return product.getId();
     }
 
-    public ProductAdminResponse updateProduct(ProductMetadataUpdateRequest request) {
+    public ProductAdminResponse updateProduct(UpdateProductMetadataRequest request) {
         var shop = shopRepository.findByAdminMemberId(request.ownerMemberId()).orElseThrow(ShopException::notFoundShop);
         var product = productRepository.findById(request.updateProductId()).orElseThrow(ProductException::notFoundProduct);
 

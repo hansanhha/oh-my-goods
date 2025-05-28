@@ -3,14 +3,14 @@ package co.ohmygoods.product.controller.admin.dto;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductSubCategory;
 import co.ohmygoods.product.model.vo.ProductType;
-import co.ohmygoods.product.service.admin.dto.ProductMetadataUpdateRequest;
+import co.ohmygoods.product.service.admin.dto.UpdateProductMetadataRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-public record ProductMetadataUpdateWebRequest(
+public record UpdateProductMetadataWebRequest(
 
         @Schema(description = "수정된 상품 이름")
         @NotEmpty(message = "올바르지 않은 상품 이름입니다")
@@ -38,8 +38,8 @@ public record ProductMetadataUpdateWebRequest(
         @Schema(description = "수정된 상품 이미지")
         MultipartFile[] updateProductImages) {
 
-        public ProductMetadataUpdateRequest toServiceDto(String memberId, Long productId) {
-                return new ProductMetadataUpdateRequest(
+        public UpdateProductMetadataRequest toServiceDto(String memberId, Long productId) {
+                return new UpdateProductMetadataRequest(
                         memberId,
                         productId,
                         updateProductName(),

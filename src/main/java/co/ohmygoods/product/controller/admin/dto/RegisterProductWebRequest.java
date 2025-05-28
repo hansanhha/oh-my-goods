@@ -4,7 +4,7 @@ package co.ohmygoods.product.controller.admin.dto;
 import co.ohmygoods.product.model.vo.ProductMainCategory;
 import co.ohmygoods.product.model.vo.ProductSubCategory;
 import co.ohmygoods.product.model.vo.ProductType;
-import co.ohmygoods.product.service.admin.dto.ProductRegisterRequest;
+import co.ohmygoods.product.service.admin.dto.RegisterProductRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import jakarta.validation.constraints.NotEmpty;
@@ -18,7 +18,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 
-public record ProductRegisterWebRequest(
+public record RegisterProductWebRequest(
 
         @Schema(description = "상품 유형")
         @NotEmpty(message = "올바르지 않은 상품 유형입니다")
@@ -69,8 +69,8 @@ public record ProductRegisterWebRequest(
         @Schema(description = "상품 판매 시작 기간")
         LocalDateTime productExpectedSaleDate) {
 
-        public ProductRegisterRequest toServiceDTO(String adminMemberId) {
-                return new ProductRegisterRequest(
+        public RegisterProductRequest toServiceDTO(String adminMemberId) {
+                return new RegisterProductRequest(
                         adminMemberId,
                         ProductType.valueOf(productType()),
                         ProductMainCategory.valueOf(productMainCategory().toUpperCase()),
