@@ -4,9 +4,9 @@ package co.ohmygoods.shop.controller.admin;
 import co.ohmygoods.auth.account.model.vo.AuthenticatedAccount;
 import co.ohmygoods.global.idempotency.aop.Idempotent;
 import co.ohmygoods.global.swagger.IdempotencyOpenAPI;
-import co.ohmygoods.shop.controller.admin.dto.ShopCreateWebRequest;
+import co.ohmygoods.shop.controller.admin.dto.CreateShopWebRequest;
 import co.ohmygoods.shop.service.admin.AdminShopService;
-import co.ohmygoods.shop.service.admin.dto.ShopCreateRequest;
+import co.ohmygoods.shop.service.admin.dto.CreateShopRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -38,9 +38,9 @@ public class ShopAdminController {
     @Idempotent
     public Long createShop(@AuthenticationPrincipal AuthenticatedAccount account,
                            @IdempotencyOpenAPI.HeaderDescription @RequestHeader(IDEMPOTENCY_HEADER) String idempotencyKey,
-                           @RequestBody @Validated ShopCreateWebRequest request) {
+                           @RequestBody @Validated CreateShopWebRequest request) {
 
-        return adminShopService.createShop(new ShopCreateRequest(account.memberId(),
+        return adminShopService.createShop(new CreateShopRequest(account.memberId(),
                 request.createShopName(), request.createShopIntroduction()));
     }
 

@@ -5,7 +5,7 @@ import co.ohmygoods.auth.account.repository.AccountRepository;
 import co.ohmygoods.shop.service.admin.AdminShopService;
 import co.ohmygoods.shop.model.entity.Shop;
 import co.ohmygoods.shop.repository.ShopRepository;
-import co.ohmygoods.shop.service.admin.dto.ShopCreateRequest;
+import co.ohmygoods.shop.service.admin.dto.CreateShopRequest;
 import co.ohmygoods.shop.model.vo.ShopStatus;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,12 +39,12 @@ class AdminShopServiceTest {
     @Mock
     private Account mockAccount;
 
-    private ShopCreateRequest shopCreateRequest;
+    private CreateShopRequest createShopRequest;
     private static final String MOCK_ACCOUNT_EMAIL = "mockAccount@test.com";
 
     @BeforeEach
     void init() {
-        shopCreateRequest = new ShopCreateRequest("testEmail", "testShop", "testShopIntroduction");
+        createShopRequest = new CreateShopRequest("testEmail", "testShop", "testShopIntroduction");
     }
 
     @Test
@@ -63,7 +63,7 @@ class AdminShopServiceTest {
         when(mockShop.getId())
                 .thenReturn(shopId);
 
-        var createdShopId = adminShopService.createShop(shopCreateRequest);
+        var createdShopId = adminShopService.createShop(createShopRequest);
 
         then(shopRepository).should(times(1)).findByName(anyString());
         then(accountRepository).should(times(1)).findByEmail(anyString());

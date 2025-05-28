@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 
 
-public record ShopCreateWebRequest(
+public record CreateShopWebRequest(
 
         @Schema(description = "상점 이름")
         @NotEmpty(message = "올바르지 않은 상점 이름입니다")
