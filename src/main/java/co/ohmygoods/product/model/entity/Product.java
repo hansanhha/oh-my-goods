@@ -92,6 +92,10 @@ public class Product extends BaseEntity {
         this.customCategories = productCustomCategories;
     }
 
+    public int getOrderableQuantity() {
+        return purchaseMaximumQuantity >= remainingQuantity ? remainingQuantity : purchaseMaximumQuantity;
+    }
+
     public boolean isDiscounted() {
         LocalDateTime now = LocalDateTime.now();
 
@@ -148,16 +152,16 @@ public class Product extends BaseEntity {
     }
 
     public boolean isValidPurchaseQuantity(int quantity) {
-        return purchaseMaximumQuantity >= quantity && remainingQuantity >= quantity;
+        return quantity <= 0 && purchaseMaximumQuantity >= quantity && remainingQuantity >= quantity;
     }
 
-    public void validateSaleStatus() {
+    public void validateOnSaleStatus() {
         if (stockStatus.equals(ProductStockStatus.ON_SALES))
             throw ProductException.NOT_SALES_STATUS;
     }
 
     public void decrease(int quantity) {
-        validateSaleStatus();
+        validateOnSaleStatus();
 
         if (!isValidPurchaseQuantity(quantity)) {
             throw ProductException.EXCEED_PURCHASE_PRODUCT_MAX_LIMIT;

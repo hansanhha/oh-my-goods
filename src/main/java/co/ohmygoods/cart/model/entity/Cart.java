@@ -27,7 +27,7 @@ public class Cart extends BaseEntity {
 
     private int originalPriceWhenPutIn;
 
-    public static Cart toEntity(Product product, Account account) {
+    public static Cart create(Product product, Account account) {
         var cart = new Cart();
         cart.product = product;
         cart.account = account;
